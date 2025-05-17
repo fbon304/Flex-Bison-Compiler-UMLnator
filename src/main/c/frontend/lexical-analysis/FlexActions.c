@@ -64,6 +64,21 @@ Token IntegerLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	return INTEGER;
 }
 
+Token IdLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	size_t len = strlen(lexicalAnalyzerContext->lexeme);
+    char *copy = malloc(len + 1);
+    if (!copy) {
+        logError(_logger, "IdLexemeAction: out of memory allocating %zu bytes\n", len + 1);
+        destroyLexicalAnalyzerContext(lexicalAnalyzerContext);
+        exit(EXIT_FAILURE);
+    }
+    strcpy(copy, LexicalAnalyzerContext->lexeme);
+    lexicalAnalyzerContext->semanticValue->id = copy;
+    destroyLexicalAnalyzerContext(LexicalAnalyzerContext);
+    return ID;
+}
+
 Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = token;
@@ -85,11 +100,27 @@ Token SemicolonLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Tok
 	return token;
 }
 
+Token ConstraintLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->token = token;
+	destroyLexicalAnalyzerContext(lexicalAnalyzerContext);
+	return token;
+}
+
+Token BooleanLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->token = token;
+	destroyLexicalAnalyzerContext(lexicalAnalyzerContext);
+	return token;
+}
+
 Token UnknownLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	destroyLexicalAnalyzerContext(lexicalAnalyzerContext);
 	return UNKNOWN;
 }
+
+
 
 /*
 Token ArithmeticOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token) {

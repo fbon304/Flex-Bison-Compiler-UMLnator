@@ -10,6 +10,7 @@
 #include "LexicalAnalyzerContext.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /** Initialize module's internal state. */
 void initializeFlexActionsModule();
@@ -25,10 +26,17 @@ void BeginMultilineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerC
 void EndMultilineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 void IgnoredLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
-Token ArithmeticOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
 Token IntegerLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token IdLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+
 Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
+Token ComaLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
+Token SemicolonLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
+Token ConstraintLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
+Token BooleanLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
 
 Token UnknownLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+
+//Token ArithmeticOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
 
 #endif

@@ -16,14 +16,13 @@
 
 	/** Non-terminals. */
 
+	Tables * tables;
 	Type * type;
 	DefaultValue * default_value;
 	ConstraintValue * constraint_value;
 	BooleanExpression * boolean_expression;
 	Constraint * constraint;
-	Constant * constant;
 	Expression * expression;
-	Factor * factor;
 	Program * program;
 	Attributes * attributes;
 	Constraints * constraints;
@@ -37,9 +36,12 @@
  *
  * @see https://www.gnu.org/software/bison/manual/html_node/Destructor-Decl.html
  */
+//TODO
+/*
 %destructor { releaseConstant($$); } <constant>
 %destructor { releaseExpression($$); } <expression>
 %destructor { releaseFactor($$); } <factor>
+*/
 
 /** Terminals. */
 /*
@@ -58,12 +60,12 @@
 %token <token> SEMICOLON
 %token <id> ID
 %token <token> COMA
-%token <token> NOT
-%token <token> NULL
+//%token <token> NOT
+//%token <token> NUL
 %token <token> OPEN_PARENTHESIS
 %token <token> CLOSE_PARENTHESIS
 %token <token> CONSTRAINT
-%token <integer> INTEGER
+//%token <integer> INTEGER
 %token <token> CHECK
 %token <token> PRIMARY
 %token <token> KEY
@@ -91,6 +93,7 @@
 %type <expression> expression
 %type <constraint_value> constraint_value
 %type <boolean_expression> boolean_expression
+%type <tables> tables
 
 /**
  * Precedence and associativity.
@@ -104,19 +107,21 @@
 
 // IMPORTANT: To use λ in the following grammar, use the %empty symbol.
 
-program: tables																			{ $$ = ExpressionProgramSemanticAction(currentCompilerState(), $1); }
+program: tables																	{ $$ = TablesProgramSemanticAction(currentCompilerState(), $1); }
 	;
 
-tables: CREATE TABLE ID OPEN_PARENTHESIS content CLOSE_PARENTHESIS SEMICOLON tables
-	| SEMICOLON
-	| %empty
+tables: tables tables															{ $$ = TableGenerateSemanticAction($1, $2); }
+	| CREATE TABLE ID OPEN_PARENTHESIS content CLOSE_PARENTHESIS SEMICOLON		{ $$ = ContentTablesSemanticAction($1, $2); }
 	;
-	
-content: attributes
-	| constraints
-	| attributes COMA constraints 
-	| %empty
+
+content: attributes																{ $$ = AttributesContentSemanticAction($1); }
+	| constraints																{ $$ = ConstraintsContentSemanticAction($1); }	
+	| attributes COMA constraints 												{ $$ = AttributesAndConstraintsContentSemanticAction($1, $2); }
+	| %empty																	{ $$ = EmptyContentSemanticAction(); }				
 	;
+
+
+/*______________________________________________________ */
 
 attributes: attribute
 	| attribute COMA attribute

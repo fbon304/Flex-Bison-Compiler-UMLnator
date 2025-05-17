@@ -16,7 +16,7 @@ void shutdownAbstractSyntaxTreeModule() {
 
 /** PUBLIC FUNCTIONS */
 
-void releaseConstant(Constant * constant) {
+/*void releaseConstant(Constant * constant) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (constant != NULL) {
 		free(constant);
@@ -55,7 +55,7 @@ void releaseFactor(Factor * factor) {
 		}
 		free(factor);
 	}
-}
+} */
 
 void releaseProgram(Program * program) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
@@ -64,3 +64,30 @@ void releaseProgram(Program * program) {
 		free(program);
 	}
 }
+
+void releaseTables(Tables *tables) {
+    if (tables == NULL) return;
+
+    // caso recursivo: una lista de dos tablas
+    if (tables->tables1 != NULL && tables->tables2 != NULL) {
+        releaseTables(tables->tables1);
+        releaseTables(tables->tables2);
+
+    // caso hoja: free del id y del contenido asociado
+    } else {
+        // aquí liberamos el malloc/strcpy de IdLexemeAction()
+        free(tables->id);
+
+        // luego liberar el contenido (attributes/constraints), si tienes un destructor
+        if (tables->content) {
+            releaseAttributes(tables->content->attributes);
+            releaseConstraints(tables->content->constraints);
+            free(tables->content);
+        }
+    }
+
+    // por último, liberamos el propio struct
+    free(tables);
+}
+
+

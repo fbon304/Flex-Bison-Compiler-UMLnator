@@ -31,14 +31,67 @@ static void _logSyntacticAnalyzerAction(const char * functionName) {
 
 /* PUBLIC FUNCTIONS */
 
-Constant * IntegerConstantSemanticAction(const int value) {
+Content * AttributesContentSemanticAction(Attributes * attributes) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Constant * constant = calloc(1, sizeof(Constant));
-	constant->value = value;
-	return constant;
+	Content * content = calloc(1, sizeof(Content));
+	content->onlyAttributes = attributes;
+	return content;
 }
 
-Expression * ArithmeticExpressionSemanticAction(Expression * leftExpression, Expression * rightExpression, ExpressionType type) {
+Content * ConstraintsContentSemanticAction(Constraints * constraints) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Content * content = calloc(1, sizeof(Content));
+	content->onlyConstraints = constraints;
+	return content;
+}
+
+Content * AttributesAndConstraintsContentSemanticAction(Attributes * attributes, Constraints * constraints) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Content * content = calloc(1, sizeof(Content));
+	content->attributes = attributes;
+	content->constraints = constraints;
+	return content;
+}
+
+Content * EmptyContentSemanticAction() {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Content * content = calloc(1, sizeof(Content));
+	return content;
+}
+
+Tables * ContentTablesSemanticAction(char * id, Content * content) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Table * newTable = calloc(1, sizeof(Table));
+	newTable->content = content;
+	newTable->id = id;
+	return tables;
+}
+
+Tables * TableGenerateSemanticAction(Tables * tables1, Tables *tables2) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Tables * tables = calloc(1, sizeof(Tables));
+	tables->tables1 = tables1;
+	tables->tables2 = tables2;
+	return tables;
+};
+
+Program * TablesProgramSemanticAction(CompilerState * compilerState, Tables * tables) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Program * program = calloc(1, sizeof(Program));
+	program->tables = tables;
+	compilerState->abstractSyntaxtTree = program;
+	if (0 < flexCurrentContext()) {
+		logError(_logger, "The final context is not the default (0): %d", flexCurrentContext());
+		compilerState->succeed = false;
+	}
+	else {
+		compilerState->succeed = true;
+	}
+	return program;
+}
+
+
+/*Expression * ArithmeticExpressionSemanticAction(Expression * leftExpression, Expression * rightExpression, ExpressionType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Expression * expression = calloc(1, sizeof(Expression));
 	expression->leftExpression = leftExpression;
@@ -69,19 +122,12 @@ Factor * ExpressionFactorSemanticAction(Expression * expression) {
 	factor->expression = expression;
 	factor->type = EXPRESSION;
 	return factor;
-}
+} 
 
-Program * ExpressionProgramSemanticAction(CompilerState * compilerState, Expression * expression) {
+Constant * IntegerConstantSemanticAction(const int value) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Program * program = calloc(1, sizeof(Program));
-	program->expression = expression;
-	compilerState->abstractSyntaxtTree = program;
-	if (0 < flexCurrentContext()) {
-		logError(_logger, "The final context is not the default (0): %d", flexCurrentContext());
-		compilerState->succeed = false;
-	}
-	else {
-		compilerState->succeed = true;
-	}
-	return program;
+	Constant * constant = calloc(1, sizeof(Constant));
+	constant->value = value;
+	return constant;
 }
+*/

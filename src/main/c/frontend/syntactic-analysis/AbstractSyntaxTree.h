@@ -16,16 +16,23 @@ void shutdownAbstractSyntaxTreeModule();
 
 //typedef enum ExpressionType ExpressionType;
 //typedef enum FactorType FactorType;
-typedef enum ConstraintType ConstraintType;
 
-typedef struct Constant Constant;
-typedef struct Expression Expression;
-typedef struct Factor Factor;
+typedef enum ConstraintValueType ConstraintValueType;
+
+//typedef struct Factor Factor;
+//typedef struct Constant Constant;
+
 typedef struct Program Program;
-typedef struct Attribute Attribute;
+typedef struct Tables Tables;
+typedef struct Content Content;
 typedef struct Attributes Attributes;
+typedef struct Attribute Attribute;
+typedef struct Type Type;
+typedef struct DefaultValue DefaultValue;
+typedef struct Expression Expression;
 typedef struct Constraint Constraint;
 typedef struct Constraints Constraints;
+typedef struct BooleaExpression BooleanExpression;
 
 /**
  * Node types for the Abstract Syntax Tree (AST).
@@ -45,16 +52,7 @@ enum FactorType {
 	CONSTANT,
 	EXPRESSION
 };
-*/
 
-enum ConstraintType {
-    CHECK_CONSTRAINT,
-    PRIMARY_KEY_CONSTRAINT,
-    UNIQUE_CONSTRAINT,
-    FOREIGN_KEY_CONSTRAINT
-};
-
-/*
 struct Constant {
 	int value;
 };
@@ -74,51 +72,94 @@ struct Expression {
 			Expression * leftExpression;
 			Expression * rightExpression;
 		};
-	};
+	};	
 	ExpressionType type;
+
 };
 */
 
-struct Program {
-	Content * content;
+enum ConstraintValueType {
+	EXPRESSION,
+    BOOLEAN_EXPRESSION
 };
 
-struct Attribute {
-    char *name;              /**< Column identifier */
-    Type *type;              /**< Data type node */
-    bool not_null;           /**< NOT NULL flag */
-    DefaultValue *default_value; /**< Optional DEFAULT clause */
-    Constraint *constraint;  /**< Optional inline constraint */
-    Attribute *next;         /**< Next attribute in list */
+struct Type {
+	char * name;
 };
 
-struct Attributes {
-    Attribute *head;
+struct DefaultValue {
+	char * value;
+};
+
+struct ConstraintValue {
+	union {
+		BooleanExpression * booleanExpression;
+		Expression * expression;
+	};
+	ConstraintValueType type;
 };
 
 struct Constraint {
-    ConstraintType type;     /**< Kind of constraint */
-    char *name;              /**< Optional constraint name */
-    /* For CHECK constraints */
-    Expression *condition;
-    /* For key constraints (PRIMARY, UNIQUE, FOREIGN) */
-    char **columns;          /**< Column names involved */
-    int column_count;
-    Constraint *next;        /**< Next constraint in list */
+   char * name;
+   struct ConstraintValue * value;
+   struct Constraint * next;
 };
 
 struct Constraints {
-    Constraint *head;
+    Constraint *first;
+};
+
+struct Attribute {
+    char *name;              
+    Type *type;            
+    DefaultValue *default_value; 
+    Constraint *constraint;  // puede ser NULL (ej: NOT NULL o UNIQUE en línea)
+    struct Attribute *next;         
+};
+
+struct Attributes {
+    Attribute * head;
+};
+
+struct Content {
+	union {
+		Attributes * onlyAttributes;
+		Constraints * onlyConstraints;
+		struct {
+			Attributes * attributes;
+			Constraints * constraints;
+		};
+	};
+};
+
+struct Tables {
+	union {
+		struct {
+			Tables * tables1;
+			Tables * tables2;
+		};
+		struct {
+			char * id;
+			Content * content;
+		};
+	};
+};
+
+struct Program {
+	Tables * tables;
 };
 
 /**
  * Node recursive destructors.
  */
-void releaseConstant(Constant * constant);
+
+/*void releaseConstant(Constant * constant);
+void releaseFactor(Factor * factor);*/
+
 void releaseExpression(Expression * expression);
-void releaseFactor(Factor * factor);
 void releaseProgram(Program * program);
 void releaseAttributes(Attributes *attributes);
 void releaseConstraints(Constraints *constraints);
+void releaseTables(Tables *tables);
 
 #endif
