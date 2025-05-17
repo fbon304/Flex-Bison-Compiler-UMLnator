@@ -16,7 +16,7 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
  *
  * @see https://westes.github.io/flex/manual/Start-Conditions.html
  */
-%x IMPORT_EXPRESSION
+//%x IMPORT_EXPRESSION
 %x MULTILINE_COMMENT
 
 /**
@@ -34,18 +34,12 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 <MULTILINE_COMMENT>[^*]+			{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 <MULTILINE_COMMENT>.				{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 
+
+/*
 "-"									{ return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext(), SUB); }
 "*"									{ return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext(), MUL); }
 "/"									{ return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext(), DIV); }
 "+"									{ return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext(), ADD); }
-
-"("									{ return ParenthesisLexemeAction(createLexicalAnalyzerContext(), OPEN_PARENTHESIS); }
-")"									{ return ParenthesisLexemeAction(createLexicalAnalyzerContext(), CLOSE_PARENTHESIS); }
-
-"{"									{
-										printf("%s", "[FlexPatterns] Context-switch to IMPORT_EXPRESSION.\n");
-										BEGIN(IMPORT_EXPRESSION);
-									}
 
 <IMPORT_EXPRESSION>[^{}]+			{
 										LexicalAnalyzerContext * lexicalAnalyzerContext = createLexicalAnalyzerContext();
@@ -65,6 +59,33 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 										printf("%s", "[FlexPatterns] Syntax error inside import expression.\n");
 										return UnknownLexemeAction(createLexicalAnalyzerContext());
 									}
+"{"									{
+										printf("%s", "[FlexPatterns] Context-switch to IMPORT_EXPRESSION.\n");
+										BEGIN(IMPORT_EXPRESSION);
+									}
+*/
+
+"CREATE" 							{}
+"TABLE" 							{}
+"NOT" 								{}
+"NOT" 								{}
+"NOT" 								{}
+"NULL" 								{}
+"CHECK" 							{}
+"PRIMARY" 							{}
+"FOREIGN" 							{}
+"KEY" 								{}
+"UNIQUE" 							{}
+"CONSTRAINT" 						{}
+"NOT" 								{}
+
+"("									{ return ParenthesisLexemeAction(createLexicalAnalyzerContext(), OPEN_PARENTHESIS); }
+")"									{ return ParenthesisLexemeAction(createLexicalAnalyzerContext(), CLOSE_PARENTHESIS); }
+","									{ }
+";"
+
+
+
 
 <<EOF>>								{
 										printf("%s", "[FlexPatterns] EOF, poping buffer.\n");
