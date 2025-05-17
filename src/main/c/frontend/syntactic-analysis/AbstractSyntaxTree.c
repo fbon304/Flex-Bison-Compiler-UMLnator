@@ -55,16 +55,16 @@ void releaseFactor(Factor * factor) {
 		}
 		free(factor);
 	}
-} */
-
+} 
+*/
 void releaseProgram(Program * program) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (program != NULL) {
-		releaseExpression(program->expression);
+		//releaseTables(program->tables);
 		free(program);
 	}
 }
-
+/*
 void releaseTables(Tables *tables) {
     if (tables == NULL) return;
 
@@ -90,4 +90,4 @@ void releaseTables(Tables *tables) {
     free(tables);
 }
 
-
+*/

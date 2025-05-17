@@ -29,6 +29,7 @@ void IgnoredLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token IntegerLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token IdLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
+Token TextLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
 Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
 Token ComaLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
 Token SemicolonLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);

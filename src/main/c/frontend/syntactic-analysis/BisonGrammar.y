@@ -26,6 +26,7 @@
 	Program * program;
 	Attributes * attributes;
 	Constraints * constraints;
+	Content * content;
 }
 
 /**
@@ -83,7 +84,7 @@
 
 /* Nuestro */
 %type <program> program
-%type <expression> content
+%type <content> content
 %type <attributes> attributes
 %type <attributes> attribute
 %type <constraints> constraints
@@ -111,12 +112,12 @@ program: tables																	{ $$ = TablesProgramSemanticAction(currentCompil
 	;
 
 tables: tables tables															{ $$ = TableGenerateSemanticAction($1, $2); }
-	| CREATE TABLE ID OPEN_PARENTHESIS content CLOSE_PARENTHESIS SEMICOLON		{ $$ = ContentTablesSemanticAction($1, $2); }
+	| CREATE TABLE ID OPEN_PARENTHESIS content CLOSE_PARENTHESIS SEMICOLON		{ $$ = ContentTablesSemanticAction($3, $5); }
 	;
 
 content: attributes																{ $$ = AttributesContentSemanticAction($1); }
 	| constraints																{ $$ = ConstraintsContentSemanticAction($1); }	
-	| attributes COMA constraints 												{ $$ = AttributesAndConstraintsContentSemanticAction($1, $2); }
+	| attributes COMA constraints 												{ $$ = AttributesAndConstraintsContentSemanticAction($1, $3); }
 	| %empty																	{ $$ = EmptyContentSemanticAction(); }				
 	;
 

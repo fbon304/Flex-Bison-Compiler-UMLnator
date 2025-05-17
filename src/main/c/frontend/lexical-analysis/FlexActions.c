@@ -57,12 +57,13 @@ void IgnoredLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	destroyLexicalAnalyzerContext(lexicalAnalyzerContext);
 }
 
+/*
 Token IntegerLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->integer = atoi(lexicalAnalyzerContext->lexeme);
 	destroyLexicalAnalyzerContext(lexicalAnalyzerContext);
 	return INTEGER;
-}
+} */
 
 Token IdLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
@@ -73,13 +74,20 @@ Token IdLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
         destroyLexicalAnalyzerContext(lexicalAnalyzerContext);
         exit(EXIT_FAILURE);
     }
-    strcpy(copy, LexicalAnalyzerContext->lexeme);
+    strcpy(copy, lexicalAnalyzerContext->lexeme);
     lexicalAnalyzerContext->semanticValue->id = copy;
-    destroyLexicalAnalyzerContext(LexicalAnalyzerContext);
+    destroyLexicalAnalyzerContext(lexicalAnalyzerContext);
     return ID;
 }
 
 Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->token = token;
+	destroyLexicalAnalyzerContext(lexicalAnalyzerContext);
+	return token;
+}
+
+Token TextLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = token;
 	destroyLexicalAnalyzerContext(lexicalAnalyzerContext);

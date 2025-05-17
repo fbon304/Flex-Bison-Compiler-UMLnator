@@ -30,6 +30,7 @@ typedef struct Attribute Attribute;
 typedef struct Type Type;
 typedef struct DefaultValue DefaultValue;
 typedef struct Expression Expression;
+typedef struct ConstraintValue ConstraintValue;
 typedef struct Constraint Constraint;
 typedef struct Constraints Constraints;
 typedef struct BooleaExpression BooleanExpression;

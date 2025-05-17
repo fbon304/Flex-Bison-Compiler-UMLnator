@@ -38,9 +38,6 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 "[Cc][Rr][Ee][Aa][Tt][Ee]" 					{ return TextLexemeAction(createLexicalAnalyzerContext(), CREATE); }
 "[Tt][Aa][Bb][Ll][Ee]" 						{ return TextLexemeAction(createLexicalAnalyzerContext(), TABLE); }
 
-"[Nn][Oo][Tt]" 								{ return BooleanLexemeAction(createLexicalAnalyzerContext(), NOT); }
-
-"[Nn][Uu][Ll][Ll]"							{ return ConstraintLexemeAction(createLexicalAnalyzerContext(), NUL); }
 "[Cc][Hh][EEe][Cc][Kk]" 					{ return ConstraintLexemeAction(createLexicalAnalyzerContext(), CHECK); }
 "[Pp][Rr][Ii][Mm][Aa][Rr][Yy]" 				{ return ConstraintLexemeAction(createLexicalAnalyzerContext(), PRIMARY); }
 "[Ff][Oo][Rr][Ee][Ii][Nn][Gg]" 				{ return ConstraintLexemeAction(createLexicalAnalyzerContext(), FOREIGN); }
@@ -67,7 +64,7 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 
 [[:alnum:]"_"]+						{ return IdLexemeAction(createLexicalAnalyzerContext()); }
 
-[[:digit:]]+						{ return IntegerLexemeAction(createLexicalAnalyzerContext()); }
+
 
 [[:space:]]+						{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 .									{ return UnknownLexemeAction(createLexicalAnalyzerContext()); }
@@ -77,6 +74,13 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 #include "FlexExport.h"
 
 /**
+*
+* "[Nn][Oo][Tt]" 								{ return BooleanLexemeAction(createLexicalAnalyzerContext(), NOT); }
+*
+*"[Nn][Uu][Ll][Ll]"							{ return ConstraintLexemeAction(createLexicalAnalyzerContext(), NUL); }
+*
+*[[:digit:]]+						{ return IntegerLexemeAction(createLexicalAnalyzerContext()); }
+*
 * "-"									{ return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext(), SUB); }
 * "*"									{ return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext(), MUL); }
 * "/"									{ return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext(), DIV); }

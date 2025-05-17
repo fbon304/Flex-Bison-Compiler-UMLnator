@@ -61,10 +61,10 @@ Content * EmptyContentSemanticAction() {
 
 Tables * ContentTablesSemanticAction(char * id, Content * content) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Table * newTable = calloc(1, sizeof(Table));
+	Tables * newTable = calloc(1, sizeof(Tables));
 	newTable->content = content;
 	newTable->id = id;
-	return tables;
+	return newTable;
 }
 
 Tables * TableGenerateSemanticAction(Tables * tables1, Tables *tables2) {
