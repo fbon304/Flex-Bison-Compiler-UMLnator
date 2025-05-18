@@ -76,7 +76,7 @@ Properties * DoubleDefaultNullPropertySemanticAction(DefaultValue * defaultValue
 Properties * DoubleConstraintNullPropertySemanticAction(Constraint * constraint, NullCondition * nullCondition, PropertiesType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Properties * property = calloc(1, sizeof(Properties));
-	property->constraintCN = defaultValue;
+	property->constraintCN = constraint;
 	property->nullConditionCN = nullCondition;
 	property->type = type;
 	return property;
@@ -94,9 +94,9 @@ Properties * TriplePropertySemanticAction(DefaultValue * defaultValue, Constrain
 
 Type * SimpleTypeSemanticAction(DataTypeType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Type * type = calloc(1, sizeof(Type));
-	type->type = type;
-	return type;
+	Type * typeNode = calloc(1, sizeof(Type));
+	typeNode->type = type;
+	return typeNode;
 }
 
 Type * ComplexTypeSemanticAction(int param, DataTypeType type) {
@@ -123,7 +123,7 @@ NullCondition * NullConditionSemanticAction(NullConditionType type) {
 	return nullCondition;
 }
 
-Attribute * AttributeTypeSemanticAction(const char * id, Type * type) {
+Attribute * AttributeTypeSemanticAction(char * id, Type * type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Attribute * attribute = calloc(1, sizeof(Attribute));
 	attribute->id = id;
@@ -132,7 +132,7 @@ Attribute * AttributeTypeSemanticAction(const char * id, Type * type) {
 	return attribute;
 }
 
-Attribute * AttributeTypePropertiesSemanticAction(const char * id, Type * type, Properties * properties) {
+Attribute * AttributeTypePropertiesSemanticAction(char * id, Type * type, Properties * properties) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Attribute * attribute = calloc(1, sizeof(Attribute));
 	attribute->p_id = id;

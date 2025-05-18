@@ -16,6 +16,13 @@ void shutdownAbstractSyntaxTreeModule() {
 
 /** PUBLIC FUNCTIONS */
 
+void releaseNullCondition(NullCondition * nullCondition) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (nullCondition != NULL) {
+		free(nullCondition);
+	}
+}
+
 void releaseProperties(Properties * properties) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (properties != NULL) {
@@ -23,18 +30,18 @@ void releaseProperties(Properties * properties) {
 			case DEFAULT_VALUE:
 				// releaseDefaultValue(properties->defaultValue);
 				break;
-			case CONSTRAINT:
+			case CONSTRAINT_CONDITION:
 				// releaseConstraint(properties->constraint);
 				break;
 			case NULL_CONDITION:
-				// releaseNullCondition(properties->nullCondition);
+				releaseNullCondition(properties->nullCondition);
 				break;
 			case NULL_CONDITION_DEFAULT_VALUE:
-				// releaseNullCondition(properties->nullConditionDN);
+				releaseNullCondition(properties->nullConditionDN);
 				// releaseDefaultValue(properties->defaultValueDN);
 				break;
 			case NULL_CONDITION_CONSTRAINT:
-				// releaseNullCondition(properties->nullConditionCN);
+				releaseNullCondition(properties->nullConditionCN);
 				// releaseConstraint(properties->constraintCN);
 				break;
 			case DEFAULT_VALUE_CONSTRAINT:
@@ -44,7 +51,7 @@ void releaseProperties(Properties * properties) {
 			case COMPLETE:
 				// releaseDefaultValue(properties->defaultValueCDN);
 				// releaseConstraint(properties->constraintCDN);
-				// releaseNullCondition(properties->nullConditionCDN);
+				releaseNullCondition(properties->nullConditionCDN);
 				break;
 			}
 			free(properties);
@@ -68,14 +75,14 @@ void releaseBooleanExpression(BooleanExpression * booleanExpression) {
 void releaseType(Type * type) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (type != NULL) {
-		free(name);
+		free(type);
 	}
 }
 
 void releaseDefaultValue(DefaultValue * defaultValue) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (defaultValue != NULL) {
-		free(defaultValue->value);
+		free(defaultValue);
 	}
 }
 
@@ -114,13 +121,17 @@ void releaseConstraints(Constraints * constraints) {
 void releaseAttribute(Attribute * attribute) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if(attribute != NULL) {
-		free(attribute->name);
-		releaseType(attribute->type);
-		releaseDefaultValue(attribute->defaultValue);
-		if (attribute->constraint != NULL) {
-			releaseConstraint(attribute->constraint);
+		switch (attribute->type) {
+			case COLUMN:
+				free(attribute->id);
+				releaseType(attribute->datatype);
+				break;
+			case COLUMN_WITH_PROPERTIES:
+				free(attribute->p_id);
+				releaseType(attribute->p_type);
+				releaseProperties(attribute->properties);
+				break;
 		}
-		releaseAttribute(attribute->next);
 		free(attribute);
 	}
 }

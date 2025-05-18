@@ -162,7 +162,7 @@ attribute: ID type																	{ $$ = AttributeTypeSemanticAction($1, $2); }
 	| ID type properties															{ $$ = AttributeTypePropertiesSemanticAction($1, $2, $3); }	
 
 properties:  default_value																{ $$ = SimpleDefaultPropertySemanticAction($1, DEFAULT_VALUE); }	
-	| constraint																		{ $$ = SimpleConstraintPropertySemanticAction($1, CONSTRAINT); }	
+	| constraint																		{ $$ = SimpleConstraintPropertySemanticAction($1, CONSTRAINT_CONDITION); }	
 	| null_condition																	{ $$ = SimpleNullPropertySemanticAction($1, NULL_CONDITION); }
 
 	| default_value constraint															{ $$ = DoubleDefaultConstraintPropertySemanticAction($1, $2, DEFAULT_VALUE_CONSTRAINT); }
@@ -180,27 +180,28 @@ properties:  default_value																{ $$ = SimpleDefaultPropertySemanticAc
 	| null_condition default_value constraint											{ $$ = TriplePropertySemanticAction($2, $3, $1); }
 	;
 	
-type: INTEGER																			{ $$ = SimpleTypeSemanticAction($1); }
-	| SMALLINT																			{ $$ = SimpleTypeSemanticAction($1); }	
-	| BIGINT																			{ $$ = SimpleTypeSemanticAction($1); }
-	| REAL																				{ $$ = SimpleTypeSemanticAction($1); }	
-	| DOUBLE 																			{ $$ = SimpleTypeSemanticAction($1); }	
-	| DATE																				{ $$ = SimpleTypeSemanticAction($1); }	
-	| TIMESTAMP																			{ $$ = SimpleTypeSemanticAction($1); }		
-	| INTERVAL																			{ $$ = SimpleTypeSemanticAction($1); }
-	| TEXT																				{ $$ = SimpleTypeSemanticAction($1); }	
-	| CHAR OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS								{ $$ = ComplexTypeSemanticAction($1, $3); }	
-	| VARCHAR OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS							{ $$ = ComplexTypeSemanticAction($1, $3); }		
-	| FLOAT OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS							{ $$ = ComplexTypeSemanticAction($1, $3); }
-	| TIME OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS								{ $$ = ComplexTypeSemanticAction($1, $3); }	
-	| NUMBER OPEN_PARENTHESIS INTEGER_VALUE COMA INTEGER_VALUE CLOSE_PARENTHESIS		{ $$ = DoubleComplexTypeSemanticAction($1, $3, $5); }
+type: INTEGER																			{ $$ = SimpleTypeSemanticAction(INTEGER_DATATYPE); }
+	| SMALLINT																			{ $$ = SimpleTypeSemanticAction(SMALLINT_DATATYPE); }	
+	| BIGINT																			{ $$ = SimpleTypeSemanticAction(BIGINT_DATATYPE); }
+	| REAL																				{ $$ = SimpleTypeSemanticAction(REAL_DATATYPE); }	
+	| DOUBLE 																			{ $$ = SimpleTypeSemanticAction(DOUBLE_DATATYPE); }	
+	| DATE																				{ $$ = SimpleTypeSemanticAction(DATE_DATATYPE); }	
+	| TIMESTAMP																			{ $$ = SimpleTypeSemanticAction(TIMESTAMP_DATATYPE); }		
+	| INTERVAL																			{ $$ = SimpleTypeSemanticAction(INTERVAL_DATATYPE); }
+	| TEXT																				{ $$ = SimpleTypeSemanticAction(TEXT_DATATYPE); }	
+	| CHAR OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS								{ $$ = ComplexTypeSemanticAction(CHAR_DATATYPE, INTEGER_DATATYPE); }	
+	| VARCHAR OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS							{ $$ = ComplexTypeSemanticAction(VARCHAR_DATATYPE, INTEGER_DATATYPE); }		
+	| FLOAT OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS							{ $$ = ComplexTypeSemanticAction(FLOAT_DATATYPE, INTEGER_DATATYPE); }
+	| TIME OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS								{ $$ = ComplexTypeSemanticAction(TIME_DATATYPE, INTEGER_DATATYPE); }	
+	| NUMBER OPEN_PARENTHESIS INTEGER_VALUE COMA INTEGER_VALUE CLOSE_PARENTHESIS		{ $$ = DoubleComplexTypeSemanticAction(NUMBER_DATATYPE, INTEGER_DATATYPE, INTEGER_DATATYPE); }
 	;
 
-null_condition: NOT NUL																	{ $$ = NullConditionSemanticActionn(NOT_NULL); }
-	| NUL																				{ $$ = NullConditionSemanticAction(NUL); }	
+null_condition: NOT NUL																	{ $$ = NullConditionSemanticAction(NOT_NULL_CONDITION); }
+	| NUL																				{ $$ = NullConditionSemanticAction(NUL_CONDITION); }	
 	;
 
 // TODO
+
 constraints: 
 	;
 
@@ -216,7 +217,7 @@ constraint_value: CHECK OPEN_PARENTHESIS boolean_expression CLOSE_PARENTHESIS
 expression: 
 	;
 
-default_value:  
+default_value: 
 	;
 
 boolean_expression:

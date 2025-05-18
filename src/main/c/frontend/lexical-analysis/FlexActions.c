@@ -59,7 +59,7 @@ void IgnoredLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 
 Token IntegerLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
-	lexicalAnalyzerContext->semanticValue->integer = atoi(lexicalAnalyzerContext->lexeme);
+	lexicalAnalyzerContext->semanticValue->integer_value = atoi(lexicalAnalyzerContext->lexeme);
 	destroyLexicalAnalyzerContext(lexicalAnalyzerContext);
 	return INTEGER_VALUE;
 } 
@@ -71,7 +71,7 @@ Token DoubleLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	return DOUBLE_VALUE;
 }
 
-Token DateTimeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerCotext, Token token){
+Token DateTimeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	size_t len = strlen(lexicalAnalyzerContext->lexeme);
     char *copy = malloc(len + 1);
@@ -81,7 +81,7 @@ Token DateTimeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerCotext, Token
         exit(EXIT_FAILURE);
     }
     strcpy(copy, lexicalAnalyzerContext->lexeme);
-    lexicalAnalyzerContext->semanticValue->timestamp_value = copy;
+    lexicalAnalyzerContext->semanticValue->date_time_value = copy;
     destroyLexicalAnalyzerContext(lexicalAnalyzerContext);
     return token;
 }

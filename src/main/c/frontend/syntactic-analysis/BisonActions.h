@@ -26,7 +26,14 @@ Factor * ConstantFactorSemanticAction(Constant * constant);
 Factor * ExpressionFactorSemanticAction(Expression * expression); 
 */
 
-Type * SimpleTypeSemanticAction(const char * name);
+NullCondition * NullConditionSemanticAction(NullConditionType type);
+
+Type * SimpleTypeSemanticAction(DataTypeType type);
+Type * ComplexTypeSemanticAction(int param, DataTypeType type);
+Type * DoubleComplexTypeSemanticAction(int param1, int param2, DataTypeType type);
+
+Attribute * AttributeTypeSemanticAction(char * id, Type * type);
+Attribute * AttributeTypePropertiesSemanticAction(char * id, Type * type, Properties * properties);
 
 Attributes * MultipleAttributesSemanticAction(Attribute * attribute1, Attribute * attribute2);
 Attributes * AttributesAttributeSemanticAction(Attribute * attribute);

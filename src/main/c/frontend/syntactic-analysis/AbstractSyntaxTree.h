@@ -108,7 +108,7 @@ enum AttributeType {
 
 enum PropertiesType {
 	DEFAULT_VALUE,
-	CONSTRAINT,
+	CONSTRAINT_CONDITION,
 	NULL_CONDITION,
 	NULL_CONDITION_DEFAULT_VALUE,
 	DEFAULT_VALUE_CONSTRAINT,
@@ -117,31 +117,31 @@ enum PropertiesType {
 };
 
 enum DataTypeType {
-	INTEGER, 
-	SMALLINT,
-	BIGINT,
-	REAL,
-	DOUBLE,
-	DATE,
-	TIMESTAMP,
-	INTERVAL,
-	TEXT,
-	CHAR,
-	VARCHAR,
-	FLOAT,
-	TIME,
-	NUMBER
+	INTEGER_DATATYPE, 
+	SMALLINT_DATATYPE,
+	BIGINT_DATATYPE,
+	REAL_DATATYPE,
+	DOUBLE_DATATYPE,
+	DATE_DATATYPE,
+	TIMESTAMP_DATATYPE,
+	INTERVAL_DATATYPE,
+	TEXT_DATATYPE,
+	CHAR_DATATYPE,
+	VARCHAR_DATATYPE,
+	FLOAT_DATATYPE,
+	TIME_DATATYPE,
+	NUMBER_DATATYPE
 };
 
 enum ExpressionType {
-	AND, 
-	OR,
-	NOT
+	AND_OPERATOR, 
+	OR_OPERATOR,
+	NOT_OPERATOR
 };
 
 enum NullConditionType {
-	NOT_NULL,
-	NUL
+	NOT_NULL_CONDITION,
+	NUL_CONDITION
 };
 
 struct NullCondition {
@@ -274,5 +274,6 @@ void releaseAttributes(Attributes *attributes);
 void releaseContent(Content * content);
 void releaseTables(Tables *tables);
 void releaseProgram(Program * program);
+void releaseNullCondition(NullCondition * nullCondition);
 
 #endif

@@ -1,5 +1,0 @@
-CREATE TABLE table (
-    name CHAR(10),
-    surname VARCHAR(100),
-    savings DECIMAL(10, 2)
-);
