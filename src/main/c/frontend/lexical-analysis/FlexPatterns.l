@@ -29,21 +29,43 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 
 %%
 
-"/*"								{ BEGIN(MULTILINE_COMMENT); BeginMultilineCommentLexemeAction(createLexicalAnalyzerContext()); }
-<MULTILINE_COMMENT>"*/"				{ EndMultilineCommentLexemeAction(createLexicalAnalyzerContext()); BEGIN(INITIAL); }
-<MULTILINE_COMMENT>[[:space:]]+		{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
-<MULTILINE_COMMENT>[^*]+			{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
-<MULTILINE_COMMENT>.				{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
+"/*"										{ BEGIN(MULTILINE_COMMENT); BeginMultilineCommentLexemeAction(createLexicalAnalyzerContext()); }
+<MULTILINE_COMMENT>"*/"						{ EndMultilineCommentLexemeAction(createLexicalAnalyzerContext()); BEGIN(INITIAL); }
+<MULTILINE_COMMENT>[[:space:]]+				{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
+<MULTILINE_COMMENT>[^*]+					{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
+<MULTILINE_COMMENT>.						{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 
-"[Cc][Rr][Ee][Aa][Tt][Ee]" 					{ return TextLexemeAction(createLexicalAnalyzerContext(), CREATE); }
-"[Tt][Aa][Bb][Ll][Ee]" 						{ return TextLexemeAction(createLexicalAnalyzerContext(), TABLE); }
+"CREATE" 									{ return TextLexemeAction(createLexicalAnalyzerContext(), CREATE); }
+"TABLE" 									{ return TextLexemeAction(createLexicalAnalyzerContext(), TABLE); }
 
-"[Cc][Hh][EEe][Cc][Kk]" 					{ return ConstraintLexemeAction(createLexicalAnalyzerContext(), CHECK); }
-"[Pp][Rr][Ii][Mm][Aa][Rr][Yy]" 				{ return ConstraintLexemeAction(createLexicalAnalyzerContext(), PRIMARY); }
-"[Ff][Oo][Rr][Ee][Ii][Nn][Gg]" 				{ return ConstraintLexemeAction(createLexicalAnalyzerContext(), FOREIGN); }
-"[Kk][Ee][Yy]" 								{ return ConstraintLexemeAction(createLexicalAnalyzerContext(), KEY); }
-"[Uu][Nn][Ii][Qq][Uu][Ee]" 					{ return ConstraintLexemeAction(createLexicalAnalyzerContext(), UNIQUE); }
-"[Cc][Oo][Nn][Ss][Tt][Rr][Aa][Ii][Nn][Tt]" 	{ return ConstraintLexemeAction(createLexicalAnalyzerContext(), CONSTRAINT); }
+"NOT" 										{ return BooleanLexemeAction(createLexicalAnalyzerContext(), NOT); }
+
+"NULL"										{ return ConstraintLexemeAction(createLexicalAnalyzerContext(), NUL); }
+"CHECK" 									{ return ConstraintLexemeAction(createLexicalAnalyzerContext(), CHECK); }
+"PRIMARY" 									{ return ConstraintLexemeAction(createLexicalAnalyzerContext(), PRIMARY); }
+"FOREIGN" 									{ return ConstraintLexemeAction(createLexicalAnalyzerContext(), FOREIGN); }
+"KEY" 										{ return ConstraintLexemeAction(createLexicalAnalyzerContext(), KEY); }
+"UNIQUE"				 					{ return ConstraintLexemeAction(createLexicalAnalyzerContext(), UNIQUE); }
+"CONSTRAINT"								{ return ConstraintLexemeAction(createLexicalAnalyzerContext(), CONSTRAINT); }
+
+"INTEGER"	  								{ return TypeLexemeAction(createLexicalAnalyzerContext(), INTEGER); }
+"INT"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), INT); }
+"SMALLINT"									{ return TypeLexemeAction(createLexicalAnalyzerContext(), SMALLINT); }
+"BIGINT"									{ return TypeLexemeAction(createLexicalAnalyzerContext(), BIGINT); }
+"REAL"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), REAL); }
+"DOUBLE"									{ return TypeLexemeAction(createLexicalAnalyzerContext(), DOUBLE); }
+"DATE"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), DATE); }
+"TIMESTAMP"									{ return TypeLexemeAction(createLexicalAnalyzerContext(), TIMESTAMP); }		
+"INTERVAL"									{ return TypeLexemeAction(createLexicalAnalyzerContext(), INTERVAL); }
+"CHAR"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), CHAR); }		
+"CHARACTER"									{ return TypeLexemeAction(createLexicalAnalyzerContext(), CHARACTER); }
+"VARCHAR"									{ return TypeLexemeAction(createLexicalAnalyzerContext(), VARCHAR); }		
+"VARYING"									{ return TypeLexemeAction(createLexicalAnalyzerContext(), VARYING); }
+"NUMBER"									{ return TypeLexemeAction(createLexicalAnalyzerContext(), NUMBER); }	
+"DECIMAL"									{ return TypeLexemeAction(createLexicalAnalyzerContext(), DECIMAL); }	
+"DEC"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), DEC); }
+"FLOAT"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), FLOAT); }
+"TIME"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), TIME); }
 
 "("											{ return ParenthesisLexemeAction(createLexicalAnalyzerContext(), OPEN_PARENTHESIS); }
 ")"											{ return ParenthesisLexemeAction(createLexicalAnalyzerContext(), CLOSE_PARENTHESIS); }
@@ -53,21 +75,27 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 
 
 
-<<EOF>>								{
-										printf("%s", "[FlexPatterns] EOF, poping buffer.\n");
-										yypop_buffer_state();
-										if (!YY_CURRENT_BUFFER) {
-											// Signals Bison to stop the parsing if there is no more input buffers in the stack.
-											yyterminate();
-										}
-									}
+<<EOF>>										{
+												printf("%s", "[FlexPatterns] EOF, poping buffer.\n");
+												yypop_buffer_state();
+												if (!YY_CURRENT_BUFFER) {
+													// Signals Bison to stop the parsing if there is no more input buffers in the stack.
+													yyterminate();
+												}
+											}
+									
+[0-3][0-9]"/"[0-1][0-9]"/"[0-9][0-9]			{ return TimeLexemeAction(createLexicalAnalyzerContext(), DATE_VALUE); }
+[0-3][0-9]"/"[0-1][0-9]"/"[0-9][0-9] [00-9]  	{ return TimeLexemeAction(createLexicalAnalyzerContext(), TIMESTAMP_VALUE); }
+((0?[0-9])|[0-9]{2})":"((0?[0-9])|[0-9]{2})		{ return TimeLexemeAction(createLexicalAnalyzerContext(), TIME_VALUE); }
+[[:digit:]]+","[[:digit:]]+ 					{ return DoubleLexemeAction(createLexicalAnalyzerContext()); }
 
-[[:alnum:]"_"]+						{ return IdLexemeAction(createLexicalAnalyzerContext()); }
+[[:alnum:]"_"]+									{ return IdLexemeAction(createLexicalAnalyzerContext()); }
 
+[[:digit:]]+									{ return IntegerLexemeAction(createLexicalAnalyzerContext()); }
 
-
-[[:space:]]+						{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
-.									{ return UnknownLexemeAction(createLexicalAnalyzerContext()); }
+[[:space:]]+									{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
+"\n"											{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
+.												{ return UnknownLexemeAction(createLexicalAnalyzerContext()); }
 
 %%
 
@@ -75,11 +103,7 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 
 /**
 *
-* "[Nn][Oo][Tt]" 								{ return BooleanLexemeAction(createLexicalAnalyzerContext(), NOT); }
 *
-*"[Nn][Uu][Ll][Ll]"							{ return ConstraintLexemeAction(createLexicalAnalyzerContext(), NUL); }
-*
-*[[:digit:]]+						{ return IntegerLexemeAction(createLexicalAnalyzerContext()); }
 *
 * "-"									{ return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext(), SUB); }
 * "*"									{ return ArithmeticOperatorLexemeAction(createLexicalAnalyzerContext(), MUL); }

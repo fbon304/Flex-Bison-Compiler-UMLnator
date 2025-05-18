@@ -28,6 +28,7 @@ void IgnoredLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
 Token IntegerLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token IdLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token TypeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
 
 Token TextLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
 Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);

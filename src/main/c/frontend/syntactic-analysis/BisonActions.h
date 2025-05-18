@@ -26,12 +26,19 @@ Factor * ConstantFactorSemanticAction(Constant * constant);
 Factor * ExpressionFactorSemanticAction(Expression * expression); 
 */
 
+Type * SimpleTypeSemanticAction(const char * name);
+
+Attributes * MultipleAttributesSemanticAction(Attribute * attribute1, Attribute * attribute2);
+Attributes * AttributesAttributeSemanticAction(Attribute * attribute);
+
 Content * AttributesContentSemanticAction(Attributes * attributes);
 Content * ConstraintsContentSemanticAction(Constraints * constraints);
 Content * AttributesAndConstraintsContentSemanticAction(Attributes * attributes, Constraints * constraints);
 Content * EmptyContentSemanticAction();
+
 Tables * ContentTablesSemanticAction(char * id, Content * content);
 Tables * TableGenerateSemanticAction(Tables * tables1, Tables *tables2);
+
 Program * TablesProgramSemanticAction(CompilerState * compilerState, Tables * tables);
 
 #endif

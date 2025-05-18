@@ -17,6 +17,11 @@ void shutdownAbstractSyntaxTreeModule();
 //typedef enum ExpressionType ExpressionType;
 //typedef enum FactorType FactorType;
 
+typedef enum TablesType TablesType;
+typedef enum ContentType ContentType;
+typedef enum AttributesType AttributesType;
+typedef enum AttributesType AttributesType;
+typedef enum DataTypeType DataTypeType;
 typedef enum ConstraintValueType ConstraintValueType;
 
 //typedef struct Factor Factor;
@@ -27,19 +32,18 @@ typedef struct Tables Tables;
 typedef struct Content Content;
 typedef struct Attributes Attributes;
 typedef struct Attribute Attribute;
-typedef struct Type Type;
-typedef struct DefaultValue DefaultValue;
-typedef struct Expression Expression;
-typedef struct ConstraintValue ConstraintValue;
 typedef struct Constraint Constraint;
 typedef struct Constraints Constraints;
+typedef struct Type Type;
+typedef struct Properties Properties;
+typedef struct DefaultValue DefaultValue;
+typedef struct NullCondition NullCondition;
+typedef struct Expression Expression;
+typedef struct ConstraintValue ConstraintValue;
 typedef struct BooleaExpression BooleanExpression;
 
 /**
  * Node types for the Abstract Syntax Tree (AST).
- */
-
- 
 /*
 enum ExpressionType {
 	ADDITION,
@@ -84,12 +88,56 @@ enum ConstraintValueType {
     BOOLEAN_EXPRESSION
 };
 
-struct Type {
-	char * name;
+enum TablesType {
+	MULTIPLE_TABLES,
+	CONTENT
 };
 
-struct DefaultValue {
-	char * value;
+enum ContentType {
+	ATTRIBUTES,
+	CONSTRAINTS,
+	ATTRIBUTES_CONSTRAINTS
+};
+
+enum AttributesType {
+	ATTRIBUTE,
+	MULTIPLE_ATTRIBUTE
+};
+
+enum AttributeType {
+	COLUMN,
+	COLUMN_WITH_PROPERTIES
+};
+
+enum PropertiesType {
+	DEFAULT_VALUE,
+	CONSTRAINT,
+	NULL_CONDITION,
+	NULL_CONDITION_DEFAULT_VALUE,
+	DEFAULT_VALUE_CONSTRAINT,
+	COMPLETE
+};
+
+enum DataTypeType {
+	INTEGER, 
+	SMALLINT,
+	BIGINT,
+	REAL,
+	DOUBLE,
+	DATE,
+	TIMESTAMP,
+	INTERVAL
+};
+
+enum ExpressionType {
+	AND, 
+	OR,
+	NOT,
+	
+};
+
+struct Type {
+	char * name;
 };
 
 struct ConstraintValue {
@@ -110,16 +158,32 @@ struct Constraints {
     Constraint *first;
 };
 
+
+
 struct Attribute {
-    char *name;              
-    Type *type;            
-    DefaultValue *default_value; 
-    Constraint *constraint;  // puede ser NULL (ej: NOT NULL o UNIQUE en línea)
-    struct Attribute *next;         
+	union {
+		struct {
+			char * id;              
+    		Type * datatype;
+		};
+		struct {
+			char * p_id;              
+    		Type * p_type;
+			Properties * properties;
+		};
+	};
+	AttributeType type;
 };
 
 struct Attributes {
-    Attribute * head;
+	union {
+		Attribute * head;
+		struct {
+			Attribute * attribute1;
+			Attribute * attribute2;	
+		};
+	};
+	AttributesType type;
 };
 
 struct Content {
@@ -131,6 +195,7 @@ struct Content {
 			Constraints * constraints;
 		};
 	};
+	ContentType type;
 };
 
 struct Tables {
@@ -144,6 +209,7 @@ struct Tables {
 			Content * content;
 		};
 	};
+	TablesType type;
 };
 
 struct Program {
@@ -157,10 +223,16 @@ struct Program {
 /*void releaseConstant(Constant * constant);
 void releaseFactor(Factor * factor);*/
 
-void releaseExpression(Expression * expression);
-void releaseProgram(Program * program);
-void releaseAttributes(Attributes *attributes);
+void releaseExpression(Expression * expression); // va?
+void releaseType(Type * type);
+void releaseDefaultValue(DefaultValue * defaultValue);
+void releaseConstraintValue(ConstraintValue * constraintValue);
+void releaseConstraint(Constraint * constraint);
 void releaseConstraints(Constraints *constraints);
+void releaseAttribute(Attribute * attribute);
+void releaseAttributes(Attributes *attributes);
+void releaseContent(Content * content);
 void releaseTables(Tables *tables);
+void releaseProgram(Program * program);
 
 #endif

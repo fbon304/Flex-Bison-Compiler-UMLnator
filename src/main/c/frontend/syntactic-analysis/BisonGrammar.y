@@ -10,23 +10,28 @@
 %union {
 	/** Terminals. */
 
-	int integer;
+	int integer_value;
+	double double_value;
+	char * date_time_value;
 	char * id;
 	Token token;
 
 	/** Non-terminals. */
 
+	Program * program;
 	Tables * tables;
+	Content * content;
+	Attributes * attributes;
+	Attribute * attribute;
+	Properties * properties;
+	Constraints * constraints;
+	Constraint * constraint;
 	Type * type;
 	DefaultValue * default_value;
+	NullCondition * null_condition;
 	ConstraintValue * constraint_value;
 	BooleanExpression * boolean_expression;
-	Constraint * constraint;
 	Expression * expression;
-	Program * program;
-	Attributes * attributes;
-	Constraints * constraints;
-	Content * content;
 }
 
 /**
@@ -44,6 +49,16 @@
 %destructor { releaseFactor($$); } <factor>
 */
 
+%destructor { releaseType($$); } <type>
+%destructor { releaseDefaultValue($$); } <default_value>
+%destructor { releaseConstraintValue($$); } <constraint_value>
+%destructor { releaseConstraint($$); } <constraint>
+%destructor { releaseConstraints($$); } <constraints>
+%destructor { releaseAttribute($$); } <attribute>
+%destructor { releaseAttributes($$); } <attributes>
+%destructor { releaseContent($$); } <content>
+%destructor { releaseTables($$); } <tables>
+
 /** Terminals. */
 /*
 %token <integer> INTEGER
@@ -56,45 +71,64 @@
 */
 
 /*Nuestro*/
+%token <id> ID
+%token <integer_value> INTEGER_VALUE
+%token <double_value> DOUBLE_VALUE
+%token <date_time_value> DATE_VALUE
+%token <date_time_value> TIME_VALUE
+%token <date_time_value> TIMESTAMP_VALUE
+
 %token <token> CREATE
 %token <token> TABLE
 %token <token> SEMICOLON
-%token <id> ID
 %token <token> COMA
-//%token <token> NOT
-//%token <token> NUL
+%token <token> NOT
+%token <token> NUL
 %token <token> OPEN_PARENTHESIS
 %token <token> CLOSE_PARENTHESIS
 %token <token> CONSTRAINT
-//%token <integer> INTEGER
 %token <token> CHECK
 %token <token> PRIMARY
 %token <token> KEY
 %token <token> FOREIGN
 %token <token> UNIQUE
-
+%token <token> INTEGER
+%token <token> INT
+%token <token> SMALLINT
+%token <token> BIGINT
+%token <token> REAL
+%token <token> DOUBLE
+%token <token> DATE
+%token <token> TIMESTAMP
+%token <token> INTERVAL
+%token <token> CHAR
+%token <token> CHARACTER
+%token <token> VARCHAR
+%token <token> VARYING
+%token <token> NUMBER
+%token <token> DECIMAL
+%token <token> DEC
+%token <token> FLOAT
+%token <token> TIME
+	
 %token <token> UNKNOWN
 
 /** Non-terminals. */
 
-/*
-%type <constant> constant
-%type <factor> factor
-*/
-
-/* Nuestro */
 %type <program> program
+%type <tables> tables
 %type <content> content
 %type <attributes> attributes
-%type <attributes> attribute
+%type <attribute> attribute
+%type <properties> properties
 %type <constraints> constraints
 %type <constraint> constraint
 %type <default_value> default_value
 %type <type> type
+%type <null_condition> null_condition
 %type <expression> expression
 %type <constraint_value> constraint_value
 %type <boolean_expression> boolean_expression
-%type <tables> tables
 
 /**
  * Precedence and associativity.
@@ -121,19 +155,56 @@ content: attributes																{ $$ = AttributesContentSemanticAction($1); }
 	| %empty																	{ $$ = EmptyContentSemanticAction(); }				
 	;
 
-
-/*______________________________________________________ */
-
-attributes: attribute
-	| attribute COMA attribute
+attributes: attribute															{ $$ = AttributesAttributeSemanticAction($1); }
+	| attribute COMA attribute													{ $$ = MultipleAttributesSemanticAction($1, $3); }
 	;
 	
 attribute: ID type
-	| ID type default_value
-	| ID type constraint
-	| ID type default_value constraint
+	| ID type properties
+
+properties:  default_value
+	| constraint
+	| null_condition
+
+	| default_value constraint
+	| constraint default_value
+	| default_value null_condition
+	| null_condition default_value
+	| constraint null_condition
+	| null_condition constraint
+	
+	| constraint default_value null_condition
+	| constraint null_condition default_value
+	| default_value constraint null_condition
+	| default_value null_condition constraint
+	| null_condition constraint default_value
+	| null_condition default_value constraint
 	;
 
+type: INTEGER																			{ $$ = SimpleTypeSemanticAction($1); }
+	| INT 																				{ $$ = SimpleTypeSemanticAction($1); }
+	| SMALLINT																			{ $$ = SimpleTypeSemanticAction($1); }	
+	| BIGINT																			{ $$ = SimpleTypeSemanticAction($1); }
+	| REAL																				{ $$ = SimpleTypeSemanticAction($1); }	
+	| DOUBLE 																			{ $$ = SimpleTypeSemanticAction($1); }	
+	| DATE																				{ $$ = SimpleTypeSemanticAction($1); }	
+	| TIMESTAMP																			{ $$ = SimpleTypeSemanticAction($1); }		
+	| INTERVAL																			{ $$ = SimpleTypeSemanticAction($1); }	
+	| CHAR OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS								{ $$ = }
+	| CHARACTER OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS						{ $$ = }	
+	| VARCHAR OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS							{ $$ = }	
+	| CHAR VARYING  OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS					{ $$ = }	
+	| CHARACTER VARYING  OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS				{ $$ = }
+	| FLOAT OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS							{ $$ = }
+	| TIME OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS								{ $$ = }	
+	| NUMBER OPEN_PARENTHESIS INTEGER_VALUE COMA INTEGER_VALUE CLOSE_PARENTHESIS		{ $$ = }
+	| DECIMAL OPEN_PARENTHESIS INTEGER_VALUE COMA INTEGER_VALUE CLOSE_PARENTHESIS		{ $$ = }
+	| DEC OPEN_PARENTHESIS INTEGER_VALUE COMA INTEGER_VALUE CLOSE_PARENTHESIS			{ $$ = }
+	;
+
+null_condition: NOT NUL															{ $$ = ; }
+	| NUL																{ $$ = ; }	
+	;
 
 // TODO
 constraints: 
@@ -154,9 +225,6 @@ expression:
 default_value:
 	;
 
-type:
-	;
-
 boolean_expression:
 	;
 
@@ -173,7 +241,7 @@ factor: OPEN_PARENTHESIS expression CLOSE_PARENTHESIS							{ $$ = ExpressionFac
 	| constant																	{ $$ = ConstantFactorSemanticAction($1); }
 	;
 
-constant: INTEGER													{ $$ = IntegerConstantSemanticAction($1); }
+constant: INTEGER																{ $$ = IntegerConstantSemanticAction($1); }
 	;
 
 %%

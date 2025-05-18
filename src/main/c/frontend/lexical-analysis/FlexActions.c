@@ -57,13 +57,39 @@ void IgnoredLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	destroyLexicalAnalyzerContext(lexicalAnalyzerContext);
 }
 
-/*
+Token TimeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->type = 
+}
+
 Token IntegerLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->integer = atoi(lexicalAnalyzerContext->lexeme);
 	destroyLexicalAnalyzerContext(lexicalAnalyzerContext);
-	return INTEGER;
-} */
+	return INTEGER_VALUE;
+} 
+
+Token DateLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerCotext, Token token){
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	size_t len = strlen(lexicalAnalyzerContext->lexeme);
+    char *copy = malloc(len + 1);
+    if (!copy) {
+        logError(_logger, "IdLexemeAction: out of memory allocating %zu bytes\n", len + 1);
+        destroyLexicalAnalyzerContext(lexicalAnalyzerContext);
+        exit(EXIT_FAILURE);
+    }
+    strcpy(copy, lexicalAnalyzerContext->lexeme);
+    lexicalAnalyzerContext->semanticValue->timestamp_value = copy;
+    destroyLexicalAnalyzerContext(lexicalAnalyzerContext);
+    return token;
+}
+
+Token TypeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token) {
+	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
+	lexicalAnalyzerContext->semanticValue->token = token;
+	destroyLexicalAnalyzerContext(lexicalAnalyzerContext);
+	return token;
+} 
 
 Token IdLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
@@ -127,8 +153,6 @@ Token UnknownLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	destroyLexicalAnalyzerContext(lexicalAnalyzerContext);
 	return UNKNOWN;
 }
-
-
 
 /*
 Token ArithmeticOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token) {

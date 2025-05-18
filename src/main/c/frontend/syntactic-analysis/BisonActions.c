@@ -31,10 +31,35 @@ static void _logSyntacticAnalyzerAction(const char * functionName) {
 
 /* PUBLIC FUNCTIONS */
 
+Type * SimpleTypeSemanticAction(const char * name) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Type * type = calloc(1, sizeof(Type));
+	type->name = name;
+	return type;
+}
+
+Attributes * MultipleAttributesSemanticAction(Attribute * attribute1, Attribute * attribute2) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Attributes * attributes = calloc(1, sizeof(Attributes));
+	attributes->attribute1 = attribute1;
+	attributes->attribute2 = attribute2;
+	attributes->type = MULTIPLE_ATTRIBUTE;
+	return attributes;
+}
+
+Attributes * AttributesAttributeSemanticAction(Attribute * attribute) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Attributes * attributes = calloc(1, sizeof(Attributes));
+	attributes->head = attribute;
+	attributes->type = ATTRIBUTE;
+	return attributes;
+}
+
 Content * AttributesContentSemanticAction(Attributes * attributes) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Content * content = calloc(1, sizeof(Content));
 	content->onlyAttributes = attributes;
+	content->type = ATTRIBUTES;
 	return content;
 }
 
@@ -42,6 +67,7 @@ Content * ConstraintsContentSemanticAction(Constraints * constraints) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Content * content = calloc(1, sizeof(Content));
 	content->onlyConstraints = constraints;
+	content->type = CONSTRAINTS;
 	return content;
 }
 
@@ -50,13 +76,13 @@ Content * AttributesAndConstraintsContentSemanticAction(Attributes * attributes,
 	Content * content = calloc(1, sizeof(Content));
 	content->attributes = attributes;
 	content->constraints = constraints;
+	content->type = ATTRIBUTES_CONSTRAINTS;
 	return content;
 }
 
 Content * EmptyContentSemanticAction() {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Content * content = calloc(1, sizeof(Content));
-	return content;
+	return NULL;
 }
 
 Tables * ContentTablesSemanticAction(char * id, Content * content) {
@@ -64,6 +90,7 @@ Tables * ContentTablesSemanticAction(char * id, Content * content) {
 	Tables * newTable = calloc(1, sizeof(Tables));
 	newTable->content = content;
 	newTable->id = id;
+	newTable->type = CONTENT;
 	return newTable;
 }
 
@@ -72,6 +99,7 @@ Tables * TableGenerateSemanticAction(Tables * tables1, Tables *tables2) {
 	Tables * tables = calloc(1, sizeof(Tables));
 	tables->tables1 = tables1;
 	tables->tables2 = tables2;
+	tables->type = MULTIPLE_TABLES;
 	return tables;
 };
 

@@ -16,6 +16,141 @@ void shutdownAbstractSyntaxTreeModule() {
 
 /** PUBLIC FUNCTIONS */
 
+void releaseExpression(Expression * expression) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (expression != NULL) {
+
+	}
+}
+
+void releaseBooleanExpression(BooleanExpression * booleanExpression) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (booleanExpression != NULL) {
+
+	}
+}
+
+void releaseType(Type * type) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (type != NULL) {
+		free(name);
+	}
+}
+
+void releaseDefaultValue(DefaultValue * defaultValue) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (defaultValue != NULL) {
+		free(defaultValue->value);
+	}
+}
+
+void releaseConstraintValue(ConstraintValue * constraintValue) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (constraintValue != NULL) {
+		switch (constraintValue->type) {
+			case EXPRESSION:
+				releaseExpression(constraintValue->expression);
+				;
+			case BOOLEAN_EXPRESSION:
+				releaseBooleanExpression(constraintValue->booleanExpression);
+				;
+		}
+	}
+}
+
+void releaseConstraint(Constraint * constraint) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (constraint != NULL) {
+		free(constraint->name);
+		releaseConstraintValue(constraint->value);
+		releaseConstraint(constraint->next);
+		free(constraint);
+	}
+}
+
+void releaseConstraints(Constraints * constraints) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (constraints != NULL) {
+		releaseConstraint(constraints->first);
+		free(constraints);
+	}
+}
+
+void releaseAttribute(Attribute * attribute) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if(attribute != NULL) {
+		free(attribute->name);
+		releaseType(attribute->type);
+		releaseDefaultValue(attribute->defaultValue);
+		if (attribute->constraint != NULL) {
+			releaseConstraint(attribute->constraint);
+		}
+		releaseAttribute(attribute->next);
+		free(attribute);
+	}
+}
+
+void releaseAttributes(Attributes * attributes) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if(attributes != NULL) {
+		switch(attributes->type) {
+			case MULTIPLE_ATTRIBUTE:
+				releaseAttribute(attributes->attribute1);
+				releaseAttribute(attributes->attribute2);
+				break;
+			case ATTRIBUTE:
+				releaseAttribute(attributes->head);
+				break;
+		}
+		free(attributes);
+	}
+}
+
+void releaseContent(Content * content) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if(content != NULL) {
+		switch (content->type) {
+			case ATTRIBUTES:
+				releaseAttributes(content->attributes);
+				break;
+			case CONSTRAINTS:
+				releaseConstraints(content->constraints);
+				break;
+			case ATTRIBUTES_CONSTRAINTS:
+				releaseAttributes(content->attributes);
+				releaseConstraints(content->constraints);
+				break;
+		}
+		free(content);
+	}
+}
+
+void releaseTables(Tables *tables) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+    if (tables != NULL) {
+		switch (tables->type) {
+			case MULTIPLE_TABLES:
+				releaseTables(tables->tables1);
+				releaseTables(tables->tables2);
+				break;
+			case CONTENT:
+				releaseContent(tables->content);
+				free(tables->id);
+				break;
+		}
+		free(tables);
+	}
+}
+
+void releaseProgram(Program * program) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (program != NULL) {
+		releaseTables(program->tables);
+		free(program);
+	}
+}
+
+
 /*void releaseConstant(Constant * constant) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (constant != NULL) {
@@ -57,37 +192,7 @@ void releaseFactor(Factor * factor) {
 	}
 } 
 */
-void releaseProgram(Program * program) {
-	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
-	if (program != NULL) {
-		//releaseTables(program->tables);
-		free(program);
-	}
-}
-/*
-void releaseTables(Tables *tables) {
-    if (tables == NULL) return;
 
-    // caso recursivo: una lista de dos tablas
-    if (tables->tables1 != NULL && tables->tables2 != NULL) {
-        releaseTables(tables->tables1);
-        releaseTables(tables->tables2);
 
-    // caso hoja: free del id y del contenido asociado
-    } else {
-        // aquí liberamos el malloc/strcpy de IdLexemeAction()
-        free(tables->id);
 
-        // luego liberar el contenido (attributes/constraints), si tienes un destructor
-        if (tables->content) {
-            releaseAttributes(tables->content->attributes);
-            releaseConstraints(tables->content->constraints);
-            free(tables->content);
-        }
-    }
 
-    // por último, liberamos el propio struct
-    free(tables);
-}
-
-*/
