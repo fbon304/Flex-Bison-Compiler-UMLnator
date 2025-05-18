@@ -1,4 +1,4 @@
-#ifndef ABSTRACT_SYNTAX_TREE_HEADER
+		#ifndef ABSTRACT_SYNTAX_TREE_HEADER
 #define ABSTRACT_SYNTAX_TREE_HEADER
 
 #include "../../shared/Logger.h"
@@ -14,18 +14,15 @@ void shutdownAbstractSyntaxTreeModule();
  * This typedefs allows self-referencing types.
  */
 
-//typedef enum ExpressionType ExpressionType;
-//typedef enum FactorType FactorType;
 
 typedef enum TablesType TablesType;
 typedef enum ContentType ContentType;
 typedef enum AttributesType AttributesType;
-typedef enum AttributesType AttributesType;
+typedef enum AttributeType AttributeType;
 typedef enum DataTypeType DataTypeType;
 typedef enum ConstraintValueType ConstraintValueType;
-
-//typedef struct Factor Factor;
-//typedef struct Constant Constant;
+typedef enum NullConditionType NullConditionType;
+typedef enum PropertiesType PropertiesType;
 
 typedef struct Program Program;
 typedef struct Tables Tables;
@@ -115,6 +112,7 @@ enum PropertiesType {
 	NULL_CONDITION,
 	NULL_CONDITION_DEFAULT_VALUE,
 	DEFAULT_VALUE_CONSTRAINT,
+	NULL_CONDITION_CONSTRAINT,
 	COMPLETE
 };
 
@@ -126,18 +124,28 @@ enum DataTypeType {
 	DOUBLE,
 	DATE,
 	TIMESTAMP,
-	INTERVAL
+	INTERVAL,
+	TEXT,
+	CHAR,
+	VARCHAR,
+	FLOAT,
+	TIME,
+	NUMBER
 };
 
 enum ExpressionType {
 	AND, 
 	OR,
-	NOT,
-	
+	NOT
 };
 
-struct Type {
-	char * name;
+enum NullConditionType {
+	NOT_NULL,
+	NUL
+};
+
+struct NullCondition {
+	NullConditionType type;
 };
 
 struct ConstraintValue {
@@ -158,7 +166,37 @@ struct Constraints {
     Constraint *first;
 };
 
+struct Type {
+	int param1;
+	int param2;
+	DataTypeType type;
+};
 
+struct Properties {
+	union {
+		DefaultValue * defaultValue;
+		Constraint * constraint;
+		NullCondition * nullCondition;
+		struct {
+			DefaultValue * defaultValueDC;
+			Constraint * constraintDC;
+		};
+		struct {
+			DefaultValue * defaultValueDN;
+			NullCondition * nullConditionDN;
+		};
+		struct {
+			Constraint * constraintCN;
+			NullCondition * nullConditionCN;
+		};
+		struct {
+			Constraint * constraintCDN;
+			DefaultValue * defaultValueCDN;
+			NullCondition * nullConditionCDN;
+		};
+	};
+	PropertiesType type;
+};
 
 struct Attribute {
 	union {
@@ -223,7 +261,9 @@ struct Program {
 /*void releaseConstant(Constant * constant);
 void releaseFactor(Factor * factor);*/
 
-void releaseExpression(Expression * expression); // va?
+void releaseProperties(Properties * properties);
+void releaseExpression(Expression * expression);
+void releaseBooleanExpression(BooleanExpression * booleanExpression);
 void releaseType(Type * type);
 void releaseDefaultValue(DefaultValue * defaultValue);
 void releaseConstraintValue(ConstraintValue * constraintValue);

@@ -1,0 +1,4 @@
+CREATE TABLE test (
+    age INT NOT NULL,
+    birthdate DATE NULL
+);

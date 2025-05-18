@@ -16,6 +16,41 @@ void shutdownAbstractSyntaxTreeModule() {
 
 /** PUBLIC FUNCTIONS */
 
+void releaseProperties(Properties * properties) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (properties != NULL) {
+		switch(properties->type) {
+			case DEFAULT_VALUE:
+				// releaseDefaultValue(properties->defaultValue);
+				break;
+			case CONSTRAINT:
+				// releaseConstraint(properties->constraint);
+				break;
+			case NULL_CONDITION:
+				// releaseNullCondition(properties->nullCondition);
+				break;
+			case NULL_CONDITION_DEFAULT_VALUE:
+				// releaseNullCondition(properties->nullConditionDN);
+				// releaseDefaultValue(properties->defaultValueDN);
+				break;
+			case NULL_CONDITION_CONSTRAINT:
+				// releaseNullCondition(properties->nullConditionCN);
+				// releaseConstraint(properties->constraintCN);
+				break;
+			case DEFAULT_VALUE_CONSTRAINT:
+				// releaseDefaultValue(properties->defaultValueDC);
+				// releaseConstraint(properties->constraintDC);
+				break;
+			case COMPLETE:
+				// releaseDefaultValue(properties->defaultValueCDN);
+				// releaseConstraint(properties->constraintCDN);
+				// releaseNullCondition(properties->nullConditionCDN);
+				break;
+			}
+			free(properties);
+	}
+}
+
 void releaseExpression(Expression * expression) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (expression != NULL) {

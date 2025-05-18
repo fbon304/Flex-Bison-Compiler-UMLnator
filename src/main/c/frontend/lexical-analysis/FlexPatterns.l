@@ -48,8 +48,7 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 "UNIQUE"				 					{ return ConstraintLexemeAction(createLexicalAnalyzerContext(), UNIQUE); }
 "CONSTRAINT"								{ return ConstraintLexemeAction(createLexicalAnalyzerContext(), CONSTRAINT); }
 
-"INTEGER"	  								{ return TypeLexemeAction(createLexicalAnalyzerContext(), INTEGER); }
-"INT"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), INT); }
+"INTEGER|INT"	  							{ return TypeLexemeAction(createLexicalAnalyzerContext(), INTEGER); }
 "SMALLINT"									{ return TypeLexemeAction(createLexicalAnalyzerContext(), SMALLINT); }
 "BIGINT"									{ return TypeLexemeAction(createLexicalAnalyzerContext(), BIGINT); }
 "REAL"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), REAL); }
@@ -57,13 +56,10 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 "DATE"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), DATE); }
 "TIMESTAMP"									{ return TypeLexemeAction(createLexicalAnalyzerContext(), TIMESTAMP); }		
 "INTERVAL"									{ return TypeLexemeAction(createLexicalAnalyzerContext(), INTERVAL); }
-"CHAR"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), CHAR); }		
-"CHARACTER"									{ return TypeLexemeAction(createLexicalAnalyzerContext(), CHARACTER); }
-"VARCHAR"									{ return TypeLexemeAction(createLexicalAnalyzerContext(), VARCHAR); }		
-"VARYING"									{ return TypeLexemeAction(createLexicalAnalyzerContext(), VARYING); }
-"NUMBER"									{ return TypeLexemeAction(createLexicalAnalyzerContext(), NUMBER); }	
-"DECIMAL"									{ return TypeLexemeAction(createLexicalAnalyzerContext(), DECIMAL); }	
-"DEC"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), DEC); }
+"TEXT"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), TEXT); }
+"CHAR|CHARACTER"							{ return TypeLexemeAction(createLexicalAnalyzerContext(), CHAR); }		
+"VARCHAR|CHAR VARYING|CHARACTER VARYING"	{ return TypeLexemeAction(createLexicalAnalyzerContext(), VARCHAR); }
+"NUMBER|DECIMAL|DEC"						{ return TypeLexemeAction(createLexicalAnalyzerContext(), NUMBER); }
 "FLOAT"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), FLOAT); }
 "TIME"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), TIME); }
 
@@ -84,10 +80,10 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 												}
 											}
 									
-[0-3][0-9]"/"[0-1][0-9]"/"[0-9][0-9]			{ return TimeLexemeAction(createLexicalAnalyzerContext(), DATE_VALUE); }
-[0-3][0-9]"/"[0-1][0-9]"/"[0-9][0-9] [00-9]  	{ return TimeLexemeAction(createLexicalAnalyzerContext(), TIMESTAMP_VALUE); }
-((0?[0-9])|[0-9]{2})":"((0?[0-9])|[0-9]{2})		{ return TimeLexemeAction(createLexicalAnalyzerContext(), TIME_VALUE); }
-[[:digit:]]+","[[:digit:]]+ 					{ return DoubleLexemeAction(createLexicalAnalyzerContext()); }
+[0-3][0-9]"/"[0-1][0-9]"/"[0-9][0-9]			{ return DateTimeLexemeAction(createLexicalAnalyzerContext(), DATE_VALUE); }
+[0-3][0-9]"/"[0-1][0-9]"/"[0-9][0-9] [00-9]  	{ return DateTimeLexemeAction(createLexicalAnalyzerContext(), TIMESTAMP_VALUE); }
+((0?[0-9])|[0-9]{2})":"((0?[0-9])|[0-9]{2})		{ return DateTimeLexemeAction(createLexicalAnalyzerContext(), TIME_VALUE); }
+[[:digit:]]+","[[:digit:]]+ 					{ return DoubleLexemeAction(createLexicalAnalyzerContext(), DOUBLE_VALUE); }
 
 [[:alnum:]"_"]+									{ return IdLexemeAction(createLexicalAnalyzerContext()); }
 

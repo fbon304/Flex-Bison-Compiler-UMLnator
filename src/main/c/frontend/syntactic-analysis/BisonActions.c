@@ -31,11 +31,115 @@ static void _logSyntacticAnalyzerAction(const char * functionName) {
 
 /* PUBLIC FUNCTIONS */
 
-Type * SimpleTypeSemanticAction(const char * name) {
+Properties * SimpleDefaultPropertySemanticAction(DefaultValue * defaultValue, PropertiesType type) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Properties * property = calloc(1, sizeof(Properties));
+	property->defaultValue = defaultValue;
+	property->type = type;
+	return property;
+}
+
+Properties * SimpleConstraintPropertySemanticAction(Constraint * constraint, PropertiesType type) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Properties * property = calloc(1, sizeof(Properties));
+	property->constraint = constraint;
+	property->type = type;
+	return property;
+}
+
+Properties * SimpleNullPropertySemanticAction(NullCondition * nullCondition, PropertiesType type) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Properties * property = calloc(1, sizeof(Properties));
+	property->nullCondition = nullCondition;
+	property->type = type;
+	return property;
+}
+
+Properties * DoubleDefaultConstraintPropertySemanticAction(DefaultValue * defaultValue, Constraint * constraint, PropertiesType type) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Properties * property = calloc(1, sizeof(Properties));
+	property->defaultValueDC = defaultValue;
+	property->constraintDC = constraint;
+	property->type = type;
+	return property;
+}
+
+Properties * DoubleDefaultNullPropertySemanticAction(DefaultValue * defaultValue, NullCondition * nullCondition, PropertiesType type) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Properties * property = calloc(1, sizeof(Properties));
+	property->defaultValueDN = defaultValue;
+	property->nullConditionDN = nullCondition;
+	property->type = type;
+	return property;
+}
+
+Properties * DoubleConstraintNullPropertySemanticAction(Constraint * constraint, NullCondition * nullCondition, PropertiesType type) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Properties * property = calloc(1, sizeof(Properties));
+	property->constraintCN = defaultValue;
+	property->nullConditionCN = nullCondition;
+	property->type = type;
+	return property;
+}
+
+Properties * TriplePropertySemanticAction(DefaultValue * defaultValue, Constraint * constraint, NullCondition * nullCondition) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Properties * property = calloc(1, sizeof(Properties));
+	property->defaultValueCDN = defaultValue;
+	property->constraintCDN = constraint;
+	property->nullConditionCDN = nullCondition;
+	property->type = COMPLETE;
+	return property;
+}
+
+Type * SimpleTypeSemanticAction(DataTypeType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Type * type = calloc(1, sizeof(Type));
-	type->name = name;
+	type->type = type;
 	return type;
+}
+
+Type * ComplexTypeSemanticAction(int param, DataTypeType type) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Type * complexType = calloc(1, sizeof(Type));
+	complexType->type = type;
+	complexType->param1 = param;
+	return complexType;
+}
+
+Type * DoubleComplexTypeSemanticAction(int param1, int param2, DataTypeType type) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Type * complexType = calloc(1, sizeof(Type));
+	complexType->type = type;
+	complexType->param1 = param1;
+	complexType->param2 = param2;
+	return complexType;
+}
+
+NullCondition * NullConditionSemanticAction(NullConditionType type) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	NullCondition * nullCondition = calloc(1, sizeof(NullCondition));
+	nullCondition->type = type;
+	return nullCondition;
+}
+
+Attribute * AttributeTypeSemanticAction(const char * id, Type * type) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Attribute * attribute = calloc(1, sizeof(Attribute));
+	attribute->id = id;
+	attribute->datatype = type;
+	attribute->type = COLUMN;
+	return attribute;
+}
+
+Attribute * AttributeTypePropertiesSemanticAction(const char * id, Type * type, Properties * properties) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Attribute * attribute = calloc(1, sizeof(Attribute));
+	attribute->p_id = id;
+	attribute->p_type = type;
+	attribute->properties = properties;
+	attribute->type = COLUMN_WITH_PROPERTIES;
+	return attribute;
 }
 
 Attributes * MultipleAttributesSemanticAction(Attribute * attribute1, Attribute * attribute2) {

@@ -49,6 +49,9 @@
 %destructor { releaseFactor($$); } <factor>
 */
 
+%destructor { releaseProperties($$); } <properties>
+%destructor { releaseExpression($$); } <expression>
+%destructor { releaseBooleanExpression($$); } <boolean_expression>
 %destructor { releaseType($$); } <type>
 %destructor { releaseDefaultValue($$); } <default_value>
 %destructor { releaseConstraintValue($$); } <constraint_value>
@@ -93,7 +96,6 @@
 %token <token> FOREIGN
 %token <token> UNIQUE
 %token <token> INTEGER
-%token <token> INT
 %token <token> SMALLINT
 %token <token> BIGINT
 %token <token> REAL
@@ -101,13 +103,10 @@
 %token <token> DATE
 %token <token> TIMESTAMP
 %token <token> INTERVAL
+%token <token> TEXT
 %token <token> CHAR
-%token <token> CHARACTER
 %token <token> VARCHAR
-%token <token> VARYING
 %token <token> NUMBER
-%token <token> DECIMAL
-%token <token> DEC
 %token <token> FLOAT
 %token <token> TIME
 	
@@ -142,68 +141,63 @@
 
 // IMPORTANT: To use λ in the following grammar, use the %empty symbol.
 
-program: tables																	{ $$ = TablesProgramSemanticAction(currentCompilerState(), $1); }
+program: tables																		{ $$ = TablesProgramSemanticAction(currentCompilerState(), $1); }
 	;
 
-tables: tables tables															{ $$ = TableGenerateSemanticAction($1, $2); }
-	| CREATE TABLE ID OPEN_PARENTHESIS content CLOSE_PARENTHESIS SEMICOLON		{ $$ = ContentTablesSemanticAction($3, $5); }
+tables: tables tables																{ $$ = TableGenerateSemanticAction($1, $2); }
+	| CREATE TABLE ID OPEN_PARENTHESIS content CLOSE_PARENTHESIS SEMICOLON			{ $$ = ContentTablesSemanticAction($3, $5); }
 	;
 
-content: attributes																{ $$ = AttributesContentSemanticAction($1); }
-	| constraints																{ $$ = ConstraintsContentSemanticAction($1); }	
-	| attributes COMA constraints 												{ $$ = AttributesAndConstraintsContentSemanticAction($1, $3); }
-	| %empty																	{ $$ = EmptyContentSemanticAction(); }				
+content: attributes																	{ $$ = AttributesContentSemanticAction($1); }
+	| constraints																	{ $$ = ConstraintsContentSemanticAction($1); }	
+	| attributes COMA constraints 													{ $$ = AttributesAndConstraintsContentSemanticAction($1, $3); }
+	| %empty																		{ $$ = EmptyContentSemanticAction(); }				
 	;
 
-attributes: attribute															{ $$ = AttributesAttributeSemanticAction($1); }
-	| attribute COMA attribute													{ $$ = MultipleAttributesSemanticAction($1, $3); }
+attributes: attribute																{ $$ = AttributesAttributeSemanticAction($1); }
+	| attribute COMA attribute														{ $$ = MultipleAttributesSemanticAction($1, $3); }
 	;
 	
-attribute: ID type
-	| ID type properties
+attribute: ID type																	{ $$ = AttributeTypeSemanticAction($1, $2); }					
+	| ID type properties															{ $$ = AttributeTypePropertiesSemanticAction($1, $2, $3); }	
 
-properties:  default_value
-	| constraint
-	| null_condition
+properties:  default_value																{ $$ = SimpleDefaultPropertySemanticAction($1, DEFAULT_VALUE); }	
+	| constraint																		{ $$ = SimpleConstraintPropertySemanticAction($1, CONSTRAINT); }	
+	| null_condition																	{ $$ = SimpleNullPropertySemanticAction($1, NULL_CONDITION); }
 
-	| default_value constraint
-	| constraint default_value
-	| default_value null_condition
-	| null_condition default_value
-	| constraint null_condition
-	| null_condition constraint
+	| default_value constraint															{ $$ = DoubleDefaultConstraintPropertySemanticAction($1, $2, DEFAULT_VALUE_CONSTRAINT); }
+	| constraint default_value															{ $$ = DoubleDefaultConstraintPropertySemanticAction($2, $1, DEFAULT_VALUE_CONSTRAINT); }
+	| default_value null_condition														{ $$ = DoubleDefaultNullPropertySemanticAction($1, $2, NULL_CONDITION_DEFAULT_VALUE); }	
+	| null_condition default_value														{ $$ = DoubleDefaultNullPropertySemanticAction($2, $1, NULL_CONDITION_DEFAULT_VALUE); }	
+	| constraint null_condition															{ $$ = DoubleConstraintNullPropertySemanticAction($1, $2, NULL_CONDITION_CONSTRAINT); }
+	| null_condition constraint															{ $$ = DoubleConstraintNullPropertySemanticAction($2, $1, NULL_CONDITION_CONSTRAINT); }
 	
-	| constraint default_value null_condition
-	| constraint null_condition default_value
-	| default_value constraint null_condition
-	| default_value null_condition constraint
-	| null_condition constraint default_value
-	| null_condition default_value constraint
+	| constraint default_value null_condition											{ $$ = TriplePropertySemanticAction($2, $1, $3); }
+	| constraint null_condition default_value											{ $$ = TriplePropertySemanticAction($3, $1, $2); }	
+	| default_value constraint null_condition											{ $$ = TriplePropertySemanticAction($1, $2, $3); }
+	| default_value null_condition constraint											{ $$ = TriplePropertySemanticAction($1, $3, $2); }
+	| null_condition constraint default_value											{ $$ = TriplePropertySemanticAction($3, $2, $1); }	
+	| null_condition default_value constraint											{ $$ = TriplePropertySemanticAction($2, $3, $1); }
 	;
-
+	
 type: INTEGER																			{ $$ = SimpleTypeSemanticAction($1); }
-	| INT 																				{ $$ = SimpleTypeSemanticAction($1); }
 	| SMALLINT																			{ $$ = SimpleTypeSemanticAction($1); }	
 	| BIGINT																			{ $$ = SimpleTypeSemanticAction($1); }
 	| REAL																				{ $$ = SimpleTypeSemanticAction($1); }	
 	| DOUBLE 																			{ $$ = SimpleTypeSemanticAction($1); }	
 	| DATE																				{ $$ = SimpleTypeSemanticAction($1); }	
 	| TIMESTAMP																			{ $$ = SimpleTypeSemanticAction($1); }		
-	| INTERVAL																			{ $$ = SimpleTypeSemanticAction($1); }	
-	| CHAR OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS								{ $$ = }
-	| CHARACTER OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS						{ $$ = }	
-	| VARCHAR OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS							{ $$ = }	
-	| CHAR VARYING  OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS					{ $$ = }	
-	| CHARACTER VARYING  OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS				{ $$ = }
-	| FLOAT OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS							{ $$ = }
-	| TIME OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS								{ $$ = }	
-	| NUMBER OPEN_PARENTHESIS INTEGER_VALUE COMA INTEGER_VALUE CLOSE_PARENTHESIS		{ $$ = }
-	| DECIMAL OPEN_PARENTHESIS INTEGER_VALUE COMA INTEGER_VALUE CLOSE_PARENTHESIS		{ $$ = }
-	| DEC OPEN_PARENTHESIS INTEGER_VALUE COMA INTEGER_VALUE CLOSE_PARENTHESIS			{ $$ = }
+	| INTERVAL																			{ $$ = SimpleTypeSemanticAction($1); }
+	| TEXT																				{ $$ = SimpleTypeSemanticAction($1); }	
+	| CHAR OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS								{ $$ = ComplexTypeSemanticAction($1, $3); }	
+	| VARCHAR OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS							{ $$ = ComplexTypeSemanticAction($1, $3); }		
+	| FLOAT OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS							{ $$ = ComplexTypeSemanticAction($1, $3); }
+	| TIME OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS								{ $$ = ComplexTypeSemanticAction($1, $3); }	
+	| NUMBER OPEN_PARENTHESIS INTEGER_VALUE COMA INTEGER_VALUE CLOSE_PARENTHESIS		{ $$ = DoubleComplexTypeSemanticAction($1, $3, $5); }
 	;
 
-null_condition: NOT NUL															{ $$ = ; }
-	| NUL																{ $$ = ; }	
+null_condition: NOT NUL																	{ $$ = NullConditionSemanticActionn(NOT_NULL); }
+	| NUL																				{ $$ = NullConditionSemanticAction(NUL); }	
 	;
 
 // TODO
@@ -222,7 +216,7 @@ constraint_value: CHECK OPEN_PARENTHESIS boolean_expression CLOSE_PARENTHESIS
 expression: 
 	;
 
-default_value:
+default_value:  
 	;
 
 boolean_expression:
