@@ -26,10 +26,16 @@ void BeginMultilineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerC
 void EndMultilineCommentLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 void IgnoredLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
+void BeginDefaultValueStringLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+void EndDefaultValueStringLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+Token DefaultValueStringLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
+
 Token IntegerLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token DoubleLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token IdLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token TypeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
+Token ActionLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
+Token FunctionLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
 Token DateTimeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
 
 Token TextLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);

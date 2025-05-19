@@ -31,6 +31,41 @@ static void _logSyntacticAnalyzerAction(const char * functionName) {
 
 /* PUBLIC FUNCTIONS */
 
+
+
+DefaultValue * DefaultValueIntegerTerminalSemanticAction(int value) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	DefaultValue * defaultValue = calloc(1, sizeof(DefaultValue));
+	defaultValue->type = INTEGER_DEFAULT;
+	defaultValue->integer_value = value;
+	return defaultValue;
+}
+
+DefaultValue * DefaultValueDoubleTerminalSemanticAction(double value) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	DefaultValue * defaultValue = calloc(1, sizeof(DefaultValue));
+	defaultValue->type = DOUBLE_DEFAULT;
+	defaultValue->double_value = value;
+	return defaultValue;
+}
+
+DefaultValue * DefaultValueStringTerminalSemanticAction(char * value) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	DefaultValue * defaultValue = calloc(1, sizeof(DefaultValue));
+	defaultValue->type = STRING_DEFAULT;
+	defaultValue->string_value = value;
+	return defaultValue;
+}
+
+
+DefaultValue * DefaultValueNonTerminalSemanticAction(Function * function) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	DefaultValue * defaultValue = calloc(1, sizeof(DefaultValue));
+	defaultValue->type = FUNCTION;
+	defaultValue->function = function;
+	return defaultValue;
+}
+
 Properties * SimpleDefaultPropertySemanticAction(DefaultValue * defaultValue, PropertiesType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Properties * property = calloc(1, sizeof(Properties));
@@ -39,7 +74,7 @@ Properties * SimpleDefaultPropertySemanticAction(DefaultValue * defaultValue, Pr
 	return property;
 }
 
-Properties * SimpleConstraintPropertySemanticAction(Constraint * constraint, PropertiesType type) {
+Properties * SimpleConstraintPropertySemanticAction(LocalConstraint * constraint, PropertiesType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Properties * property = calloc(1, sizeof(Properties));
 	property->constraint = constraint;
@@ -55,7 +90,7 @@ Properties * SimpleNullPropertySemanticAction(NullCondition * nullCondition, Pro
 	return property;
 }
 
-Properties * DoubleDefaultConstraintPropertySemanticAction(DefaultValue * defaultValue, Constraint * constraint, PropertiesType type) {
+Properties * DoubleDefaultConstraintPropertySemanticAction(DefaultValue * defaultValue, LocalConstraint * constraint, PropertiesType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Properties * property = calloc(1, sizeof(Properties));
 	property->defaultValueDC = defaultValue;
@@ -73,7 +108,7 @@ Properties * DoubleDefaultNullPropertySemanticAction(DefaultValue * defaultValue
 	return property;
 }
 
-Properties * DoubleConstraintNullPropertySemanticAction(Constraint * constraint, NullCondition * nullCondition, PropertiesType type) {
+Properties * DoubleConstraintNullPropertySemanticAction(LocalConstraint * constraint, NullCondition * nullCondition, PropertiesType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Properties * property = calloc(1, sizeof(Properties));
 	property->constraintCN = constraint;
@@ -82,7 +117,7 @@ Properties * DoubleConstraintNullPropertySemanticAction(Constraint * constraint,
 	return property;
 }
 
-Properties * TriplePropertySemanticAction(DefaultValue * defaultValue, Constraint * constraint, NullCondition * nullCondition) {
+Properties * TriplePropertySemanticAction(DefaultValue * defaultValue, LocalConstraint * constraint, NullCondition * nullCondition) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Properties * property = calloc(1, sizeof(Properties));
 	property->defaultValueCDN = defaultValue;

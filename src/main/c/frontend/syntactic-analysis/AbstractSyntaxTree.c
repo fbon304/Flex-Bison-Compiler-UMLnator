@@ -31,7 +31,7 @@ void releaseProperties(Properties * properties) {
 				// releaseDefaultValue(properties->defaultValue);
 				break;
 			case CONSTRAINT_CONDITION:
-				// releaseConstraint(properties->constraint);
+				// releaseLocalConstraint(properties->constraint);
 				break;
 			case NULL_CONDITION:
 				releaseNullCondition(properties->nullCondition);
@@ -42,15 +42,15 @@ void releaseProperties(Properties * properties) {
 				break;
 			case NULL_CONDITION_CONSTRAINT:
 				releaseNullCondition(properties->nullConditionCN);
-				// releaseConstraint(properties->constraintCN);
+				// releaseLocalConstraint(properties->constraintCN);
 				break;
 			case DEFAULT_VALUE_CONSTRAINT:
 				// releaseDefaultValue(properties->defaultValueDC);
-				// releaseConstraint(properties->constraintDC);
+				// releaseLocalConstraint(properties->constraintDC);
 				break;
 			case COMPLETE:
 				// releaseDefaultValue(properties->defaultValueCDN);
-				// releaseConstraint(properties->constraintCDN);
+				// releaseLocalConstraint(properties->constraintCDN);
 				releaseNullCondition(properties->nullConditionCDN);
 				break;
 			}

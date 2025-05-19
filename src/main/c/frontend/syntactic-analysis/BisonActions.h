@@ -49,12 +49,12 @@ Tables * TableGenerateSemanticAction(Tables * tables1, Tables *tables2);
 Program * TablesProgramSemanticAction(CompilerState * compilerState, Tables * tables);
 
 Properties * SimpleDefaultPropertySemanticAction(DefaultValue * defaultValue, PropertiesType type);
-Properties * SimpleConstraintPropertySemanticAction(Constraint * constraint, PropertiesType type);
+Properties * SimpleConstraintPropertySemanticAction(LocalConstraint * constraint, PropertiesType type);
 Properties * SimpleNullPropertySemanticAction(NullCondition * nullCondition, PropertiesType type);
 
-Properties * DoubleDefaultConstraintPropertySemanticAction(DefaultValue * defaultValue, Constraint * constraint, PropertiesType type);
+Properties * DoubleDefaultConstraintPropertySemanticAction(DefaultValue * defaultValue, LocalConstraint * constraint, PropertiesType type);
 Properties * DoubleDefaultNullPropertySemanticAction(DefaultValue * defaultValue, NullCondition * nullCondition, PropertiesType type);
-Properties * DoubleConstraintNullPropertySemanticAction(Constraint * constraint, NullCondition * nullCondition, PropertiesType type);
+Properties * DoubleConstraintNullPropertySemanticAction(LocalConstraint * constraint, NullCondition * nullCondition, PropertiesType type);
 
-Properties * TriplePropertySemanticAction(DefaultValue * defaultValue, Constraint * constraint, NullCondition * nullCondition);
+Properties * TriplePropertySemanticAction(DefaultValue * defaultValue, LocalConstraint * constraint, NullCondition * nullCondition);
 #endif

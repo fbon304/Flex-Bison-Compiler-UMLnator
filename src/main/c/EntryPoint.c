@@ -41,8 +41,8 @@ const int main(const int count, const char ** arguments) {
 		// ----------------------------------------------------------------------------------------
 		// Beginning of the Backend... ------------------------------------------------------------
 		//TODO uncomment
-		/*logDebugging(logger, "Computing expression value...");
-		ComputationResult computationResult = computeExpression(program->expression);
+		/*logDebugging(logger, "Computing tables value...");
+		ComputationResult computationResult = computeExpression(program->tables);
 		if (computationResult.succeed) {
 			compilerState.value = computationResult.value;
 			generate(&compilerState);

@@ -13,22 +13,23 @@ void shutdownAbstractSyntaxTreeModule();
 /**
  * This typedefs allows self-referencing types.
  */
-
-
 typedef enum TablesType TablesType;
 typedef enum ContentType ContentType;
 typedef enum AttributesType AttributesType;
 typedef enum AttributeType AttributeType;
 typedef enum DataTypeType DataTypeType;
-typedef enum ConstraintValueType ConstraintValueType;
 typedef enum NullConditionType NullConditionType;
+typedef enum DefaultValueType DefaultValueType; 
+typedef enum ConstraintValueType ConstraintValueType;
 typedef enum PropertiesType PropertiesType;
+typedef enum FunctionType FunctionType;
 
 typedef struct Program Program;
 typedef struct Tables Tables;
 typedef struct Content Content;
 typedef struct Attributes Attributes;
 typedef struct Attribute Attribute;
+typedef struct LocalConstraint LocalConstraint;
 typedef struct Constraint Constraint;
 typedef struct Constraints Constraints;
 typedef struct Type Type;
@@ -38,52 +39,13 @@ typedef struct NullCondition NullCondition;
 typedef struct Expression Expression;
 typedef struct ConstraintValue ConstraintValue;
 typedef struct BooleaExpression BooleanExpression;
+typedef struct Function Function;
+typedef struct BooleanValue BooleanValue;
+typedef struct IsCondition IsCondition;
 
 /**
  * Node types for the Abstract Syntax Tree (AST).
-/*
-enum ExpressionType {
-	ADDITION,
-	DIVISION,
-	FACTOR,
-	MULTIPLICATION,
-	SUBTRACTION
-};
-
-enum FactorType {
-	CONSTANT,
-	EXPRESSION
-};
-
-struct Constant {
-	int value;
-};
-
-struct Factor {
-	union {
-		Constant * constant;
-		Expression * expression;
-	};
-	FactorType type;
-};
-
-struct Expression {
-	union {
-		Factor * factor;
-		struct {
-			Expression * leftExpression;
-			Expression * rightExpression;
-		};
-	};	
-	ExpressionType type;
-
-};
-*/
-
-enum ConstraintValueType {
-	EXPRESSION,
-    BOOLEAN_EXPRESSION
-};
+**/
 
 enum TablesType {
 	MULTIPLE_TABLES,
@@ -126,17 +88,13 @@ enum DataTypeType {
 	TIMESTAMP_DATATYPE,
 	INTERVAL_DATATYPE,
 	TEXT_DATATYPE,
+	SERIAL_DATATYPE,
 	CHAR_DATATYPE,
 	VARCHAR_DATATYPE,
 	FLOAT_DATATYPE,
 	TIME_DATATYPE,
-	NUMBER_DATATYPE
-};
-
-enum ExpressionType {
-	AND_OPERATOR, 
-	OR_OPERATOR,
-	NOT_OPERATOR
+	NUMBER_DATATYPE,
+	UNKNOWN_SQL_DATATYPE
 };
 
 enum NullConditionType {
@@ -144,58 +102,217 @@ enum NullConditionType {
 	NUL_CONDITION
 };
 
-struct NullCondition {
-	NullConditionType type;
+enum BooleanType {
+	BOOLEAN_TRUE,
+	BOOLEAN_FALSE
+}
+
+enum IsConditionType {
+	IS_CONDITION,
+	IS_NOT_CONDITION
+}
+
+enum DefaultValueType {
+	INTEGER_DEFAULT,
+	DOUBLE_DEFAULT,
+	STRING_DEFAULT,
+	FUNCTION
+}
+
+enum ExpressionType {
+	AND_OPERATOR, 
+	OR_OPERATOR,
+	NOT_OPERATOR
+};
+
+enum ConstraintValueType {
+	EXPRESSION,
+    BOOLEAN_EXPRESSION
+};
+
+enum FunctionType {
+	CURRENT_TIMESTAMP_FUNCTION,
+	NOW_OPEN_PARENTHESIS_CLOSE_PARENTHESIS_FUNCTION, 
+	AUTO_INCREMENT_FUNCTION,
+	CURRENT_DATE_FUNCTION,
+	CURRENT_TIME_FUNCTION,
+	LOCALTIME_FUNCTION,
+	LOCAL_TIMESTAMP_FUNCTION,
+	CURRENT_TIMESTAMP_FUNCTION,
+	GEN_RANDOM_UUID_OPEN_AND_CLOSE_PARENTHESIS_FUNCTION,
+	UUID_GENERATE_V4_OPEN_AND_CLOSE_PARENTHESIS_FUNCTION
+};
+
+enum ExpressionType {
+	SIMPLE_EXPRESSION,
+	COMPLEX_EXPRESSION
+};
+
+enum LocalConstraintType {
+	PRIMARY_KEY_LCT,
+	UNIQUE_LCT,
+	FOREIGN_KEY_LCT,
+	CHECK_LCT,
+	CHECK_CONSTRAINT_LCT
+};
+
+enum BooleanExpressionType {
+	AND_BOOLEANTYPE,
+	OR_BOOLEANTYPE,
+	EQUALS_BOOLEANTYPE,
+	NOT_EQUALS_BOOLEANTYPE,
+	EQUALS_BOOLEANTYPE,
+	LESS_THAN_BOOLEANTYPE,
+	GREATER_THAN_BOOLEANTYPE,
+	GREATER_THAN_EQUALS_BOOLEANTYPE,
+	DISTINCT_FROM_BOOLEANTYPE,
+	THREE_POINTERS_BOOLEANTYPE,
+	NUL_BOOLEANTYPE,
+	NOTNULL_BOOLEANTYPE,
+	ISNULL_BOOLEANTYPE,
+	NOT_BOOLEANTYPE,
+	ID_BOOLEANTYPE,
+	INTEGER_VALUE_BOOLEANTYPE,
+	DOUBLE_VALUE_BOOLEANTYPE,
+	STRING_VALUE_BOOLEANTYPE,
+	BOOLEAN_VALUE_BOOLEANTYPE
+}
+
+struct BooleanExpression {
+	union {
+		struct {
+			BooleanExpression * boolean_expression_left;
+			BooleanExpression * boolean_expression_rigth;
+		};
+
+		struct {
+			BooleanExpression * boolean_expression_distinct_from;
+			IsCondition * is_condition_distinct_from;
+			Type * data_type;
+		};
+
+		struct {
+			BooleanExpression * boolean_expression_three_pointers;
+			IsCondition * is_condition_three_pointers;
+			BooleanValue * boolean_value;
+		};
+
+		struct {
+			BooleanExpression * boolean_expression_with_is_condition;
+			IsCondition * is_condition_with_boolean_expression;	
+		};
+
+		BooleanExpression * unique_boolean_expression;
+		BooleanValue * unique_boolean_value;
+		char * string;
+		double double_value;
+		int integer_value;
+	}
+}
+
+struct CheckConstraint {
+	BooleanExpression * booleanExpression;
+}
+
+struct LocalConstraint {
+	union {
+		OnAction * onAction;
+		CheckConstraint * checkConstraint;
+		struct {}
+	};
+	LocalConstraintType type;
+}
+
+struct Expression {
+	ExpressionType type;
+}
+
+struct IsCondition {
+	IsConditionType type;
+}
+
+struct BooleanValue {
+	BooleanType booleanType;
+}
+
+struct Function {
+	FunctionType functionType;
 };
 
 struct ConstraintValue {
 	union {
-		BooleanExpression * booleanExpression;
+		CheckConstraint * checkConstraint;
 		Expression * expression;
+		struct {
+			Expression * singleExpression;
+			OnAction * onAction;
+		}
+		struct {
+			Expression * mainExpression;
+			Expression * secondExpression;
+			OnAction * onAction;
+		}
 	};
 	ConstraintValueType type;
 };
 
 struct Constraint {
-   char * name;
+	union {
+		char * name;
+		struct {}
+	}   
    struct ConstraintValue * value;
-   struct Constraint * next;
 };
 
 struct Constraints {
     Constraint *first;
 };
 
-struct Type {
-	int param1;
-	int param2;
-	DataTypeType type;
+struct DefaultValue {
+	union {
+		int integer_value;
+		double double_value;
+		char * string_value;
+		Function * function; 
+	}
+	DefaultValueType type;
+};
+
+
+struct NullCondition {
+	NullConditionType type;
 };
 
 struct Properties {
 	union {
 		DefaultValue * defaultValue;
-		Constraint * constraint;
+		LocalConstraint * constraint;
 		NullCondition * nullCondition;
 		struct {
 			DefaultValue * defaultValueDC;
-			Constraint * constraintDC;
+			LocalConstraint * constraintDC;
 		};
 		struct {
 			DefaultValue * defaultValueDN;
 			NullCondition * nullConditionDN;
 		};
 		struct {
-			Constraint * constraintCN;
+			LocalConstraint * constraintCN;
 			NullCondition * nullConditionCN;
 		};
 		struct {
-			Constraint * constraintCDN;
+			LocalConstraint * constraintCDN;
 			DefaultValue * defaultValueCDN;
 			NullCondition * nullConditionCDN;
 		};
 	};
 	PropertiesType type;
+};
+
+struct Type {
+	int param1;
+	int param2;
+	DataTypeType type;
 };
 
 struct Attribute {
