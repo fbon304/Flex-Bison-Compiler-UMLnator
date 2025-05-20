@@ -75,6 +75,7 @@ Content * MultiContentSemanticAction(Content * content, ContentElement * content
 ContentElement * ContentElementAttributeSemanticAction(Attribute * attribute);
 ContentElement * ContentElementConstraintSemanticAction(Constraint * constraint);
 
+Tables * EmptyTablesSemanticAction(char * id);
 Tables * ContentTablesSemanticAction(char * id, Content * content);
 
 TablesList * TableListSingleTableSemanticAction(Tables * tables);

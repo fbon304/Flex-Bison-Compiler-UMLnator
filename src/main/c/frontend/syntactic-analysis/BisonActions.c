@@ -475,11 +475,20 @@ TablesList * TableListMultiTableSemanticAction(TablesList * tablesList, Tables *
 	return tablesListNew;
 };
 
+Tables * EmptyTablesSemanticAction(char * id) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	Tables * tables = calloc(1, sizeof(Tables));
+	tables->id = id;
+	tables->type = EMPTY_TABLES;
+	return tables;
+}
+
 Tables * ContentTablesSemanticAction(char * id, Content * content) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Tables * newTable = calloc(1, sizeof(Tables));
 	newTable->content = content;
 	newTable->id = id;
+	newTable->type = NON_EMPTY_TABLES;
 	return newTable;
 }
 

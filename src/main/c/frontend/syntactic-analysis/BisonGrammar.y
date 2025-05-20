@@ -193,6 +193,7 @@ tables_list: tables																	{ $$ = TableListSingleTableSemanticAction($1
 	;
 
 tables: CREATE TABLE ID OPEN_PARENTHESIS content CLOSE_PARENTHESIS SEMICOLON		{ $$ = ContentTablesSemanticAction($3, $5); }
+	| CREATE TABLE ID OPEN_PARENTHESIS CLOSE_PARENTHESIS SEMICOLON					{ $$ = EmptyTablesSemanticAction($3); }
 	;
 
 content: content_element															{ $$ = SimpleContentSemanticAction($1); }										

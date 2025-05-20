@@ -327,8 +327,12 @@ void releaseTablesList(TablesList *tablesList) {
 void releaseTables(Tables * tables) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if(tables != NULL) {
+		switch (tables->type) {
+		case NON_EMPTY_TABLES:
+			releaseContent(tables->content);
+			break;
+		}
 		free(tables->id);
-		releaseContent(tables->content);
 		free(tables);
 	}
 }

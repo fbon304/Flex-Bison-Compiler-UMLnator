@@ -70,6 +70,11 @@ enum TablesListType {
 	LIST
 };
 
+enum TablesType {
+	NON_EMPTY_TABLES,
+	EMPTY_TABLES
+};
+
 enum ContentType {
 	ELEMENT,
 	CONTENT_LIST
@@ -414,6 +419,7 @@ struct Content {
 struct Tables {
 	char * id;
 	Content * content;
+	TablesType type;
 };
 
 struct TablesList {

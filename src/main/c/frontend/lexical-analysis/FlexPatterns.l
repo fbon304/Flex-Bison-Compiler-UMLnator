@@ -70,6 +70,11 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 "FLOAT"											{ return TypeLexemeAction(createLexicalAnalyzerContext(), FLOAT); }
 "TIME"											{ return TypeLexemeAction(createLexicalAnalyzerContext(), TIME); }
 
+"("												{ return ParenthesisLexemeAction(createLexicalAnalyzerContext(), OPEN_PARENTHESIS); }
+")"												{ return ParenthesisLexemeAction(createLexicalAnalyzerContext(), CLOSE_PARENTHESIS); }
+","												{ return ComaLexemeAction(createLexicalAnalyzerContext(), COMA); }
+";"					 							{ return SemicolonLexemeAction(createLexicalAnalyzerContext(), SEMICOLON); }
+
 "CURRENT_TIMESTAMP"|"NOW()"						{ return FunctionLexemeAction(createLexicalAnalyzerContext(), CURRENT_TIMESTAMP); }
 "AUTO_INCREMENT"								{ return FunctionLexemeAction(createLexicalAnalyzerContext(), AUTO_INCREMENT); }
 "CURRENT_DATE"									{ return FunctionLexemeAction(createLexicalAnalyzerContext(), CURRENT_DATE); }	
@@ -103,11 +108,6 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 "UPDATE"										{ return ActionLexemeAction(createLexicalAnalyzerContext(), UPDATE); }
 "NO ACTION"										{ return ActionLexemeAction(createLexicalAnalyzerContext(), NO_ACTION); }
 "RESTRICT"										{ return ActionLexemeAction(createLexicalAnalyzerContext(), RESTRICT); }
-
-"("												{ return ParenthesisLexemeAction(createLexicalAnalyzerContext(), OPEN_PARENTHESIS); }
-")"												{ return ParenthesisLexemeAction(createLexicalAnalyzerContext(), CLOSE_PARENTHESIS); }
-","												{ return ComaLexemeAction(createLexicalAnalyzerContext(), COMA); }
-";"					 							{ return SemicolonLexemeAction(createLexicalAnalyzerContext(), SEMICOLON); }
 
 
 
