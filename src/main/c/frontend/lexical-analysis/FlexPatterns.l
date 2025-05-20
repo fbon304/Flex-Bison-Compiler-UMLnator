@@ -122,7 +122,7 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 									
 [[:digit:]]+\,[[:digit:]]+ 						{ return DoubleLexemeAction(createLexicalAnalyzerContext()); }
 
-[[:alpha:]][[:alnum:]"_"]*						{ return IdLexemeAction(createLexicalAnalyzerContext()); }
+[[:alpha:]_][[:alnum:]_]*					{ return IdLexemeAction(createLexicalAnalyzerContext()); }
 
 
 [[:space:]]+									{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
