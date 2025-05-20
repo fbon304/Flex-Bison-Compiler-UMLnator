@@ -1,5 +1,5 @@
 create table table_name (
     edad int default 18,
-    birthdate timestamp current_timestamp,
-    birthdate timestamp now()
+    birthdate timestamp default current_timestamp, /* no se puede tener funciones sin la keyword default, se la agregue */
+    birthdate timestamp default localtimestamp
 );

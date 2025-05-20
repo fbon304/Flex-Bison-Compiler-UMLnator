@@ -1,4 +1,4 @@
 create table table1 (
-    edad int check (),
-    name text check (not name = "juancho")
+    edad int check (edad >= 3), /* cambie de un () vacio a edad >= 3, postgres no lo aguanta */
+    name text check (name != 'juancho')
 );

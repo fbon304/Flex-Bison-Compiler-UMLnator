@@ -334,7 +334,7 @@ factor: ID 																			{ $$ = StringFactorSemanticAction($1, ID_FACTOR_TY
 	;
 
 is_condition: IS																	{ $$ = IsConditionSemanticAction(IS_CONDITION);}
-	| ISNOT																		{ $$ = IsConditionSemanticAction(IS_NOT_CONDITION);}		
+	| ISNOT																			{ $$ = IsConditionSemanticAction(IS_NOT_CONDITION);}		
 	;
 
 %%

@@ -19,7 +19,6 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
  * %x IMPORT_EXPRESSION
  */
 %x MULTILINE_COMMENT
-%x DEFAULT_VALUE_STRING
 
 /**
  * Reusable patterns.
@@ -37,9 +36,7 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 <MULTILINE_COMMENT>.							{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
 
 
-"'"												{ BEGIN(DEFAULT_VALUE_STRING); BeginDefaultValueStringLexemeAction(createLexicalAnalyzerContext()); }
-<DEFAULT_VALUE_STRING>"'"						{ EndDefaultValueStringLexemeAction(createLexicalAnalyzerContext()); BEGIN(INITIAL); }
-<DEFAULT_VALUE_STRING>[^']*						{ DefaultValueStringLexemeAction(createLexicalAnalyzerContext()); }
+<INITIAL>"'"([^']*)"'"   						{ DefaultValueStringLexemeAction(createLexicalAnalyzerContext()); return STRING_VALUE; }
 
 "CREATE" 										{ return TextLexemeAction(createLexicalAnalyzerContext(), CREATE); }
 "TABLE" 										{ return TextLexemeAction(createLexicalAnalyzerContext(), TABLE); }
@@ -125,7 +122,7 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 									
 [[:digit:]]+\,[[:digit:]]+ 						{ return DoubleLexemeAction(createLexicalAnalyzerContext()); }
 
-[[:alnum:]"_"]+									{ return IdLexemeAction(createLexicalAnalyzerContext()); }
+[[:alpha:]][[:alnum:]"_"]*						{ return IdLexemeAction(createLexicalAnalyzerContext()); }
 
 
 [[:space:]]+									{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }

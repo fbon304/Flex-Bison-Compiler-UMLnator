@@ -66,7 +66,7 @@ Factor * IntegerFactorSemanticAction(int value) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Factor * factor = calloc(1, sizeof(Factor));
 	factor->integer_factor = value;
-	factor->type = ID_FACTOR_TYPE;
+	factor->type = INTEGER_FACTOR_TYPE;
 	return factor;
 }
 

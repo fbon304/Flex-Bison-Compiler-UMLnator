@@ -1,3 +1,0 @@
-CREATE TABLE bad_default (
-    created_at TIMESTAMP DEFAULT 'yesterday'
-);

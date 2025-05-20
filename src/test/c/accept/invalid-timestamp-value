@@ -1,0 +1,3 @@
+CREATE TABLE bad_default (
+    created_at TIMESTAMP DEFAULT 'yesterday' /* its an invalid datatype that should be corrected in the backend */
+);
