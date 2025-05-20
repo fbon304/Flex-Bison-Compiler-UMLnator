@@ -1,6 +1,14 @@
+create table school (
+        school_id int primary key
+);
+
+create table country (
+        id serial primary key
+);
+
 create table local_constraints (
     id int primary key,
     username varchar(100) unique,
     school_id int references school on delete cascade on update set null,
-    country_id serial references country (id) on update set default /* Le saque la coma, no se puede tener coma terminal */
+    country_id serial references country (id) on update set default
 );

@@ -1,0 +1,12 @@
+create table other_table (
+    id int primary key
+);
+
+create table global_constraints (
+    id int,
+    unique_value serial,
+    foreign_id int,
+    primary key (id),
+    unique (unique_value),
+    foreign key (foreign_id) references other_table (id)
+);
