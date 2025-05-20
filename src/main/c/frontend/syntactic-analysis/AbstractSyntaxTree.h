@@ -23,6 +23,16 @@ typedef enum DefaultValueType DefaultValueType;
 typedef enum ConstraintValueType ConstraintValueType;
 typedef enum PropertiesType PropertiesType;
 typedef enum FunctionType FunctionType;
+typedef enum ExpressionType ExpressionType;
+typedef enum LocalConstraintType LocalConstraintType;
+typedef enum ConstraintsType ConstraintsType;
+typedef enum ConstraintType ConstraintType;
+typedef enum BooleanExpressionType BooleanExpressionType;
+typedef enum BooleanType BooleanType;
+typedef enum IsConditionType IsConditionType;
+typedef enum OnActionType OnActionType;
+typedef enum ActionType ActionType;
+typedef enum FactorType FactorType;
 
 typedef struct Program Program;
 typedef struct Tables Tables;
@@ -38,10 +48,14 @@ typedef struct DefaultValue DefaultValue;
 typedef struct NullCondition NullCondition;
 typedef struct Expression Expression;
 typedef struct ConstraintValue ConstraintValue;
-typedef struct BooleaExpression BooleanExpression;
+typedef struct BooleanExpression BooleanExpression;
 typedef struct Function Function;
+typedef struct Factor Factor;
+typedef struct OnAction OnAction;
+typedef struct CheckConstraint CheckConstraint;
 typedef struct BooleanValue BooleanValue;
 typedef struct IsCondition IsCondition;
+typedef struct Action Action;
 
 /**
  * Node types for the Abstract Syntax Tree (AST).
@@ -102,43 +116,28 @@ enum NullConditionType {
 	NUL_CONDITION
 };
 
-enum BooleanType {
-	BOOLEAN_TRUE,
-	BOOLEAN_FALSE
-}
-
-enum IsConditionType {
-	IS_CONDITION,
-	IS_NOT_CONDITION
-}
-
 enum DefaultValueType {
 	INTEGER_DEFAULT,
 	DOUBLE_DEFAULT,
 	STRING_DEFAULT,
 	FUNCTION
-}
-
-enum ExpressionType {
-	AND_OPERATOR, 
-	OR_OPERATOR,
-	NOT_OPERATOR
 };
 
 enum ConstraintValueType {
-	EXPRESSION,
-    BOOLEAN_EXPRESSION
+	CHECK_CONSTRAINT_TYPE,
+    PRIMARY_KEY_CONSTRAINT_TYPE,
+	UNIQUE_CONSTRAINT_TYPE,
+	FOREIGN_KEY_CONSTRAINT_TYPE,
+	FOREIGN_KEY_DOUBLE_EXPRESSION_CONSTRAINT_TYPE,
 };
 
 enum FunctionType {
-	CURRENT_TIMESTAMP_FUNCTION,
-	NOW_OPEN_PARENTHESIS_CLOSE_PARENTHESIS_FUNCTION, 
+	CURRENT_TIMESTAMP_FUNCTION, 
 	AUTO_INCREMENT_FUNCTION,
 	CURRENT_DATE_FUNCTION,
 	CURRENT_TIME_FUNCTION,
 	LOCALTIME_FUNCTION,
-	LOCAL_TIMESTAMP_FUNCTION,
-	CURRENT_TIMESTAMP_FUNCTION,
+	LOCALTIMESTAMP_FUNCTION,
 	GEN_RANDOM_UUID_OPEN_AND_CLOSE_PARENTHESIS_FUNCTION,
 	UUID_GENERATE_V4_OPEN_AND_CLOSE_PARENTHESIS_FUNCTION
 };
@@ -153,42 +152,107 @@ enum LocalConstraintType {
 	UNIQUE_LCT,
 	FOREIGN_KEY_LCT,
 	CHECK_LCT,
-	CHECK_CONSTRAINT_LCT
+	FOREING_KEY_ATTRIBUTE_LCT
+};
+
+enum ConstraintType {
+	NAMED_CONSTRAINT,
+	UNNAMED_CONSTRAINT
 };
 
 enum BooleanExpressionType {
+	BETWEEN_PARENTHESIS,
 	AND_BOOLEANTYPE,
 	OR_BOOLEANTYPE,
 	EQUALS_BOOLEANTYPE,
 	NOT_EQUALS_BOOLEANTYPE,
-	EQUALS_BOOLEANTYPE,
 	LESS_THAN_BOOLEANTYPE,
 	GREATER_THAN_BOOLEANTYPE,
 	GREATER_THAN_EQUALS_BOOLEANTYPE,
-	DISTINCT_FROM_BOOLEANTYPE,
+	LESS_THAN_EQUALS_BOOLEANTYPE,
 	THREE_POINTERS_BOOLEANTYPE,
 	NUL_BOOLEANTYPE,
 	NOTNULL_BOOLEANTYPE,
 	ISNULL_BOOLEANTYPE,
 	NOT_BOOLEANTYPE,
-	ID_BOOLEANTYPE,
-	INTEGER_VALUE_BOOLEANTYPE,
-	DOUBLE_VALUE_BOOLEANTYPE,
-	STRING_VALUE_BOOLEANTYPE,
-	BOOLEAN_VALUE_BOOLEANTYPE
-}
+	BOOLEAN_VALUE_BOOLEANTYPE,
+	DISTINCT_FROM_BOOLEANTYPE
+};
+
+enum FactorType {
+	ID_FACTOR_TYPE,
+	INTEGER_FACTOR_TYPE,
+	DOUBLE_FACTOR_TYPE,
+	STRING_FACTOR_TYPE
+};
+
+enum ConstraintsType {
+	SINGLE_CONSTRAINT,
+	DOUBLE_CONSTRAINT
+};
+
+enum BooleanType {
+	BOOLEAN_TRUE,
+	BOOLEAN_FALSE
+};
+
+enum IsConditionType {
+	IS_CONDITION,
+	IS_NOT_CONDITION
+};
+
+enum OnActionType {
+	DELETE_ON_ACTION,
+	UPDATE_ON_ACTION,
+	ON_DELETE_ON_UPDATE_ON_ACTION,
+	LAMBDA_ON_ACTION
+};
+
+enum ActionType{
+	CASCADE_ACTION,
+	SET_NUL_ACTION,
+	SET_DEFAULT_ACTION,
+	NO_ACTION_ACTION,
+	RESTRICT_ACTION
+};
+
+struct Action {
+	ActionType type;
+};
+
+struct OnAction {
+	union {
+		Action * action;
+		struct {
+			Action * deleteAction;
+			Action * updateAction;
+		};
+	};
+	OnActionType type;
+};
+
+struct Factor {
+	union {
+		char * string;
+		double double_factor;
+		int integer_factor
+	};
+	FactorType type;
+};
+
+struct IsCondition {
+	IsConditionType type;
+};
+
+struct BooleanValue {
+	BooleanType type;
+};
 
 struct BooleanExpression {
 	union {
 		struct {
 			BooleanExpression * boolean_expression_left;
-			BooleanExpression * boolean_expression_rigth;
-		};
-
-		struct {
-			BooleanExpression * boolean_expression_distinct_from;
-			IsCondition * is_condition_distinct_from;
-			Type * data_type;
+			BooleanExpression * boolean_expression_right;
 		};
 
 		struct {
@@ -204,36 +268,41 @@ struct BooleanExpression {
 
 		BooleanExpression * unique_boolean_expression;
 		BooleanValue * unique_boolean_value;
-		char * string;
-		double double_value;
-		int integer_value;
-	}
-}
+
+		struct {
+			Factor * factor_left;
+			IsCondition * isCondition_with_two_factors;
+			Factor * factor_right;
+		};
+	};
+	BooleanExpressionType type;
+};
 
 struct CheckConstraint {
 	BooleanExpression * booleanExpression;
-}
+};
 
 struct LocalConstraint {
 	union {
-		OnAction * onAction;
+		struct {
+			char * id;
+			OnAction * onAction;
+		};
+		struct {
+			char * id1;
+			char * id2;
+			OnAction * onAction;
+		};
 		CheckConstraint * checkConstraint;
-		struct {}
 	};
 	LocalConstraintType type;
-}
+};
 
 struct Expression {
+	char * id;
+	Expression * expression;
 	ExpressionType type;
-}
-
-struct IsCondition {
-	IsConditionType type;
-}
-
-struct BooleanValue {
-	BooleanType booleanType;
-}
+};
 
 struct Function {
 	FunctionType functionType;
@@ -244,28 +313,43 @@ struct ConstraintValue {
 		CheckConstraint * checkConstraint;
 		Expression * expression;
 		struct {
+			char * id;
 			Expression * singleExpression;
-			OnAction * onAction;
-		}
+			OnAction * onActionSingle;
+		};
 		struct {
+			char * idComplex;
 			Expression * mainExpression;
 			Expression * secondExpression;
-			OnAction * onAction;
-		}
+			OnAction * onActionDouble;
+		};
 	};
 	ConstraintValueType type;
 };
 
 struct Constraint {
 	union {
-		char * name;
-		struct {}
-	}   
-   struct ConstraintValue * value;
+		struct {
+			char * id;
+			ConstraintValue * constraintValue;
+		};
+		ConstraintValue * singleConstraintValue;
+	};
+	ConstraintType type;
+	
 };
 
 struct Constraints {
-    Constraint *first;
+	union {
+		struct {
+			Constraint * constraint;
+		};
+		struct {
+			Constraint * constraint1;
+			Constraint * constraint2;
+		};
+	};
+	ConstraintsType type;
 };
 
 struct DefaultValue {
@@ -274,7 +358,7 @@ struct DefaultValue {
 		double double_value;
 		char * string_value;
 		Function * function; 
-	}
+	};
 	DefaultValueType type;
 };
 
@@ -375,22 +459,30 @@ struct Program {
  * Node recursive destructors.
  */
 
-/*void releaseConstant(Constant * constant);
-void releaseFactor(Factor * factor);*/
-
-void releaseProperties(Properties * properties);
-void releaseExpression(Expression * expression);
+void releaseIsCondition(IsCondition * isCondition);
+void releaseBooleanValue(BooleanValue * booleanValue);
+void releaseFactor(Factor * factor);
 void releaseBooleanExpression(BooleanExpression * booleanExpression);
-void releaseType(Type * type);
-void releaseDefaultValue(DefaultValue * defaultValue);
+void releaseExpression(Expression * expression);
+void releaseAction(Action * action);
+void releaseOnAction(OnAction * onAction);
 void releaseConstraintValue(ConstraintValue * constraintValue);
 void releaseConstraint(Constraint * constraint);
 void releaseConstraints(Constraints *constraints);
+void releaseLocalConstraint(LocalConstraint * localConstraint);
+void releaseFunction(Function * function);
+void releaseDefaultValue(DefaultValue * defaultValue);
+void releaseNullCondition(NullCondition * nullCondition);
+void releaseType(Type * type);
+void releaseProperties(Properties * properties);
 void releaseAttribute(Attribute * attribute);
 void releaseAttributes(Attributes *attributes);
 void releaseContent(Content * content);
 void releaseTables(Tables *tables);
 void releaseProgram(Program * program);
-void releaseNullCondition(NullCondition * nullCondition);
+void releaseOnAction(OnAction * onAction);
+void releaseAction(Action* action);
+void releaseFactor(Factor * factor);
+void releaseIsCondition(IsCondition * isCondition);
 
 #endif

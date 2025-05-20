@@ -1,0 +1,3 @@
+create table table1 (
+    edad int check (edad >= 18 and edad != 99)
+);

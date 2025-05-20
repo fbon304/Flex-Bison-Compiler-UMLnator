@@ -1,3 +1,4 @@
+
 %{
 
 #include "BisonActions.h"
@@ -39,6 +40,7 @@
 	OnAction * on_action;
 	CheckConstraint * check_constraint;
 	Factor * factor;
+	IsConditon * is_condition;
 }
 
 /**
@@ -49,38 +51,30 @@
  *
  * @see https://www.gnu.org/software/bison/manual/html_node/Destructor-Decl.html
  */
-//TODO
-/*
-%destructor { releaseConstant($$); } <constant>
-%destructor { releaseExpression($$); } <expression>
-%destructor { releaseFactor($$); } <factor>
-*/
 
-%destructor { releaseProperties($$); } <properties>
-%destructor { releaseExpression($$); } <expression>
+%destructor { releaseIsCondition($$); } <is_condition>
+%destructor { releaseBooleanValue($$); } <boolean_value>
+%destructor { releaseFactor($$); } <factor>
 %destructor { releaseBooleanExpression($$); } <boolean_expression>
-%destructor { releaseType($$); } <type>
-%destructor { releaseDefaultValue($$); } <default_value>
+%destructor { releaseExpression($$); } <expression>
+%destructor { releaseAction($$); } <action>
+%destructor { releaseOnAction($$); } <on_action>
 %destructor { releaseConstraintValue($$); } <constraint_value>
 %destructor { releaseConstraint($$); } <constraint>
 %destructor { releaseConstraints($$); } <constraints>
+%destructor { releaseLocalConstraint($$); } <local_constraint>
+%destructor { releaseFunction($$); } <function>
+%destructor { releaseDefaultValue($$); } <default_value>
+%destructor { releaseNullCondition($$); } <null_condition>
+%destructor { releaseType($$); } <type>
+%destructor { releaseProperties($$); } <properties>
 %destructor { releaseAttribute($$); } <attribute>
 %destructor { releaseAttributes($$); } <attributes>
 %destructor { releaseContent($$); } <content>
 %destructor { releaseTables($$); } <tables>
 
 /** Terminals. */
-/*
-%token <integer> INTEGER
-%token <token> ADD
-%token <token> CLOSE_PARENTHESIS
-%token <token> DIV
-%token <token> MUL
-%token <token> OPEN_PARENTHESIS
-%token <token> SUB 
-*/
 
-/*Nuestro*/
 %token <id> ID
 %token <integer_value> INTEGER_VALUE
 %token <double_value> DOUBLE_VALUE
@@ -172,6 +166,8 @@
 %type <on_action> on_action
 %type <boolean_value> boolean_value
 %type <factor> factor
+%type <is_condition> is_condition
+
 
 /**
  * Precedence and associativity.
@@ -245,111 +241,96 @@ null_condition: NOT NUL																{ $$ = NullConditionSemanticAction(NOT_NU
 	| NUL																			{ $$ = NullConditionSemanticAction(NUL_CONDITION); }	
 	;
 
-default_value: DEFAULT INTEGER_VALUE								{ $$ = DefaultValueIntegerTerminalSemanticAction($2); }
-	| DEFAULT DOUBLE_VALUE											{ $$ = DefaultValueIntegerTerminalSemanticAction($2); }
-	| DEFAULT STRING_VALUE											{ $$ = DefaultValueIntegerTerminalSemanticAction($2); }	
-	| DEFAULT function												{ $$ = DefaultValueIntegerTerminalSemanticAction($2); }	
+default_value: DEFAULT INTEGER_VALUE												{ $$ = DefaultValueIntegerTerminalSemanticAction($2); }
+	| DEFAULT DOUBLE_VALUE															{ $$ = DefaultValueDoubleTerminalSemanticAction($2); }
+	| DEFAULT STRING_VALUE															{ $$ = DefaultValueStringTerminalSemanticAction($2); }	
+	| DEFAULT function																{ $$ = DefaultValueNonTerminalSemanticAction($2); }	
 	;
 
-function: CURRENT_TIMESTAMP 										{ $$ = ;}	
-	| AUTO_INCREMENT												{ $$ = ;}
-	| CURRENT_DATE													{ $$ = ;}	
-	| CURRENT_TIME													{ $$ = ;}	
-	| LOCALTIME														{ $$ = ;}	
-	| LOCALTIMESTAMP												{ $$ = ;}
-	| CURRENT_TIMESTAMP												{ $$ = ;}
-	| GEN_RANDOM_UUID OPEN_PARENTHESIS CLOSE_PARENTHESIS			{ $$ = ;}
-	| UUID_GENERATE_V4 OPEN_PARENTHESIS CLOSE_PARENTHESIS			{ $$ = ;}
+function: CURRENT_TIMESTAMP 														{ $$ = FunctionSemanticAction(CURRENT_TIMESTAMP_FUNCTION);}	
+	| AUTO_INCREMENT																{ $$ = FunctionSemanticAction(AUTO_INCREMENT_FUNCTION);}
+	| CURRENT_DATE																	{ $$ = FunctionSemanticAction(CURRENT_DATE_FUNCTION);}	
+	| CURRENT_TIME																	{ $$ = FunctionSemanticAction(CURRENT_TIME_FUNCTION);}	
+	| LOCALTIME																		{ $$ = FunctionSemanticAction(LOCALTIME_FUNCTION);}	
+	| LOCALTIMESTAMP																{ $$ = FunctionSemanticAction(LOCALTIMESTAMP_FUNCTION);}
+	| GEN_RANDOM_UUID OPEN_PARENTHESIS CLOSE_PARENTHESIS							{ $$ = FunctionSemanticAction(GEN_RANDOM_UUID_OPEN_AND_CLOSE_PARENTHESIS_FUNCTION);}
+	| UUID_GENERATE_V4 OPEN_PARENTHESIS CLOSE_PARENTHESIS							{ $$ = FunctionSemanticAction(UUID_GENERATE_V4_OPEN_AND_CLOSE_PARENTHESIS_FUNCTION);}
 	;
 
-local_constraint: PRIMARY KEY										{ $$ = ;}					
-	| UNIQUE														{ $$ = ;}			
-	| REFERENCES ID on_action										{ $$ = ;}	
-	| REFERENCES ID OPEN_PARENTHESIS ID CLOSE_PARENTHESIS on_action { $$ = ;}
-	| check_constraint												{ $$ = ;}			
+local_constraint: PRIMARY KEY														{ $$ = SimpleLocalConstraintSemanticAction(PRIMARY_KEY_LCT);}					
+	| UNIQUE																		{ $$ = SimpleLocalConstraintSemanticAction(UNIQUE_LCT);}			
+	| REFERENCES ID on_action														{ $$ = NameOnActionLocalConstraintSemanticAction($2, $3);}	
+	| REFERENCES ID OPEN_PARENTHESIS ID CLOSE_PARENTHESIS on_action 				{ $$ = DoubleNameOnActionLocalConstraintSemanticAction($2, $4, $6);}
+	| check_constraint																{ $$ = CheckLocalConstraintSemanticAction($1);}			
 	;
 
-constraints: constraint												{ $$ = ; }
-	| constraint COMA constraint									{ $$ = ; }
+constraints: constraint																{ $$ = SimpleConstraintsSemanticAction($1); }
+	| constraint COMA constraint													{ $$ = DoubleConstraintsSemanticAction($1, $3); }
 	;
 
-constraint: CONSTRAINT ID constraint_value							{ $$ = ; }
-	| constraint_value												{ $$ = ; }	
+constraint: CONSTRAINT ID constraint_value											{ $$ = NamedConstraintValueSemanticAction($2, $3); }
+	| constraint_value																{ $$ = UnnamedConstraintValueSemanticAction($1); }	
 	;
 
-constraint_value: check_constraint																										{ $$ = ; }	
-	| PRIMARY KEY OPEN_PARENTHESIS expression CLOSE_PARENTHESIS																			{ $$ = ; }
-	| UNIQUE OPEN_PARENTHESIS expression CLOSE_PARENTHESIS																				{ $$ = ; }					
-	| FOREIGN KEY OPEN_PARENTHESIS expression CLOSE_PARENTHESIS REFERENCES ID on_action													{ $$ = ; }
-	| FOREIGN KEY OPEN_PARENTHESIS expression CLOSE_PARENTHESIS REFERENCES ID OPEN_PARENTHESIS expression CLOSE_PARENTHESIS on_action  	{ $$ = ; }
+constraint_value: check_constraint																										{ $$ = CheckConstraintValueSemanticAction($1); }	
+	| PRIMARY KEY OPEN_PARENTHESIS expression CLOSE_PARENTHESIS																			{ $$ = SingleExpressionConstraintValueSemanticAction($3, PRIMARY_KEY_CONSTRAINT_TYPE); }
+	| UNIQUE OPEN_PARENTHESIS expression CLOSE_PARENTHESIS																				{ $$ = SingleExpressionConstraintValueSemanticAction($3, UNIQUE_CONSTRAINT_TYPE); }					
+	| FOREIGN KEY OPEN_PARENTHESIS expression CLOSE_PARENTHESIS REFERENCES ID on_action													{ $$ = SingleForeignConstraintValueSemanticAction($4, $7, $8); }
+	| FOREIGN KEY OPEN_PARENTHESIS expression CLOSE_PARENTHESIS REFERENCES ID OPEN_PARENTHESIS expression CLOSE_PARENTHESIS on_action  	{ $$ = DoubleForeignConstraintValueSemanticAction($4, $7, $9, $11); }
 	; 
 
-on_action: ON DELETE action											{ $$ = ;}
-	| ON UPDATE action												{ $$ = ;}	
-	| %empty														{ $$ = ;}	
+on_action: ON DELETE action															{ $$ = OnActionSemanticAction($3, DELETE_ON_ACTION); }
+	| ON UPDATE action																{ $$ = OnActionSemanticAction($3, UPDATE_ON_ACTION); }	
+	| ON DELETE action ON UPDATE action												{ $$ = DoubleActionSemanticAction($3, $6); }
+	| ON UPDATE action ON DELETE action												{ $$ = DoubleActionSemanticAction($6, $3); }
+	| %empty																		{ $$ = EmptyActionSemanticAction(); }	
 	;
 
-action: CASCADE														{ $$ = ;}	
-	| SET NUL														{ $$ = ;}	
-	| SET DEFAULT													{ $$ = ;}		
-	| NO_ACTION														{ $$ = ;}		
-	| RESTRICT														{ $$ = ;}		
+action: CASCADE																		{ $$ = ActionSemanticAction(CASCADE_ACTION); }	
+	| SET NUL																		{ $$ = ActionSemanticAction(SET_NUL_ACTION); }	
+	| SET DEFAULT																	{ $$ = ActionSemanticAction(SET_DEFAULT_ACTION); }		
+	| NO_ACTION																		{ $$ = ActionSemanticAction(NO_ACTION_ACTION); }		
+	| RESTRICT																		{ $$ = ActionSemanticAction(RESTRICT_ACTION); }		
 	;
 
-expression: ID 														{ $$ = ;}	
-	| ID COMA expression											{ $$ = ;}	
+expression: ID 																		{ $$ = IdExpressionSemanticAction($1);}	
+	| ID COMA expression															{ $$ = ComplexExpressionSemanticAction($1, $3);}	
 	;
 
-check_constraint: CHECK OPEN_PARENTHESIS boolean_expression CLOSE_PARENTHESIS		{ $$ = ;}
+check_constraint: CHECK OPEN_PARENTHESIS boolean_expression CLOSE_PARENTHESIS		{ $$ = BooleanExpressionCheckConstraint(boolean_expression);}
 	;
 
-boolean_expression: OPEN_PARENTHESIS boolean_expression CLOSE_PARENTHESIS			{ $$ = ;}	
-	| boolean_expression AND boolean_expression										{ $$ = ;}	
-	| boolean_expression OR boolean_expression										{ $$ = ;}	
-	| boolean_expression EQUALS boolean_expression /* = */							{ $$ = ;}	
-	| boolean_expression NOT_EQUALS boolean_expression /* <> o != */				{ $$ = ;}
-	| boolean_expression LESS_THAN boolean_expression								{ $$ = ;}
-	| boolean_expression GREATER_THAN boolean_expression							{ $$ = ;}	
-	| boolean_expression GREATER_THAN_EQUALS boolean_expression						{ $$ = ;}
-	| boolean_expression LESS_THAN_EQUALS boolean_expression     					{ $$ = ;}
-	| boolean_expression is_condition boolean_value									{ $$ = ;}	
-	| boolean_expression is_condition NUL											{ $$ = ;}	
-	| boolean_expression NOTNULL													{ $$ = ;}
-	| boolean_expression ISNULL														{ $$ = ;}	
-	| NOT boolean_expression														{ $$ = ;}
-	| boolean_value																	{ $$ = ;}
-	| factor is_condition DISTINCT_FROM factor										{ $$ = ;}		
+boolean_expression: OPEN_PARENTHESIS boolean_expression CLOSE_PARENTHESIS			{ $$ = SimpleBooleanExpressionSemanticAction($3, BETWEEN_PARENTHESIS);}	
+	| boolean_expression AND boolean_expression										{ $$ = DoubleBooleanExpressionSemanticAction($1, $2, AND_BOOLEANTYPE);}	
+	| boolean_expression OR boolean_expression										{ $$ = DoubleBooleanExpressionSemanticAction($1, $2, OR_BOOLEANTYPE);}	
+	| boolean_expression EQUALS boolean_expression /* = */							{ $$ = DoubleBooleanExpressionSemanticAction($1, $2, EQUALS_BOOLEANTYPE);}	
+	| boolean_expression NOT_EQUALS boolean_expression /* <> o != */				{ $$ = DoubleBooleanExpressionSemanticAction($1, $2, NOT_EQUALS_BOOLEANTYPE);}
+	| boolean_expression LESS_THAN boolean_expression								{ $$ = DoubleBooleanExpressionSemanticAction($1, $2, LESS_THAN_BOOLEANTYPE);}
+	| boolean_expression GREATER_THAN boolean_expression							{ $$ = DoubleBooleanExpressionSemanticAction($1, $2, GREATER_THAN_BOOLEANTYPE);}	
+	| boolean_expression GREATER_THAN_EQUALS boolean_expression						{ $$ = DoubleBooleanExpressionSemanticAction($1, $2, GREATER_THAN_EQUALS_BOOLEANTYPE);}
+	| boolean_expression LESS_THAN_EQUALS boolean_expression     					{ $$ = DoubleBooleanExpressionSemanticAction($1, $2, LESS_THAN_EQUALS);}
+	| boolean_expression is_condition boolean_value									{ $$ = TriplePointerBooleanExpressionSemanticAction($1, $2, $3);}	
+	| boolean_expression is_condition NUL											{ $$ = IsConditionBooleanExpressionSemanticAction($1, $2);}	
+	| boolean_expression NOTNULL													{ $$ = SimpleBooleanExpressionSemanticAction($1, NOTNULL_BOOLEANTYPE);}
+	| boolean_expression ISNULL														{ $$ = SimpleBooleanExpressionSemanticAction($1, ISNULL_BOOLEANTYPE);}	
+	| NOT boolean_expression														{ $$ = SimpleBooleanExpressionSemanticAction($2, NOT_BOOLEANTYPE);}
+	| boolean_value																	{ $$ = BooleanValueBooleanExpressionSemanticAction($1);}
+	| factor is_condition DISTINCT_FROM factor										{ $$ = FactorsBooleanExpressionSemanticAction($1, $2, $4);}		
 	;
 
 
-factor: ID 
-	| INTEGER_VALUE
-	| DOUBLE_VALUE
-	| STRING_VALUE
+factor: ID 																			{ $$ = StringFactorSemanticAction($1, ID_FACTOR_TYPE);}
+	| INTEGER_VALUE																	{ $$ = IntegerFactorSemanticAction($1);}
+	| DOUBLE_VALUE																	{ $$ = DoubleFactorSemanticAction($1);}
+	| STRING_VALUE																	{ $$ = StringFactorSemanticAction($1, STRING_FACTOR_TYPE);}
 	;
 
-boolean_value: TRUE																	{ $$ = ;}		
-	| FALSE																			{ $$ = ;}	
+boolean_value: TRUE																	{ $$ = BooleanValueSemanticAction(BOOLEAN_TRUE);}		
+	| FALSE																			{ $$ = BooleanValueSemanticAction(BOOLEAN_FALSE);}	
 	;
 
-is_condition: IS																	{ $$ = ;}
-	| IS NOT																		{ $$ = ;}		
-	;
-
-/*
-expression: expression[left] ADD expression[right]								{ $$ = ArithmeticExpressionSemanticAction($left, $right, ADDITION); }
-	| expression[left] DIV expression[right]									{ $$ = ArithmeticExpressionSemanticAction($left, $right, DIVISION); }
-	| expression[left] MUL expression[right]									{ $$ = ArithmeticExpressionSemanticAction($left, $right, MULTIPLICATION); }
-	| expression[left] SUB expression[right]									{ $$ = ArithmeticExpressionSemanticAction($left, $right, SUBTRACTION); }
-	| factor																	{ $$ = FactorExpressionSemanticAction($1); }
-	;
-
-factor: OPEN_PARENTHESIS expression CLOSE_PARENTHESIS							{ $$ = ExpressionFactorSemanticAction($2); }
-	| constant																	{ $$ = ConstantFactorSemanticAction($1); }
-	;
-
-constant: INTEGER																{ $$ = IntegerConstantSemanticAction($1); }
+is_condition: IS																	{ $$ = SimpleConditionSemanticAction(IS_CONDITION);}
+	| IS NOT																		{ $$ = SimpleConditionSemanticAction(IS_NOT_CONDITION);}		
 	;
 
 %%
-*/

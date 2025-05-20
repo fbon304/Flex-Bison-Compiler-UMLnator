@@ -16,10 +16,30 @@ void shutdownAbstractSyntaxTreeModule() {
 
 /** PUBLIC FUNCTIONS */
 
+void releaseFunction(Function * function) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (function != NULL) {
+		free(function);
+	}
+}
+
 void releaseNullCondition(NullCondition * nullCondition) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (nullCondition != NULL) {
 		free(nullCondition);
+	}
+}
+
+void releaseFactor(Factor * factor) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if(factor != NULL) {
+		switch(factor->type) {
+			case ID_FACTOR_TYPE:
+			case STRING_FACTOR_TYPE:
+				free(factor->string);
+				break;
+		}
+		free(factor);
 	}
 }
 
@@ -28,29 +48,29 @@ void releaseProperties(Properties * properties) {
 	if (properties != NULL) {
 		switch(properties->type) {
 			case DEFAULT_VALUE:
-				// releaseDefaultValue(properties->defaultValue);
+				releaseDefaultValue(properties->defaultValue);
 				break;
 			case CONSTRAINT_CONDITION:
-				// releaseLocalConstraint(properties->constraint);
+				releaseLocalConstraint(properties->constraint);
 				break;
 			case NULL_CONDITION:
 				releaseNullCondition(properties->nullCondition);
 				break;
 			case NULL_CONDITION_DEFAULT_VALUE:
 				releaseNullCondition(properties->nullConditionDN);
-				// releaseDefaultValue(properties->defaultValueDN);
+				releaseDefaultValue(properties->defaultValueDN);
 				break;
 			case NULL_CONDITION_CONSTRAINT:
 				releaseNullCondition(properties->nullConditionCN);
-				// releaseLocalConstraint(properties->constraintCN);
+				releaseLocalConstraint(properties->constraintCN);
 				break;
 			case DEFAULT_VALUE_CONSTRAINT:
-				// releaseDefaultValue(properties->defaultValueDC);
-				// releaseLocalConstraint(properties->constraintDC);
+				releaseDefaultValue(properties->defaultValueDC);
+				releaseLocalConstraint(properties->constraintDC);
 				break;
 			case COMPLETE:
-				// releaseDefaultValue(properties->defaultValueCDN);
-				// releaseLocalConstraint(properties->constraintCDN);
+				releaseDefaultValue(properties->defaultValueCDN);
+				releaseLocalConstraint(properties->constraintCDN);
 				releaseNullCondition(properties->nullConditionCDN);
 				break;
 			}
@@ -61,14 +81,77 @@ void releaseProperties(Properties * properties) {
 void releaseExpression(Expression * expression) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (expression != NULL) {
+		switch(expression->type) {
+			case SIMPLE_EXPRESSION:
+			free(expression->id);
+			break;
+			
+			case COMPLEX_EXPRESSION:
+			free(expression->id);
+			free(expression->expression);
+			break;
+		}
 
+		free(expression);
 	}
+}
+
+void releaseIsCondition(IsCondition * isCondition) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if(isCondition != NULL) {
+		free(isCondition);
+	}
+
+	IS_CONDITION,
+	IS_NOT_CONDITION
 }
 
 void releaseBooleanExpression(BooleanExpression * booleanExpression) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (booleanExpression != NULL) {
+		switch(booleanExpression->type) {
+			case BETWEEN_PARENTHESIS:
+			case NOTNULL_BOOLEANTYPE:
+			case ISNULL_BOOLEANTYPE:
+			case NOT_BOOLEANTYPE:
+				releaseBooleanExpression(booleanExpression->unique_boolean_expression);
+				break;
+			case AND_BOOLEANTYPE:
+			case OR_BOOLEANTYPE:
+			case EQUALS_BOOLEANTYPE:
+			case NOT_EQUALS_BOOLEANTYPE:
+			case LESS_THAN_BOOLEANTYPE:
+			case GREATER_THAN_BOOLEANTYPE:
+			case GREATER_THAN_EQUALS_BOOLEANTYPE:
+			case LESS_THAN_EQUALS_BOOLEANTYPE:
+				releaseBooleanExpression(booleanExpression->boolean_expression_left);
+				releaseBooleanExpression(booleanExpression->boolean_expression_right);
+				break;
+			case THREE_POINTERS_BOOLEANTYPE:
+				releaseBooleanExpression(booleanExpression->boolean_expression_three_pointers);
+				releaseIsCondition(booleanExpression->is_condition_three_pointers);
+				releaseBooleanValue(booleanExpression->boolean_value);
+				break;
+			case NUL_BOOLEANTYPE:
+				releaseBooleanExpression(booleanExpression->boolean_expression_with_is_condition);
+				releaseIsCondition(booleanExpression->is_condition_with_boolean_expression);
+				break;
+			case BOOLEAN_VALUE_BOOLEANTYPE:
+				releaseBooleanValue(booleanExpression->unique_boolean_value);
+				break;
+			case DISTINCT_FROM_BOOLEANTYPE:
+			releaseFaxctor(booleanExpression->factor_left);
+				releaseIsCondition(booleanExpression->isCondition_with_two_factors);
+				releaseFactor(booleanExpression->factor_right);
+		}
+		free(booleanExpression);
+	}
+}
 
+void releaseBooleanValue(BooleanValue * booleanValue) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if (booleanValue != NULL) {
+		free(booleanValue);
 	}
 }
 
@@ -82,38 +165,137 @@ void releaseType(Type * type) {
 void releaseDefaultValue(DefaultValue * defaultValue) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (defaultValue != NULL) {
+		switch(defaultValue->type) {
+			case INTEGER_DEFAULT:
+				break;
+			case DOUBLE_DEFAULT:
+				break;
+			case STRING_DEFAULT:
+				free(defaultValue->string_value);
+				break;
+			case FUNCTION:
+				releaseFunction(defaultValue->function);
+			break;
+		}
 		free(defaultValue);
 	}
 }
 
-void releaseConstraintValue(ConstraintValue * constraintValue) {
+void releaseCheckConstraint(CheckConstraint * checkConstraint) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if(checkConstraint != NULL) {
+		releaseBooleanExpression(checkConstraint->booleanExpression);
+		free(checkConstraint);
+	}
+}
+
+void releaseAction(Action * action) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if(action != NULL) {
+		free(action);
+	}
+}
+
+void releaseOnAction(OnAction * onAction) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if(onAction != NULL) {
+		switch (onAction->type) {
+			case DELETE_ON_ACTION:
+			case UPDATE_ON_ACTION:
+				releaseAction(onAction->action);
+				break;
+
+			case ON_DELETE_ON_UPDATE_ON_ACTION:
+				releaseAction(onAction->deleteAction);
+				releaseAction(onAction->updateAction);
+				break;
+		}
+		free(onAction);
+	}
+}
+
+void releaseLocalConstraint(LocalConstraint * localConstraint){
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if(localConstraint != NULL) {
+		switch (localConstraint->type) {
+			case FOREIGN_KEY_LCT:
+				free(localConstraint->id);
+				releaseOnAction(localConstraint->onAction);
+				break;
+
+			case CHECK_LCT:
+				releaseCheckConstraint(localConstraint->checkConstraint);
+				break;
+
+			case FOREING_KEY_ATTRIBUTE_LCT:
+				free(localConstraint->id1);
+				free(localConstraint->id2);
+				releaseOnAction(localConstraint->onAction);
+				break;
+			break;
+		}
+
+		free(localConstraint);
+	}
+}
+
+void releaseConstraintValue(ConstraintValue * constraintValue) { 
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (constraintValue != NULL) {
 		switch (constraintValue->type) {
-			case EXPRESSION:
+			case CHECK_CONSTRAINT_TYPE:
+				releaseCheckConstraint(constraintValue->checkConstraint);
+				break;
+			case PRIMARY_KEY_CONSTRAINT_TYPE:
 				releaseExpression(constraintValue->expression);
-				;
-			case BOOLEAN_EXPRESSION:
-				releaseBooleanExpression(constraintValue->booleanExpression);
-				;
+				break;
+			case UNIQUE_CONSTRAINT_TYPE:
+				releaseExpression(constraintValue->expression);
+				break;
+			case FOREIGN_KEY_CONSTRAINT_TYPE:
+				free(constraintValue->id);
+				releaseExpression(constraintValue->singleExpression);
+				releaseOnAction(constraintValue->onActionSingle);
+				break;
+			case FOREIGN_KEY_DOUBLE_EXPRESSION_CONSTRAINT_TYPE:
+				free(constraintValue->idComplex);
+				releaseExpression(constraintValue->mainExpression);
+				releaseExpression(constraintValue->secondExpression);
+				releaseOnAction(constraintValue->onActionDouble);
+				break;
 		}
+		free(constraintValue);
 	}
 }
 
 void releaseConstraint(Constraint * constraint) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (constraint != NULL) {
-		free(constraint->name);
-		releaseConstraintValue(constraint->value);
-		releaseConstraint(constraint->next);
-		free(constraint);
+		switch(constraint->type) {
+			case NAMED_CONSTRAINT:
+				free(constraint->id);
+				releaseConstraintValue(constraint->constraintValue);
+				break;
+			case UNNAMED_CONSTRAINT:
+				releaseConstraintValue(constraint->singleConstraintValue);
+				break;
+		}
 	}
+	free(constraint);
 }
 
 void releaseConstraints(Constraints * constraints) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (constraints != NULL) {
-		releaseConstraint(constraints->first);
+		switch(constraints->type) {
+			case DOUBLE_CONSTRAINT:
+				releaseConstraint(constraints->constraint1);
+				releaseConstraint(constraints->constraints);
+				break;
+			case SINGLE_CONSTRAINT:
+				releaseConstraint(constraints->constraint);
+				break;
+		}
 		free(constraints);
 	}
 }
@@ -195,50 +377,6 @@ void releaseProgram(Program * program) {
 		free(program);
 	}
 }
-
-
-/*void releaseConstant(Constant * constant) {
-	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
-	if (constant != NULL) {
-		free(constant);
-	}
-}
-
-void releaseExpression(Expression * expression) {
-	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
-	if (expression != NULL) {
-		switch (expression->type) {
-			case ADDITION:
-			case DIVISION:
-			case MULTIPLICATION:
-			case SUBTRACTION:
-				releaseExpression(expression->leftExpression);
-				releaseExpression(expression->rightExpression);
-				break;
-			case FACTOR:
-				releaseFactor(expression->factor);
-				break;
-		}
-		free(expression);
-	}
-}
-
-void releaseFactor(Factor * factor) {
-	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
-	if (factor != NULL) {
-		switch (factor->type) {
-			case CONSTANT:
-				releaseConstant(factor->constant);
-				break;
-			case EXPRESSION:
-				releaseExpression(factor->expression);
-				break;
-		}
-		free(factor);
-	}
-} 
-*/
-
 
 
 

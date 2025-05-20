@@ -1,0 +1,5 @@
+create table table_name (
+    edad int default 18,
+    birthdate timestamp current_timestamp,
+    birthdate timestamp now()
+);

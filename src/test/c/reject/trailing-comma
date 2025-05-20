@@ -1,0 +1,4 @@
+CREATE TABLE trailing_comma (
+    id SERIAL,
+    name TEXT,
+);

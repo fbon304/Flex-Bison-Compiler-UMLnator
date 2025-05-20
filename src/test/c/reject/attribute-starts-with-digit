@@ -1,0 +1,4 @@
+CREATE TABLE bad_identifier (
+    1st_column INTEGER,
+    name TEXT
+);

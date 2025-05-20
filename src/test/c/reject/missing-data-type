@@ -1,0 +1,4 @@
+CREATE TABLE missing_type (
+    id,
+    name TEXT
+);

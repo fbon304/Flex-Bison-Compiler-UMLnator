@@ -1,0 +1,4 @@
+CREATE TABLE missing_quote (
+    id INTEGER,
+    "name TEXT
+);

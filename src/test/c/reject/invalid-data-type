@@ -1,0 +1,4 @@
+CREATE TABLE invalid_type (
+    id SERIAL,
+    name STRNG
+);

@@ -1,0 +1,4 @@
+create table table1 (
+    edad int check (),
+    name text check (not name = "juancho")
+);

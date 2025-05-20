@@ -18,13 +18,46 @@ void shutdownBisonActionsModule();
  * Bison semantic actions.
  */
 
-/*
-Constant * IntegerConstantSemanticAction(const int value);
-Expression * ArithmeticExpressionSemanticAction(Expression * leftExpression, Expression * rightExpression, ExpressionType type);
-Expression * FactorExpressionSemanticAction(Factor * factor);
-Factor * ConstantFactorSemanticAction(Constant * constant);
-Factor * ExpressionFactorSemanticAction(Expression * expression); 
-*/
+IsCondition * IsConditionSemanticAction(IsConditionType type);
+
+BooleanValue * BooleanValueSemanticAction(BooleanType type);
+
+Factor * StringFactorSemanticAction(char * value, FactorType type);
+Factor * DoubleFactorSemanticAction(double value);
+Factor * IntegerFactorSemanticAction(int value);
+
+BooleanExpression * FactorsBooleanExpressionSemanticAction(Factor * leftFactor, IsCondition * isCondition, Factor * rightFactor);
+BooleanExpression * BooleanValueBooleanExpressionSemanticAction(BooleanValue * booleanValue);
+BooleanExpression * SimpleBooleanExpressionSemanticAction(BooleanExpression * booleanExpression, BooleanExpressionType type);
+BooleanExpression * IsConditionBooleanExpressionSemanticAction(BooleanExpression * booleanExpression, IsCondition * isCondition);
+BooleanExpression * TriplePointerBooleanExpressionSemanticAction(BooleanExpression * booleanExpression, IsCondition * isCondition, BooleanValue * booleanValue);
+BooleanExpression * DoubleBooleanExpressionSemanticAction(BooleanExpression * leftBooleanExpression, BooleanExpression * rightBooleanExpression, BooleanExpressionType type);
+
+CheckConstraint * BooleanExpressionCheckConstraint(BooleanExpression * booleanExpression);
+
+Expression * ComplexExpressionSemanticAction(char * id, Expression * expression)
+Expression * IdExpressionSemanticAction(char * id);
+
+Action * ActionSemanticAction(ActionType actiontype);
+
+OnAction * OnActionSemanticAction(Action * action, ActionType actionType);
+OnAction * EmptyActionSemanticAction();
+
+ConstraintValue * CheckConstraintValueSemanticAction(CheckConstraint * checkConstraint);
+ConstraintValue * SingleExpressionConstraintValueSemanticAction(Expression * expression, ConstraintValueType type);
+ConstraintValue * SingleForeignConstraintValueSemanticAction(Expression * expression, char * name, OnAction * onAction);
+ConstraintValue * DoubleForeignConstraintValueSemanticAction(Expression * expression1, char * name, Expression * expression2, OnAction * onAction);
+
+Constraint * NamedConstraintValueSemanticAction(char * id, ConstraintValue * constraintValue);
+Constraint * UnnamedConstraintValueSemanticAction(ConstraintType type, ConstraintValue * constraintValue);
+
+Constraints * SimpleConstraintsSemanticAction(LocalConstraint * localConstraint);
+Constraints * DoubleConstraintsSemanticAction(LocalConstraint * localConstraint1, LocalConstraint * localConstraint2);
+
+LocalConstraint * DoubleNameOnActionLocalConstraintSemanticAction(char * id1, char * id2, OnAction * OnAction);
+LocalConstraint * CheckLocalConstraintSemanticAction(CheckConstraint * checkConstraint)
+
+Function * FunctionSemanticAction(FunctionType functionType);
 
 NullCondition * NullConditionSemanticAction(NullConditionType type);
 
@@ -57,4 +90,10 @@ Properties * DoubleDefaultNullPropertySemanticAction(DefaultValue * defaultValue
 Properties * DoubleConstraintNullPropertySemanticAction(LocalConstraint * constraint, NullCondition * nullCondition, PropertiesType type);
 
 Properties * TriplePropertySemanticAction(DefaultValue * defaultValue, LocalConstraint * constraint, NullCondition * nullCondition);
+
+DefaultValue * DefaultValueIntegerTerminalSemanticAction(int value);
+DefaultValue * DefaultValueDoubleTerminalSemanticAction(double value);
+DefaultValue * DefaultValueStringTerminalSemanticAction(char * value);
+DefaultValue * DefaultValueNonTerminalSemanticAction(Function * function);
+
 #endif

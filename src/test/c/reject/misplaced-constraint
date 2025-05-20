@@ -1,0 +1,4 @@
+CREATE TABLE misplaced_constraint (
+    id INTEGER PRIMARY KEY,
+    CONSTRAINT name_not_null name TEXT NOT NULL
+);
