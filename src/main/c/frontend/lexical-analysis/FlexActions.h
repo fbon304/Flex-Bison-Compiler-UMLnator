@@ -46,6 +46,4 @@ Token BooleanLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token
 
 Token UnknownLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 
-//Token ArithmeticOperatorLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
-
 #endif
