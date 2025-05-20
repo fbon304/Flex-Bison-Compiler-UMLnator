@@ -100,21 +100,6 @@ Token DoubleLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext) {
 	return DOUBLE_VALUE;
 }
 
-Token DateTimeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token) {
-	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
-	size_t len = strlen(lexicalAnalyzerContext->lexeme);
-    char *copy = malloc(len + 1);
-    if (!copy) {
-        logError(_logger, "IdLexemeAction: out of memory allocating %zu bytes\n", len + 1);
-        destroyLexicalAnalyzerContext(lexicalAnalyzerContext);
-        exit(EXIT_FAILURE);
-    }
-    strcpy(copy, lexicalAnalyzerContext->lexeme);
-    lexicalAnalyzerContext->semanticValue->date_time_value = copy;
-    destroyLexicalAnalyzerContext(lexicalAnalyzerContext);
-    return token;
-}
-
 Token TypeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token) {
 	_logLexicalAnalyzerContext(__FUNCTION__, lexicalAnalyzerContext);
 	lexicalAnalyzerContext->semanticValue->token = token;

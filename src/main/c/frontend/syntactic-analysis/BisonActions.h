@@ -26,22 +26,27 @@ Factor * StringFactorSemanticAction(char * value, FactorType type);
 Factor * DoubleFactorSemanticAction(double value);
 Factor * IntegerFactorSemanticAction(int value);
 
-BooleanExpression * FactorsBooleanExpressionSemanticAction(Factor * leftFactor, IsCondition * isCondition, Factor * rightFactor);
-BooleanExpression * BooleanValueBooleanExpressionSemanticAction(BooleanValue * booleanValue);
 BooleanExpression * SimpleBooleanExpressionSemanticAction(BooleanExpression * booleanExpression, BooleanExpressionType type);
-BooleanExpression * IsConditionBooleanExpressionSemanticAction(BooleanExpression * booleanExpression, IsCondition * isCondition);
-BooleanExpression * TriplePointerBooleanExpressionSemanticAction(BooleanExpression * booleanExpression, IsCondition * isCondition, BooleanValue * booleanValue);
 BooleanExpression * DoubleBooleanExpressionSemanticAction(BooleanExpression * leftBooleanExpression, BooleanExpression * rightBooleanExpression, BooleanExpressionType type);
+BooleanExpression * BooleanFactorBooleanExpressionSemanticAction(BooleanFactor * booleanFactor);
+
+BooleanFactor * IsConditionBooleanFactorSemanticAction(BooleanFactor * booleanExpression, IsCondition * isCondition);
+BooleanFactor * TriplePointerBooleanFactorSemanticAction(BooleanFactor * booleanExpression, IsCondition * isCondition, BooleanValue * booleanValue);
+BooleanFactor * FactorsBooleanFactorSemanticAction(Factor * leftFactor, IsCondition * isCondition, Factor * rightFactor);
+BooleanFactor * FactorBooleanFactorSemanticAction(Factor * factor);
+BooleanFactor * BooleanValueBooleanFactorSemanticAction(BooleanValue * booleanValue);
+BooleanFactor * BooleanExpressionFactorSemanticAction(BooleanExpression * booleanExpression, BooleanFactorType type);
 
 CheckConstraint * BooleanExpressionCheckConstraint(BooleanExpression * booleanExpression);
 
-Expression * ComplexExpressionSemanticAction(char * id, Expression * expression)
+Expression * ComplexExpressionSemanticAction(char * id, Expression * expression);
 Expression * IdExpressionSemanticAction(char * id);
 
 Action * ActionSemanticAction(ActionType actiontype);
 
 OnAction * OnActionSemanticAction(Action * action, ActionType actionType);
 OnAction * EmptyActionSemanticAction();
+OnAction * DoubleActionSemanticAction(Action * deleteAction, Action * updateAction);
 
 ConstraintValue * CheckConstraintValueSemanticAction(CheckConstraint * checkConstraint);
 ConstraintValue * SingleExpressionConstraintValueSemanticAction(Expression * expression, ConstraintValueType type);
@@ -49,13 +54,12 @@ ConstraintValue * SingleForeignConstraintValueSemanticAction(Expression * expres
 ConstraintValue * DoubleForeignConstraintValueSemanticAction(Expression * expression1, char * name, Expression * expression2, OnAction * onAction);
 
 Constraint * NamedConstraintValueSemanticAction(char * id, ConstraintValue * constraintValue);
-Constraint * UnnamedConstraintValueSemanticAction(ConstraintType type, ConstraintValue * constraintValue);
+Constraint * UnnamedConstraintValueSemanticAction(ConstraintValue * constraintValue);
 
-Constraints * SimpleConstraintsSemanticAction(LocalConstraint * localConstraint);
-Constraints * DoubleConstraintsSemanticAction(LocalConstraint * localConstraint1, LocalConstraint * localConstraint2);
-
+LocalConstraint * NameOnActionLocalConstraintSemanticAction(char * name, OnAction * onAction);
+LocalConstraint *  SimpleLocalConstraintSemanticAction(LocalConstraintType type);
 LocalConstraint * DoubleNameOnActionLocalConstraintSemanticAction(char * id1, char * id2, OnAction * OnAction);
-LocalConstraint * CheckLocalConstraintSemanticAction(CheckConstraint * checkConstraint)
+LocalConstraint * CheckLocalConstraintSemanticAction(CheckConstraint * checkConstraint);
 
 Function * FunctionSemanticAction(FunctionType functionType);
 
@@ -68,18 +72,18 @@ Type * DoubleComplexTypeSemanticAction(int param1, int param2, DataTypeType type
 Attribute * AttributeTypeSemanticAction(char * id, Type * type);
 Attribute * AttributeTypePropertiesSemanticAction(char * id, Type * type, Properties * properties);
 
-Attributes * MultipleAttributesSemanticAction(Attribute * attribute1, Attribute * attribute2);
-Attributes * AttributesAttributeSemanticAction(Attribute * attribute);
+Content * SimpleContentSemanticAction(ContentElement * contentElement);
+Content * MultiContentSemanticAction(Content * content, ContentElement * contentElement);
 
-Content * AttributesContentSemanticAction(Attributes * attributes);
-Content * ConstraintsContentSemanticAction(Constraints * constraints);
-Content * AttributesAndConstraintsContentSemanticAction(Attributes * attributes, Constraints * constraints);
-Content * EmptyContentSemanticAction();
+ContentElement * ContentElementAttributeSemanticAction(Attribute * attribute);
+ContentElement * ContentElementConstraintSemanticAction(Constraint * constraint);
 
 Tables * ContentTablesSemanticAction(char * id, Content * content);
-Tables * TableGenerateSemanticAction(Tables * tables1, Tables *tables2);
 
-Program * TablesProgramSemanticAction(CompilerState * compilerState, Tables * tables);
+TablesList * TableListSingleTableSemanticAction(Tables * tables);
+TablesList * TableListMultiTableSemanticAction(TablesList * tablesList, Tables * tables);
+
+Program * TablesListProgramSemanticAction(CompilerState * compilerState, TablesList * tablesList);
 
 Properties * SimpleDefaultPropertySemanticAction(DefaultValue * defaultValue, PropertiesType type);
 Properties * SimpleConstraintPropertySemanticAction(LocalConstraint * constraint, PropertiesType type);

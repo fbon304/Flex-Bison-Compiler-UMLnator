@@ -1,4 +1,4 @@
-#include "AbstractSyntaxTree.h"
+	#include "AbstractSyntaxTree.h"
 
 /* MODULE INTERNAL STATE */
 
@@ -101,19 +101,14 @@ void releaseIsCondition(IsCondition * isCondition) {
 	if(isCondition != NULL) {
 		free(isCondition);
 	}
-
-	IS_CONDITION,
-	IS_NOT_CONDITION
 }
 
 void releaseBooleanExpression(BooleanExpression * booleanExpression) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (booleanExpression != NULL) {
 		switch(booleanExpression->type) {
-			case BETWEEN_PARENTHESIS:
 			case NOTNULL_BOOLEANTYPE:
 			case ISNULL_BOOLEANTYPE:
-			case NOT_BOOLEANTYPE:
 				releaseBooleanExpression(booleanExpression->unique_boolean_expression);
 				break;
 			case AND_BOOLEANTYPE:
@@ -127,22 +122,9 @@ void releaseBooleanExpression(BooleanExpression * booleanExpression) {
 				releaseBooleanExpression(booleanExpression->boolean_expression_left);
 				releaseBooleanExpression(booleanExpression->boolean_expression_right);
 				break;
-			case THREE_POINTERS_BOOLEANTYPE:
-				releaseBooleanExpression(booleanExpression->boolean_expression_three_pointers);
-				releaseIsCondition(booleanExpression->is_condition_three_pointers);
-				releaseBooleanValue(booleanExpression->boolean_value);
+			case BOOLEAN_FACTOR_BOOLEANTYPE:
+				releaseBooleanFactor(booleanExpression->boolean_factor);
 				break;
-			case NUL_BOOLEANTYPE:
-				releaseBooleanExpression(booleanExpression->boolean_expression_with_is_condition);
-				releaseIsCondition(booleanExpression->is_condition_with_boolean_expression);
-				break;
-			case BOOLEAN_VALUE_BOOLEANTYPE:
-				releaseBooleanValue(booleanExpression->unique_boolean_value);
-				break;
-			case DISTINCT_FROM_BOOLEANTYPE:
-			releaseFaxctor(booleanExpression->factor_left);
-				releaseIsCondition(booleanExpression->isCondition_with_two_factors);
-				releaseFactor(booleanExpression->factor_right);
 		}
 		free(booleanExpression);
 	}
@@ -227,10 +209,10 @@ void releaseLocalConstraint(LocalConstraint * localConstraint){
 				releaseCheckConstraint(localConstraint->checkConstraint);
 				break;
 
-			case FOREING_KEY_ATTRIBUTE_LCT:
+			case FOREING_KEY_DOUBLE_NAME_LCT:
 				free(localConstraint->id1);
 				free(localConstraint->id2);
-				releaseOnAction(localConstraint->onAction);
+				releaseOnAction(localConstraint->onActionComplex);
 				break;
 			break;
 		}
@@ -284,22 +266,6 @@ void releaseConstraint(Constraint * constraint) {
 	free(constraint);
 }
 
-void releaseConstraints(Constraints * constraints) {
-	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
-	if (constraints != NULL) {
-		switch(constraints->type) {
-			case DOUBLE_CONSTRAINT:
-				releaseConstraint(constraints->constraint1);
-				releaseConstraint(constraints->constraints);
-				break;
-			case SINGLE_CONSTRAINT:
-				releaseConstraint(constraints->constraint);
-				break;
-		}
-		free(constraints);
-	}
-}
-
 void releaseAttribute(Attribute * attribute) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if(attribute != NULL) {
@@ -318,19 +284,18 @@ void releaseAttribute(Attribute * attribute) {
 	}
 }
 
-void releaseAttributes(Attributes * attributes) {
+void releaseContentElement(ContentElement * contentElement) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
-	if(attributes != NULL) {
-		switch(attributes->type) {
-			case MULTIPLE_ATTRIBUTE:
-				releaseAttribute(attributes->attribute1);
-				releaseAttribute(attributes->attribute2);
+	if(contentElement != NULL) {
+		switch (contentElement->contentElementType) {
+			case ATTRIBUTE_TYPE:
+				releaseAttribute(contentElement->attribute);
 				break;
-			case ATTRIBUTE:
-				releaseAttribute(attributes->head);
+			case CONSTRAINT_TYPE:
+				releaseConstraint(contentElement->constraint);
 				break;
 		}
-		free(attributes);
+		free(contentElement);
 	}
 }
 
@@ -338,34 +303,39 @@ void releaseContent(Content * content) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if(content != NULL) {
 		switch (content->type) {
-			case ATTRIBUTES:
-				releaseAttributes(content->attributes);
+			case ELEMENT:
+				releaseContentElement(content->content_element);
 				break;
-			case CONSTRAINTS:
-				releaseConstraints(content->constraints);
-				break;
-			case ATTRIBUTES_CONSTRAINTS:
-				releaseAttributes(content->attributes);
-				releaseConstraints(content->constraints);
+			case CONTENT_LIST:
+				releaseContent(content->content);
+				releaseContentElement(content->content_element);
 				break;
 		}
 		free(content);
 	}
 }
 
-void releaseTables(Tables *tables) {
+void releaseTablesList(TablesList *tablesList) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
-    if (tables != NULL) {
-		switch (tables->type) {
-			case MULTIPLE_TABLES:
-				releaseTables(tables->tables1);
-				releaseTables(tables->tables2);
+	if (tablesList != NULL) {
+		switch (tablesList->type) {
+			case LIST:
+				releaseTablesList(tablesList->tablesList);
+				releaseTables(tablesList->tables);
 				break;
-			case CONTENT:
-				releaseContent(tables->content);
-				free(tables->id);
+			case SINGULAR:
+				releaseTables(tablesList->tables);
 				break;
 		}
+		free(tablesList);
+	}
+}
+
+void releaseTables(Tables * tables) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if(tables != NULL) {
+		free(tables->id);
+		releaseContent(tables->content);
 		free(tables);
 	}
 }
@@ -373,8 +343,46 @@ void releaseTables(Tables *tables) {
 void releaseProgram(Program * program) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (program != NULL) {
-		releaseTables(program->tables);
+		releaseTablesList(program->tablesList);
 		free(program);
+	}
+}
+
+void releaseBooleanFactor(BooleanFactor * booleanFactor) {
+	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
+	if(booleanFactor != NULL) {
+		switch(booleanFactor->type) {
+			case BOOLEAN_EXPRESSION_PARENTHESIS_TYPE:
+			case NOT_BOOLEAN_EXPRESSION:
+			releaseBooleanExpression(booleanFactor->booleanExpression);
+			break;
+
+			case BOOLEAN_VALUE_TYPE:
+			releaseBooleanValue(booleanFactor->booleanValue);
+			break;
+
+			case FACTOR_TYPE:
+			releaseFactor(booleanFactor->factor);
+			break;
+
+			case DISTINCT_FROM_BOOLEANTYPE:
+				releaseFactor(booleanFactor->factor_left);
+				releaseIsCondition(booleanFactor->isCondition_with_two_factors);
+				releaseFactor(booleanFactor->factor_right);
+
+			case NUL_BOOLEANTYPE:
+				releaseFactorExpression(booleanFactor->boolean_factor_with_is_condition);
+				releaseIsCondition(booleanFactor->is_condition_with_boolean_factor);
+				break;
+
+			case THREE_POINTERS_BOOLEANTYPE:
+				releaseFactorExpression(booleanFactor->boolean_factor_three_pointers);
+				releaseIsCondition(booleanFactor->is_condition_three_pointers);
+				releaseBooleanValue(booleanFactor->boolean_value);
+				break;
+		}
+
+		free(booleanFactor);
 	}
 }
 

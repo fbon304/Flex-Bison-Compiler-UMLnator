@@ -69,7 +69,6 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 "NUMBER"|"DECIMAL"|"DEC"						{ return TypeLexemeAction(createLexicalAnalyzerContext(), NUMBER); }
 "FLOAT"											{ return TypeLexemeAction(createLexicalAnalyzerContext(), FLOAT); }
 "TIME"											{ return TypeLexemeAction(createLexicalAnalyzerContext(), TIME); }
-"UNKNOWN"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), UNKNOWN_SQL); }
 
 "CURRENT_TIMESTAMP"|"NOW()"						{ return FunctionLexemeAction(createLexicalAnalyzerContext(), CURRENT_TIMESTAMP); }
 "AUTO_INCREMENT"								{ return FunctionLexemeAction(createLexicalAnalyzerContext(), AUTO_INCREMENT); }
@@ -90,6 +89,7 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 "<"												{ return BooleanLexemeAction(createLexicalAnalyzerContext(), LESS_THAN); }
 "<="											{ return BooleanLexemeAction(createLexicalAnalyzerContext(), LESS_THAN_EQUALS); }
 "IS"											{ return BooleanLexemeAction(createLexicalAnalyzerContext(), IS); }
+"IS NOT"										{ return BooleanLexemeAction(createLexicalAnalyzerContext(), ISNOT); }
 "ISNULL"										{ return BooleanLexemeAction(createLexicalAnalyzerContext(), ISNULL); }
 "NOTNULL"										{ return BooleanLexemeAction(createLexicalAnalyzerContext(), NOTNULL); }
 "DISTINCT FROM"									{ return BooleanLexemeAction(createLexicalAnalyzerContext(), DISTINCT_FROM); }
@@ -120,19 +120,16 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 													yyterminate();
 												}
 											}
+
+[[:digit:]]+									{ return IntegerLexemeAction(createLexicalAnalyzerContext()); }
 									
-/* [0-9]{4}\-[0-9]{2}\-[0-9]{2}					{ return DateTimeLexemeAction(createLexicalAnalyzerContext(), DATE_VALUE); }
-[0-9]{4}\-[0-9]{2}\-[0-9]{2}[ \t]+[0-9]{2}\:[0-9]{2}(\:[0-9]{2}(\.[0-9]{1,6})?)?  	{ return DateTimeLexemeAction(createLexicalAnalyzerContext(), TIMESTAMP_VALUE); }
-[0-9]{2}\:[0-9]{2}(\:[0-9]{2}(\.[0-9]{1,6})?)?	{ return DateTimeLexemeAction(createLexicalAnalyzerContext(), TIME_VALUE); } */
 [[:digit:]]+\,[[:digit:]]+ 						{ return DoubleLexemeAction(createLexicalAnalyzerContext()); }
 
 [[:alnum:]"_"]+									{ return IdLexemeAction(createLexicalAnalyzerContext()); }
 
 
-[[:digit:]]+									{ return IntegerLexemeAction(createLexicalAnalyzerContext()); }
-
 [[:space:]]+									{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
-"\n"											{ IgnoredLexemeAction(createLexicalAnalyzerContext()); }
+
 .												{ return UnknownLexemeAction(createLexicalAnalyzerContext()); }
 
 %%
@@ -140,6 +137,11 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 #include "FlexExport.h"
 
 /**
+*
+*
+*[0-9]{4}\-[0-9]{2}\-[0-9]{2}					{ return DateTimeLexemeAction(createLexicalAnalyzerContext(), DATE_VALUE); }
+*[0-9]{4}\-[0-9]{2}\-[0-9]{2}[ \t]+[0-9]{2}\:[0-9]{2}(\:[0-9]{2}(\.[0-9]{1,6})?)?  	{ return DateTimeLexemeAction(createLexicalAnalyzerContext(), TIMESTAMP_VALUE); }
+*[0-9]{2}\:[0-9]{2}(\:[0-9]{2}(\.[0-9]{1,6})?)?	{ return DateTimeLexemeAction(createLexicalAnalyzerContext(), TIME_VALUE); }
 *
 *
 *

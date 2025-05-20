@@ -36,7 +36,6 @@ Token IdLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext);
 Token TypeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
 Token ActionLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
 Token FunctionLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
-Token DateTimeLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
 
 Token TextLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);
 Token ParenthesisLexemeAction(LexicalAnalyzerContext * lexicalAnalyzerContext, Token token);

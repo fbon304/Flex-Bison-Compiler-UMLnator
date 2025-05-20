@@ -70,49 +70,30 @@ Factor * IntegerFactorSemanticAction(int value) {
 	return factor;
 }
 
-BooleanExpression * FactorsBooleanExpressionSemanticAction(Factor * leftFactor, IsCondition * isCondition, Factor * rightFactor) {
+BooleanExpression * BooleanFactorBooleanExpressionSemanticAction(BooleanFactor * booleanFactor) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	BooleanExpression * booleanExpression = calloc(1, sizeof(BooleanExpression));
-	booleanExpression->factor_left = leftFactor;
-	booleanExpression->isCondition_with_two_factors = isCondition;
-	booleanExpression->factor_right = rightFactor;
-	booleanExpression->type = DISTINCT_FROM_BOOLEANTYPE;
+	booleanExpression->boolean_factor = booleanFactor;
+	booleanExpression->type = BOOLEAN_FACTOR_BOOLEANTYPE;
 	return booleanExpression;
 }
 
-BooleanExpression * BooleanValueBooleanExpressionSemanticAction(BooleanValue * booleanValue) {
+BooleanFactor * FactorsBooleanFactorSemanticAction(Factor * leftFactor, IsCondition * isCondition, Factor * rightFactor) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	BooleanExpression * booleanExpression = calloc(1, sizeof(BooleanExpression));
-	booleanExpression->unique_boolean_value = booleanValue;
-	booleanExpression->type = DISTINCT_FROM_BOOLEANTYPE;
-	return booleanExpression;
+	BooleanFactor * booleanFactor = calloc(1, sizeof(BooleanFactor));
+	booleanFactor->factor_left = leftFactor;
+	booleanFactor->isCondition_with_two_factors = isCondition;
+	booleanFactor->factor_right = rightFactor;
+	booleanFactor->type = DISTINCT_FROM_BOOLEANTYPE;
+	return booleanFactor;
 }
 
 BooleanExpression * SimpleBooleanExpressionSemanticAction(BooleanExpression * booleanExpression, BooleanExpressionType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	BooleanExpression * booleanExpression = calloc(1, sizeof(BooleanExpression));
-	booleanExpression->unique_boolean_expression = booleanExpression;
-	booleanExpression->type = type;
-	return booleanExpression;
-}
-
-BooleanExpression * IsConditionBooleanExpressionSemanticAction(BooleanExpression * booleanExpression, IsCondition * isCondition) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
 	BooleanExpression * newBooleanExpression = calloc(1, sizeof(BooleanExpression));
-	booleanExpression->boolean_expression_with_is_condition = booleanExpression;
-	booleanExpression->is_condition_with_boolean_expression = isCondition;
-	booleanExpression->type = NUL_BOOLEANTYPE;
-	return booleanExpression;
-}
-
-BooleanExpression * TriplePointerBooleanExpressionSemanticAction(BooleanExpression * booleanExpression, IsCondition * isCondition, BooleanValue * booleanValue) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	BooleanExpression * newBooleanExpression = calloc(1, sizeof(BooleanExpression));
-	newBooleanExpression->boolean_expression_three_pointers = booleanExpression;
-	newBooleanExpression->is_condition_three_pointers = isCondition;
-	newBooleanExpression->boolean_value = booleanValue;
-	newBooleanExpression->type = THREE_POINTERS_BOOLEANTYPE;
-	return booleanExpression;
+	newBooleanExpression->unique_boolean_expression = booleanExpression;
+	newBooleanExpression->type = type;
+	return newBooleanExpression;
 }
 
 BooleanExpression * DoubleBooleanExpressionSemanticAction(BooleanExpression * leftBooleanExpression, BooleanExpression * rightBooleanExpression, BooleanExpressionType type) {
@@ -122,6 +103,49 @@ BooleanExpression * DoubleBooleanExpressionSemanticAction(BooleanExpression * le
 	booleanExpression->boolean_expression_right = rightBooleanExpression;
 	booleanExpression->type = type;
 	return booleanExpression;
+}
+
+BooleanFactor * IsConditionBooleanFactorSemanticAction(BooleanFactor * booleanFactor, IsCondition * isCondition) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	BooleanFactor * newBooleanFactor = calloc(1, sizeof(BooleanExpression));
+	newBooleanFactor->boolean_factor_with_is_condition = booleanFactor;
+	newBooleanFactor->is_condition_with_boolean_factor = isCondition;
+	newBooleanFactor->type = NUL_BOOLEANTYPE;
+	return newBooleanFactor;
+}
+
+BooleanFactor * TriplePointerBooleanFactorSemanticAction(BooleanFactor * booleanFactor, IsCondition * isCondition, BooleanValue * booleanValue) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	BooleanFactor * newBooleanFactor = calloc(1, sizeof(BooleanExpression));
+	newBooleanFactor->boolean_factor_three_pointers = booleanFactor;
+	newBooleanFactor->is_condition_three_pointers = isCondition;
+	newBooleanFactor->boolean_value = booleanValue;
+	newBooleanFactor->type = THREE_POINTERS_BOOLEANTYPE;
+	return newBooleanFactor;
+}
+
+BooleanFactor * BooleanExpressionFactorSemanticAction(BooleanExpression * booleanExpression, BooleanFactorType type) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	BooleanFactor * booleanFactor = calloc(1, sizeof(BooleanFactor));
+	booleanFactor->booleanExpression = booleanExpression;
+	booleanFactor->type = type;
+	return booleanFactor;
+}
+
+BooleanFactor * BooleanValueBooleanFactorSemanticAction(BooleanValue * booleanValue) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	BooleanFactor * booleanFactor = calloc(1, sizeof(BooleanFactor));
+	booleanFactor->booleanValue = booleanValue;
+	booleanFactor->type = BOOLEAN_VALUE_TYPE;
+	return booleanFactor;
+}
+
+BooleanFactor * FactorBooleanFactorSemanticAction(Factor * factor) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	BooleanFactor * booleanFactor = calloc(1, sizeof(BooleanFactor));
+	booleanFactor->factor = factor;
+	booleanFactor->type = FACTOR_TYPE;
+	return booleanFactor;
 }
 
 CheckConstraint * BooleanExpressionCheckConstraint(BooleanExpression * booleanExpression) {
@@ -226,7 +250,7 @@ Constraint * NamedConstraintValueSemanticAction(char * id, ConstraintValue * con
 	return constraint;
 }
 
-Constraint * UnnamedConstraintValueSemanticAction(ConstraintType type, ConstraintValue * constraintValue) {
+Constraint * UnnamedConstraintValueSemanticAction(ConstraintValue * constraintValue) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Constraint * constraint = calloc(1, sizeof(Constraint));
 	constraint->type = UNNAMED_CONSTRAINT;
@@ -234,29 +258,28 @@ Constraint * UnnamedConstraintValueSemanticAction(ConstraintType type, Constrain
 	return constraint;
 }
 
-Constraints * SimpleConstraintsSemanticAction(LocalConstraint * localConstraint) {
+LocalConstraint *  SimpleLocalConstraintSemanticAction(LocalConstraintType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Constraints * constraints = calloc(1, sizeof(Constraints));
-	constraints->type = SINGLE_CONSTRAINT;
-	constraints->constraint = localConstraint;
-	return constraints;
-}
-
-Constraints * DoubleConstraintsSemanticAction(LocalConstraint * localConstraint1, LocalConstraint * localConstraint2) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Constraints * constraints = calloc(1, sizeof(Constraints));
-	constraints->type = DOUBLE_CONSTRAINT;
-	constraints->constraint1 = localConstraint1;
-	constraints->constraint2 = localConstraint2;
-	return constraints;
+	LocalConstraint * localConstraint = calloc(1, sizeof(LocalConstraint));
+	localConstraint->type = type;
+	return localConstraint;
 }
 
 LocalConstraint * DoubleNameOnActionLocalConstraintSemanticAction(char * id1, char * id2, OnAction * onAction) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	LocalConstraint * localConstraint = calloc(1, sizeof(LocalConstraint));
-	localConstraint->type = FOREIGN_KEY_LCT;
+	localConstraint->type = FOREING_KEY_DOUBLE_NAME_LCT;
 	localConstraint->id1 = id1;
 	localConstraint->id2 = id2;
+	localConstraint->onActionComplex = onAction;
+	return localConstraint;
+}
+
+LocalConstraint * NameOnActionLocalConstraintSemanticAction(char * name, OnAction * onAction) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	LocalConstraint * localConstraint = calloc(1, sizeof(LocalConstraint));
+	localConstraint->type = FOREIGN_KEY_LCT;
+	localConstraint->id = name;
 	localConstraint->onAction = onAction;
 	return localConstraint;
 }
@@ -420,75 +443,68 @@ Attribute * AttributeTypePropertiesSemanticAction(char * id, Type * type, Proper
 	return attribute;
 }
 
-Attributes * MultipleAttributesSemanticAction(Attribute * attribute1, Attribute * attribute2) {
+ContentElement * ContentElementAttributeSemanticAction(Attribute * attribute) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Attributes * attributes = calloc(1, sizeof(Attributes));
-	attributes->attribute1 = attribute1;
-	attributes->attribute2 = attribute2;
-	attributes->type = MULTIPLE_ATTRIBUTE;
-	return attributes;
+	ContentElement * contentElement = calloc(1, sizeof(ContentElement));
+	contentElement->attribute = attribute;
+	contentElement->contentElementType = ATTRIBUTE_TYPE;
+	return contentElement;
 }
 
-Attributes * AttributesAttributeSemanticAction(Attribute * attribute) {
+ContentElement * ContentElementConstraintSemanticAction(Constraint * constraint) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Attributes * attributes = calloc(1, sizeof(Attributes));
-	attributes->head = attribute;
-	attributes->type = ATTRIBUTE;
-	return attributes;
+	ContentElement * contentElement = calloc(1, sizeof(ContentElement));
+	contentElement->constraint = constraint;
+	contentElement->contentElementType = CONSTRAINT_TYPE;
+	return contentElement;
 }
 
-Content * AttributesContentSemanticAction(Attributes * attributes) {
+Content * SimpleContentSemanticAction(ContentElement * contentElement) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Content * content = calloc(1, sizeof(Content));
-	content->onlyAttributes = attributes;
-	content->type = ATTRIBUTES;
+	content->content_element = contentElement;
+	content->type = ELEMENT;
 	return content;
 }
 
-Content * ConstraintsContentSemanticAction(Constraints * constraints) {
+Content * MultiContentSemanticAction(Content * content, ContentElement * contentElement) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Content * content = calloc(1, sizeof(Content));
-	content->onlyConstraints = constraints;
-	content->type = CONSTRAINTS;
-	return content;
+	Content * newContent = calloc(1, sizeof(Content));
+	newContent->content_element = contentElement;
+	newContent->content = content;
+	newContent->type = CONTENT_LIST;
+	return newContent;
 }
 
-Content * AttributesAndConstraintsContentSemanticAction(Attributes * attributes, Constraints * constraints) {
+TablesList * TableListSingleTableSemanticAction(Tables * tables) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Content * content = calloc(1, sizeof(Content));
-	content->attributes = attributes;
-	content->constraints = constraints;
-	content->type = ATTRIBUTES_CONSTRAINTS;
-	return content;
-}
+	TablesList * tablesList = calloc(1, sizeof(Tables));
+	tablesList->tables = tables;
+	tablesList->type = SINGULAR;
+	return tablesList;
+};
 
-Content * EmptyContentSemanticAction() {
+TablesList * TableListMultiTableSemanticAction(TablesList * tablesList, Tables * tables) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	return NULL;
-}
+	TablesList * tablesListNew = calloc(1, sizeof(Tables));
+	tablesListNew->tablesList = tablesList;
+	tablesListNew->tables = tables;
+	tablesListNew->type = LIST;
+	return tablesListNew;
+};
 
 Tables * ContentTablesSemanticAction(char * id, Content * content) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Tables * newTable = calloc(1, sizeof(Tables));
 	newTable->content = content;
 	newTable->id = id;
-	newTable->type = CONTENT;
 	return newTable;
 }
 
-Tables * TableGenerateSemanticAction(Tables * tables1, Tables *tables2) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Tables * tables = calloc(1, sizeof(Tables));
-	tables->tables1 = tables1;
-	tables->tables2 = tables2;
-	tables->type = MULTIPLE_TABLES;
-	return tables;
-};
-
-Program * TablesProgramSemanticAction(CompilerState * compilerState, Tables * tables) {
+Program * TablesListProgramSemanticAction(CompilerState * compilerState, TablesList * tablesList) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Program * program = calloc(1, sizeof(Program));
-	program->tables = tables;
+	program->tablesList = tablesList;
 	compilerState->abstractSyntaxtTree = program;
 	if (0 < flexCurrentContext()) {
 		logError(_logger, "The final context is not the default (0): %d", flexCurrentContext());
@@ -499,45 +515,3 @@ Program * TablesProgramSemanticAction(CompilerState * compilerState, Tables * ta
 	}
 	return program;
 }
-
-
-/*Expression * ArithmeticExpressionSemanticAction(Expression * leftExpression, Expression * rightExpression, ExpressionType type) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Expression * expression = calloc(1, sizeof(Expression));
-	expression->leftExpression = leftExpression;
-	expression->rightExpression = rightExpression;
-	expression->type = type;
-	return expression;
-}
-
-Expression * FactorExpressionSemanticAction(Factor * factor) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Expression * expression = calloc(1, sizeof(Expression));
-	expression->factor = factor;
-	expression->type = FACTOR;
-	return expression;
-}
-
-Factor * ConstantFactorSemanticAction(Constant * constant) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Factor * factor = calloc(1, sizeof(Factor));
-	factor->constant = constant;
-	factor->type = CONSTANT;
-	return factor;
-}
-
-Factor * ExpressionFactorSemanticAction(Expression * expression) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Factor * factor = calloc(1, sizeof(Factor));
-	factor->expression = expression;
-	factor->type = EXPRESSION;
-	return factor;
-} 
-
-Constant * IntegerConstantSemanticAction(const int value) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	Constant * constant = calloc(1, sizeof(Constant));
-	constant->value = value;
-	return constant;
-}
-*/

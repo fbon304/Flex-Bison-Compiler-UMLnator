@@ -13,9 +13,11 @@ void shutdownAbstractSyntaxTreeModule();
 /**
  * This typedefs allows self-referencing types.
  */
+
+typedef enum TablesListType TablesListType;
 typedef enum TablesType TablesType;
 typedef enum ContentType ContentType;
-typedef enum AttributesType AttributesType;
+// typedef enum AttributesType AttributesType;
 typedef enum AttributeType AttributeType;
 typedef enum DataTypeType DataTypeType;
 typedef enum NullConditionType NullConditionType;
@@ -25,23 +27,27 @@ typedef enum PropertiesType PropertiesType;
 typedef enum FunctionType FunctionType;
 typedef enum ExpressionType ExpressionType;
 typedef enum LocalConstraintType LocalConstraintType;
-typedef enum ConstraintsType ConstraintsType;
+// typedef enum ConstraintsType ConstraintsType;
 typedef enum ConstraintType ConstraintType;
 typedef enum BooleanExpressionType BooleanExpressionType;
+typedef enum BooleanFactorType BooleanFactorType;
 typedef enum BooleanType BooleanType;
 typedef enum IsConditionType IsConditionType;
 typedef enum OnActionType OnActionType;
 typedef enum ActionType ActionType;
 typedef enum FactorType FactorType;
+typedef enum ContentElementType ContentElementType;
+typedef enum BooleanFactorType BooleanFactorType;
 
 typedef struct Program Program;
+typedef struct TablesList TablesList; 
 typedef struct Tables Tables;
 typedef struct Content Content;
-typedef struct Attributes Attributes;
+// typedef struct Attributes Attributes;
 typedef struct Attribute Attribute;
 typedef struct LocalConstraint LocalConstraint;
 typedef struct Constraint Constraint;
-typedef struct Constraints Constraints;
+// typedef struct Constraints Constraints;
 typedef struct Type Type;
 typedef struct Properties Properties;
 typedef struct DefaultValue DefaultValue;
@@ -56,25 +62,26 @@ typedef struct CheckConstraint CheckConstraint;
 typedef struct BooleanValue BooleanValue;
 typedef struct IsCondition IsCondition;
 typedef struct Action Action;
+typedef struct ContentElement ContentElement;
+typedef struct BooleanFactor BooleanFactor;
 
 /**
  * Node types for the Abstract Syntax Tree (AST).
 **/
 
-enum TablesType {
-	MULTIPLE_TABLES,
-	CONTENT
+enum TablesListType {
+	SINGULAR,
+	LIST
 };
 
 enum ContentType {
-	ATTRIBUTES,
-	CONSTRAINTS,
-	ATTRIBUTES_CONSTRAINTS
+	ELEMENT,
+	CONTENT_LIST
 };
 
-enum AttributesType {
-	ATTRIBUTE,
-	MULTIPLE_ATTRIBUTE
+enum ContentElementType {
+	ATTRIBUTE_TYPE,
+	CONSTRAINT_TYPE
 };
 
 enum AttributeType {
@@ -151,8 +158,8 @@ enum LocalConstraintType {
 	PRIMARY_KEY_LCT,
 	UNIQUE_LCT,
 	FOREIGN_KEY_LCT,
-	CHECK_LCT,
-	FOREING_KEY_ATTRIBUTE_LCT
+	FOREING_KEY_DOUBLE_NAME_LCT,
+	CHECK_LCT
 };
 
 enum ConstraintType {
@@ -161,7 +168,6 @@ enum ConstraintType {
 };
 
 enum BooleanExpressionType {
-	BETWEEN_PARENTHESIS,
 	AND_BOOLEANTYPE,
 	OR_BOOLEANTYPE,
 	EQUALS_BOOLEANTYPE,
@@ -170,12 +176,18 @@ enum BooleanExpressionType {
 	GREATER_THAN_BOOLEANTYPE,
 	GREATER_THAN_EQUALS_BOOLEANTYPE,
 	LESS_THAN_EQUALS_BOOLEANTYPE,
-	THREE_POINTERS_BOOLEANTYPE,
-	NUL_BOOLEANTYPE,
 	NOTNULL_BOOLEANTYPE,
 	ISNULL_BOOLEANTYPE,
-	NOT_BOOLEANTYPE,
-	BOOLEAN_VALUE_BOOLEANTYPE,
+	BOOLEAN_FACTOR_BOOLEANTYPE
+};
+
+enum BooleanFactorType {
+	BOOLEAN_EXPRESSION_PARENTHESIS_TYPE,
+	THREE_POINTERS_BOOLEANTYPE,
+	NUL_BOOLEANTYPE,
+	NOT_BOOLEAN_EXPRESSION,
+	BOOLEAN_VALUE_TYPE,
+	FACTOR_TYPE,
 	DISTINCT_FROM_BOOLEANTYPE
 };
 
@@ -184,11 +196,6 @@ enum FactorType {
 	INTEGER_FACTOR_TYPE,
 	DOUBLE_FACTOR_TYPE,
 	STRING_FACTOR_TYPE
-};
-
-enum ConstraintsType {
-	SINGLE_CONSTRAINT,
-	DOUBLE_CONSTRAINT
 };
 
 enum BooleanType {
@@ -235,7 +242,7 @@ struct Factor {
 	union {
 		char * string;
 		double double_factor;
-		int integer_factor
+		int integer_factor;
 	};
 	FactorType type;
 };
@@ -248,32 +255,37 @@ struct BooleanValue {
 	BooleanType type;
 };
 
+struct BooleanFactor {
+	union {
+		BooleanExpression * booleanExpression;
+		BooleanValue * booleanValue;
+		Factor * factor;
+		struct {
+			Factor * factor_left;
+			IsCondition * isCondition_with_two_factors;
+			Factor * factor_right;
+		};
+		struct {
+			BooleanFactor * boolean_factor_three_pointers;
+			IsCondition * is_condition_three_pointers;
+			BooleanValue * boolean_value;
+		};
+		struct {
+			BooleanFactor * boolean_factor_with_is_condition;
+			IsCondition * is_condition_with_boolean_factor;	
+		};
+	};
+	BooleanFactorType type;
+};
+
 struct BooleanExpression {
 	union {
 		struct {
 			BooleanExpression * boolean_expression_left;
 			BooleanExpression * boolean_expression_right;
 		};
-
-		struct {
-			BooleanExpression * boolean_expression_three_pointers;
-			IsCondition * is_condition_three_pointers;
-			BooleanValue * boolean_value;
-		};
-
-		struct {
-			BooleanExpression * boolean_expression_with_is_condition;
-			IsCondition * is_condition_with_boolean_expression;	
-		};
-
 		BooleanExpression * unique_boolean_expression;
-		BooleanValue * unique_boolean_value;
-
-		struct {
-			Factor * factor_left;
-			IsCondition * isCondition_with_two_factors;
-			Factor * factor_right;
-		};
+		BooleanFactor * boolean_factor;
 	};
 	BooleanExpressionType type;
 };
@@ -291,7 +303,7 @@ struct LocalConstraint {
 		struct {
 			char * id1;
 			char * id2;
-			OnAction * onAction;
+			OnAction * onActionComplex;
 		};
 		CheckConstraint * checkConstraint;
 	};
@@ -337,19 +349,6 @@ struct Constraint {
 	};
 	ConstraintType type;
 	
-};
-
-struct Constraints {
-	union {
-		struct {
-			Constraint * constraint;
-		};
-		struct {
-			Constraint * constraint1;
-			Constraint * constraint2;
-		};
-	};
-	ConstraintsType type;
 };
 
 struct DefaultValue {
@@ -414,45 +413,33 @@ struct Attribute {
 	AttributeType type;
 };
 
-struct Attributes {
+struct ContentElement {
 	union {
-		Attribute * head;
-		struct {
-			Attribute * attribute1;
-			Attribute * attribute2;	
-		};
+		Attribute * attribute;
+		Constraint * constraint;
 	};
-	AttributesType type;
+	ContentElementType contentElementType;
 };
 
 struct Content {
-	union {
-		Attributes * onlyAttributes;
-		Constraints * onlyConstraints;
-		struct {
-			Attributes * attributes;
-			Constraints * constraints;
-		};
-	};
+	Content * content;
+	ContentElement * content_element;
 	ContentType type;
 };
 
 struct Tables {
-	union {
-		struct {
-			Tables * tables1;
-			Tables * tables2;
-		};
-		struct {
-			char * id;
-			Content * content;
-		};
-	};
-	TablesType type;
+	char * id;
+	Content * content;
+};
+
+struct TablesList {
+	TablesList * tablesList;
+	Tables * tables;
+	TablesListType type;
 };
 
 struct Program {
-	Tables * tables;
+	TablesList * tablesList;
 };
 
 /**
@@ -468,7 +455,7 @@ void releaseAction(Action * action);
 void releaseOnAction(OnAction * onAction);
 void releaseConstraintValue(ConstraintValue * constraintValue);
 void releaseConstraint(Constraint * constraint);
-void releaseConstraints(Constraints *constraints);
+//void releaseConstraints(Constraints *constraints);
 void releaseLocalConstraint(LocalConstraint * localConstraint);
 void releaseFunction(Function * function);
 void releaseDefaultValue(DefaultValue * defaultValue);
@@ -476,7 +463,8 @@ void releaseNullCondition(NullCondition * nullCondition);
 void releaseType(Type * type);
 void releaseProperties(Properties * properties);
 void releaseAttribute(Attribute * attribute);
-void releaseAttributes(Attributes *attributes);
+//void releaseAttributes(Attributes *attributes);
+void releaseContentElement(ContentElement * contentElement);
 void releaseContent(Content * content);
 void releaseTables(Tables *tables);
 void releaseProgram(Program * program);
@@ -484,5 +472,7 @@ void releaseOnAction(OnAction * onAction);
 void releaseAction(Action* action);
 void releaseFactor(Factor * factor);
 void releaseIsCondition(IsCondition * isCondition);
+void releaseTablesList(TablesList *tablesList);
+void releaseBooleanFactor(BooleanFactor * booleanFactor);
 
 #endif
