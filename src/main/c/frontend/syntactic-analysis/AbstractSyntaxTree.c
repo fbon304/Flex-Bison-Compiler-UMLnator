@@ -130,12 +130,12 @@ void releaseBooleanExpression(BooleanExpression * booleanExpression) {
 	}
 }
 
-void releaseBooleanValue(BooleanValue * booleanValue) {
+/*void releaseBooleanValue(BooleanValue * booleanValue) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (booleanValue != NULL) {
 		free(booleanValue);
 	}
-}
+}*/
 
 void releaseType(Type * type) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
@@ -354,31 +354,23 @@ void releaseBooleanFactor(BooleanFactor * booleanFactor) {
 		switch(booleanFactor->type) {
 			case BOOLEAN_EXPRESSION_PARENTHESIS_TYPE:
 			case NOT_BOOLEAN_EXPRESSION:
-			releaseBooleanExpression(booleanFactor->booleanExpression);
-			break;
+				releaseBooleanExpression(booleanFactor->booleanExpression);
+				break;
 
-			case BOOLEAN_VALUE_TYPE:
-			releaseBooleanValue(booleanFactor->booleanValue);
-			break;
+			case FACTOR_CONDITION_NUL:
+				releaseFactor(booleanFactor->factor_with_is_condition);
+				releaseIsCondition(booleanFactor->is_condition_with_factor);
+				break;
 
-			case FACTOR_TYPE:
-			releaseFactor(booleanFactor->factor);
-			break;
-
-			case DISTINCT_FROM_BOOLEANTYPE:
+			case FACTOR_CONDITION_FACTOR:
+			case DISTINCT_FROM_FACTORS:
 				releaseFactor(booleanFactor->factor_left);
 				releaseIsCondition(booleanFactor->isCondition_with_two_factors);
 				releaseFactor(booleanFactor->factor_right);
-
-			case NUL_BOOLEANTYPE:
-				releaseFactorExpression(booleanFactor->boolean_factor_with_is_condition);
-				releaseIsCondition(booleanFactor->is_condition_with_boolean_factor);
 				break;
 
-			case THREE_POINTERS_BOOLEANTYPE:
-				releaseFactorExpression(booleanFactor->boolean_factor_three_pointers);
-				releaseIsCondition(booleanFactor->is_condition_three_pointers);
-				releaseBooleanValue(booleanFactor->boolean_value);
+			case FACTOR_TYPE:
+				releaseFactor(booleanFactor->factor);
 				break;
 		}
 

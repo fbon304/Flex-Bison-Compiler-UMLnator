@@ -20,8 +20,7 @@ void shutdownBisonActionsModule();
 
 IsCondition * IsConditionSemanticAction(IsConditionType type);
 
-BooleanValue * BooleanValueSemanticAction(BooleanType type);
-
+Factor * BooleanValueFactorSemanticAction(FactorType type);
 Factor * StringFactorSemanticAction(char * value, FactorType type);
 Factor * DoubleFactorSemanticAction(double value);
 Factor * IntegerFactorSemanticAction(int value);
@@ -30,12 +29,13 @@ BooleanExpression * SimpleBooleanExpressionSemanticAction(BooleanExpression * bo
 BooleanExpression * DoubleBooleanExpressionSemanticAction(BooleanExpression * leftBooleanExpression, BooleanExpression * rightBooleanExpression, BooleanExpressionType type);
 BooleanExpression * BooleanFactorBooleanExpressionSemanticAction(BooleanFactor * booleanFactor);
 
-BooleanFactor * IsConditionBooleanFactorSemanticAction(BooleanFactor * booleanExpression, IsCondition * isCondition);
-BooleanFactor * TriplePointerBooleanFactorSemanticAction(BooleanFactor * booleanExpression, IsCondition * isCondition, BooleanValue * booleanValue);
-BooleanFactor * FactorsBooleanFactorSemanticAction(Factor * leftFactor, IsCondition * isCondition, Factor * rightFactor);
+BooleanFactor * IsConditionBooleanFactorSemanticAction(Factor * factor, IsCondition * isCondition);
+//BooleanFactor * TriplePointerBooleanFactorSemanticActiocon(BooleanFactor * booleanFactor, IsCondition * isCondition, BooleanValue * booleanValue);
+BooleanFactor * FactorsBooleanFactorSemanticAction(Factor * leftFactor, IsCondition * isCondition, Factor * rightFactor, BooleanFactorType type);
 BooleanFactor * FactorBooleanFactorSemanticAction(Factor * factor);
-BooleanFactor * BooleanValueBooleanFactorSemanticAction(BooleanValue * booleanValue);
-BooleanFactor * BooleanExpressionFactorSemanticAction(BooleanExpression * booleanExpression, BooleanFactorType type);
+//BooleanFactor * BooleanValueBooleanFactorSemanticAction(BooleanValue * booleanValue);
+//BooleanFactor * BooleanFactorRecursiveSemanticAction(BooleanFactor * booleanFactor, BooleanFactorType type);
+BooleanFactor * BooleanExpressionBooleanFactorSemanticAction(BooleanExpression * booleanExpression, BooleanFactorType type);
 
 CheckConstraint * BooleanExpressionCheckConstraint(BooleanExpression * booleanExpression);
 

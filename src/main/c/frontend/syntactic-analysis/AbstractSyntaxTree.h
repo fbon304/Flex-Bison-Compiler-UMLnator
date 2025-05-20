@@ -183,25 +183,26 @@ enum BooleanExpressionType {
 
 enum BooleanFactorType {
 	BOOLEAN_EXPRESSION_PARENTHESIS_TYPE,
-	THREE_POINTERS_BOOLEANTYPE,
-	NUL_BOOLEANTYPE,
 	NOT_BOOLEAN_EXPRESSION,
-	BOOLEAN_VALUE_TYPE,
-	FACTOR_TYPE,
-	DISTINCT_FROM_BOOLEANTYPE
+	FACTOR_CONDITION_FACTOR,
+	FACTOR_CONDITION_NUL,
+	DISTINCT_FROM_FACTORS,
+	FACTOR_TYPE
 };
 
 enum FactorType {
 	ID_FACTOR_TYPE,
 	INTEGER_FACTOR_TYPE,
 	DOUBLE_FACTOR_TYPE,
-	STRING_FACTOR_TYPE
-};
-
-enum BooleanType {
+	STRING_FACTOR_TYPE,
 	BOOLEAN_TRUE,
 	BOOLEAN_FALSE
 };
+
+/*enum BooleanType {
+	BOOLEAN_TRUE,
+	BOOLEAN_FALSE
+};*/
 
 enum IsConditionType {
 	IS_CONDITION,
@@ -251,28 +252,29 @@ struct IsCondition {
 	IsConditionType type;
 };
 
-struct BooleanValue {
+/*struct BooleanValue {
 	BooleanType type;
-};
+};*/
 
 struct BooleanFactor {
 	union {
 		BooleanExpression * booleanExpression;
-		BooleanValue * booleanValue;
+		//BooleanFactor * booleanFactor;
+		//BooleanValue * booleanValue;
 		Factor * factor;
 		struct {
 			Factor * factor_left;
 			IsCondition * isCondition_with_two_factors;
 			Factor * factor_right;
 		};
-		struct {
+		/*struct {
 			BooleanFactor * boolean_factor_three_pointers;
 			IsCondition * is_condition_three_pointers;
 			BooleanValue * boolean_value;
-		};
+		};*/
 		struct {
-			BooleanFactor * boolean_factor_with_is_condition;
-			IsCondition * is_condition_with_boolean_factor;	
+			Factor * factor_with_is_condition;
+			IsCondition * is_condition_with_factor;	
 		};
 	};
 	BooleanFactorType type;
@@ -447,8 +449,9 @@ struct Program {
  */
 
 void releaseIsCondition(IsCondition * isCondition);
-void releaseBooleanValue(BooleanValue * booleanValue);
+//void releaseBooleanValue(BooleanValue * booleanValue);
 void releaseFactor(Factor * factor);
+void releaseBooleanFactor(BooleanFactor * booleanFactor);
 void releaseBooleanExpression(BooleanExpression * booleanExpression);
 void releaseExpression(Expression * expression);
 void releaseAction(Action * action);
@@ -473,6 +476,5 @@ void releaseAction(Action* action);
 void releaseFactor(Factor * factor);
 void releaseIsCondition(IsCondition * isCondition);
 void releaseTablesList(TablesList *tablesList);
-void releaseBooleanFactor(BooleanFactor * booleanFactor);
 
 #endif

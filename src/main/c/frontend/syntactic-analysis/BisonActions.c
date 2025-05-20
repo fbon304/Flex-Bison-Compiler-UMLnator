@@ -39,11 +39,11 @@ IsCondition * IsConditionSemanticAction(IsConditionType type) {
 	return isCondition;
 }
 
-BooleanValue * BooleanValueSemanticAction(BooleanType type) {
+Factor * BooleanValueFactorSemanticAction(FactorType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	BooleanValue * booleanValue = calloc(1, sizeof(BooleanValue));
-	booleanValue->type = type;
-	return booleanValue;
+	Factor * factor = calloc(1, sizeof(Factor));
+	factor->type = type;
+	return factor;
 }
 
 Factor * StringFactorSemanticAction(char * value, FactorType type) {
@@ -78,16 +78,6 @@ BooleanExpression * BooleanFactorBooleanExpressionSemanticAction(BooleanFactor *
 	return booleanExpression;
 }
 
-BooleanFactor * FactorsBooleanFactorSemanticAction(Factor * leftFactor, IsCondition * isCondition, Factor * rightFactor) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	BooleanFactor * booleanFactor = calloc(1, sizeof(BooleanFactor));
-	booleanFactor->factor_left = leftFactor;
-	booleanFactor->isCondition_with_two_factors = isCondition;
-	booleanFactor->factor_right = rightFactor;
-	booleanFactor->type = DISTINCT_FROM_BOOLEANTYPE;
-	return booleanFactor;
-}
-
 BooleanExpression * SimpleBooleanExpressionSemanticAction(BooleanExpression * booleanExpression, BooleanExpressionType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	BooleanExpression * newBooleanExpression = calloc(1, sizeof(BooleanExpression));
@@ -105,16 +95,26 @@ BooleanExpression * DoubleBooleanExpressionSemanticAction(BooleanExpression * le
 	return booleanExpression;
 }
 
-BooleanFactor * IsConditionBooleanFactorSemanticAction(BooleanFactor * booleanFactor, IsCondition * isCondition) {
+BooleanFactor * FactorsBooleanFactorSemanticAction(Factor * leftFactor, IsCondition * isCondition, Factor * rightFactor, BooleanFactorType type) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	BooleanFactor * booleanFactor = calloc(1, sizeof(BooleanFactor));
+	booleanFactor->factor_left = leftFactor;
+	booleanFactor->isCondition_with_two_factors = isCondition;
+	booleanFactor->factor_right = rightFactor;
+	booleanFactor->type = type;
+	return booleanFactor;
+}
+
+BooleanFactor * IsConditionBooleanFactorSemanticAction(Factor * factor, IsCondition * isCondition) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	BooleanFactor * newBooleanFactor = calloc(1, sizeof(BooleanExpression));
-	newBooleanFactor->boolean_factor_with_is_condition = booleanFactor;
-	newBooleanFactor->is_condition_with_boolean_factor = isCondition;
-	newBooleanFactor->type = NUL_BOOLEANTYPE;
+	newBooleanFactor->factor_with_is_condition = factor;
+	newBooleanFactor->is_condition_with_factor = isCondition;
+	newBooleanFactor->type = FACTOR_CONDITION_NUL;
 	return newBooleanFactor;
 }
 
-BooleanFactor * TriplePointerBooleanFactorSemanticAction(BooleanFactor * booleanFactor, IsCondition * isCondition, BooleanValue * booleanValue) {
+/*BooleanFactor * TriplePointerBooleanFactorSemanticActiocon(BooleanFactor * booleanFactor, IsCondition * isCondition, BooleanValue * booleanValue) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	BooleanFactor * newBooleanFactor = calloc(1, sizeof(BooleanExpression));
 	newBooleanFactor->boolean_factor_three_pointers = booleanFactor;
@@ -122,23 +122,31 @@ BooleanFactor * TriplePointerBooleanFactorSemanticAction(BooleanFactor * boolean
 	newBooleanFactor->boolean_value = booleanValue;
 	newBooleanFactor->type = THREE_POINTERS_BOOLEANTYPE;
 	return newBooleanFactor;
-}
+}*/
 
-BooleanFactor * BooleanExpressionFactorSemanticAction(BooleanExpression * booleanExpression, BooleanFactorType type) {
+/*BooleanFactor * BooleanFactorRecursiveSemanticAction(BooleanFactor * booleanFactor, BooleanFactorType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
-	BooleanFactor * booleanFactor = calloc(1, sizeof(BooleanFactor));
-	booleanFactor->booleanExpression = booleanExpression;
-	booleanFactor->type = type;
-	return booleanFactor;
+	BooleanFactor * newBooleanFactor = calloc(1, sizeof(BooleanFactor));
+	newBooleanFactor->booleanFactor = booleanFactor;
+	newBooleanFactor->type = type;
+	return newBooleanFactor;
+}*/
+
+BooleanFactor * BooleanExpressionBooleanFactorSemanticAction(BooleanExpression * booleanExpression, BooleanFactorType type) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	BooleanFactor * newBooleanFactor = calloc(1, sizeof(BooleanFactor));
+	newBooleanFactor->booleanExpression = booleanExpression;
+	newBooleanFactor->type = type;
+	return newBooleanFactor;
 }
 
-BooleanFactor * BooleanValueBooleanFactorSemanticAction(BooleanValue * booleanValue) {
+/*BooleanFactor * BooleanValueBooleanFactorSemanticAction(BooleanValue * booleanValue) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	BooleanFactor * booleanFactor = calloc(1, sizeof(BooleanFactor));
 	booleanFactor->booleanValue = booleanValue;
 	booleanFactor->type = BOOLEAN_VALUE_TYPE;
 	return booleanFactor;
-}
+}*/
 
 BooleanFactor * FactorBooleanFactorSemanticAction(Factor * factor) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
