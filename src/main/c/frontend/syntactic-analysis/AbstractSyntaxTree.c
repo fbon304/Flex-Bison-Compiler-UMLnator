@@ -130,13 +130,6 @@ void releaseBooleanExpression(BooleanExpression * booleanExpression) {
 	}
 }
 
-/*void releaseBooleanValue(BooleanValue * booleanValue) {
-	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
-	if (booleanValue != NULL) {
-		free(booleanValue);
-	}
-}*/
-
 void releaseType(Type * type) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (type != NULL) {

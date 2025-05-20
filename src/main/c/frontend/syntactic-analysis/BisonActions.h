@@ -30,11 +30,8 @@ BooleanExpression * DoubleBooleanExpressionSemanticAction(BooleanExpression * le
 BooleanExpression * BooleanFactorBooleanExpressionSemanticAction(BooleanFactor * booleanFactor);
 
 BooleanFactor * IsConditionBooleanFactorSemanticAction(Factor * factor, IsCondition * isCondition);
-//BooleanFactor * TriplePointerBooleanFactorSemanticActiocon(BooleanFactor * booleanFactor, IsCondition * isCondition, BooleanValue * booleanValue);
 BooleanFactor * FactorsBooleanFactorSemanticAction(Factor * leftFactor, IsCondition * isCondition, Factor * rightFactor, BooleanFactorType type);
 BooleanFactor * FactorBooleanFactorSemanticAction(Factor * factor);
-//BooleanFactor * BooleanValueBooleanFactorSemanticAction(BooleanValue * booleanValue);
-//BooleanFactor * BooleanFactorRecursiveSemanticAction(BooleanFactor * booleanFactor, BooleanFactorType type);
 BooleanFactor * BooleanExpressionBooleanFactorSemanticAction(BooleanExpression * booleanExpression, BooleanFactorType type);
 
 CheckConstraint * BooleanExpressionCheckConstraint(BooleanExpression * booleanExpression);

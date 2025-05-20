@@ -32,7 +32,6 @@
 	NullCondition * null_condition;
 	ConstraintValue * constraint_value;
 	BooleanExpression * boolean_expression;
-	//BooleanValue * boolean_value;
 	BooleanFactor * boolean_factor;
 	Expression * expression;
 	Function * function;
@@ -54,7 +53,6 @@
  */
 
 %destructor { releaseIsCondition($$); } <is_condition>
-//%destructor { releaseBooleanValue($$); } <boolean_value>
 %destructor { releaseFactor($$); } <factor>
 %destructor { releaseBooleanExpression($$); } <boolean_expression>
 %destructor { releaseExpression($$); } <expression>
@@ -167,7 +165,6 @@
 %type <check_constraint> check_constraint
 %type <action> action
 %type <on_action> on_action
-//%type <boolean_value> boolean_value
 %type <factor> factor
 %type <is_condition> is_condition
 %type <boolean_factor> boolean_factor
@@ -177,8 +174,6 @@
  *
  * @see https://www.gnu.org/software/bison/manual/html_node/Precedence.html
  */
-/*%left ADD SUB
-%left MUL DIV*/
 
 %left OR AND 
 %nonassoc EQUALS NOT_EQUALS LESS_THAN GREATER_THAN LESS_THAN_EQUALS GREATER_THAN_EQUALS
@@ -322,10 +317,9 @@ boolean_expression: boolean_expression AND boolean_expression						{ $$ = Double
 
 
 boolean_factor: OPEN_PARENTHESIS boolean_expression CLOSE_PARENTHESIS				{ $$ = BooleanExpressionBooleanFactorSemanticAction($2, BOOLEAN_EXPRESSION_PARENTHESIS_TYPE);}
-	| NOT boolean_expression		/*esta*/										{ $$ = BooleanExpressionBooleanFactorSemanticAction($2, NOT_BOOLEAN_EXPRESSION);}
-	| factor is_condition factor		/*esta*/								{ $$ = FactorsBooleanFactorSemanticAction($1, $2, $3, FACTOR_CONDITION_FACTOR);}	
-	| factor is_condition NUL				/*esta*/								{ $$ = IsConditionBooleanFactorSemanticAction($1, $2);}	
-	//| boolean_value																	{ $$ = BooleanValueBooleanFactorSemanticAction($1);}
+	| NOT boolean_expression														{ $$ = BooleanExpressionBooleanFactorSemanticAction($2, NOT_BOOLEAN_EXPRESSION);}
+	| factor is_condition factor													{ $$ = FactorsBooleanFactorSemanticAction($1, $2, $3, FACTOR_CONDITION_FACTOR);}	
+	| factor is_condition NUL														{ $$ = IsConditionBooleanFactorSemanticAction($1, $2);}	
 	| factor is_condition DISTINCT_FROM factor										{ $$ = FactorsBooleanFactorSemanticAction($1, $2, $4, DISTINCT_FROM_FACTORS);}
 	| factor																		{ $$ = FactorBooleanFactorSemanticAction($1);}
 	;
@@ -337,10 +331,6 @@ factor: ID 																			{ $$ = StringFactorSemanticAction($1, ID_FACTOR_TY
 	| TRUE																			{ $$ = BooleanValueFactorSemanticAction(BOOLEAN_TRUE);}
 	| FALSE																			{ $$ = BooleanValueFactorSemanticAction(BOOLEAN_FALSE);}
 	;
-
-/*boolean_value: TRUE																			
-	| FALSE																				
-	;*/
 
 is_condition: IS																	{ $$ = IsConditionSemanticAction(IS_CONDITION);}
 	| ISNOT																		{ $$ = IsConditionSemanticAction(IS_NOT_CONDITION);}		

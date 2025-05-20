@@ -114,24 +114,6 @@ BooleanFactor * IsConditionBooleanFactorSemanticAction(Factor * factor, IsCondit
 	return newBooleanFactor;
 }
 
-/*BooleanFactor * TriplePointerBooleanFactorSemanticActiocon(BooleanFactor * booleanFactor, IsCondition * isCondition, BooleanValue * booleanValue) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	BooleanFactor * newBooleanFactor = calloc(1, sizeof(BooleanExpression));
-	newBooleanFactor->boolean_factor_three_pointers = booleanFactor;
-	newBooleanFactor->is_condition_three_pointers = isCondition;
-	newBooleanFactor->boolean_value = booleanValue;
-	newBooleanFactor->type = THREE_POINTERS_BOOLEANTYPE;
-	return newBooleanFactor;
-}*/
-
-/*BooleanFactor * BooleanFactorRecursiveSemanticAction(BooleanFactor * booleanFactor, BooleanFactorType type) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	BooleanFactor * newBooleanFactor = calloc(1, sizeof(BooleanFactor));
-	newBooleanFactor->booleanFactor = booleanFactor;
-	newBooleanFactor->type = type;
-	return newBooleanFactor;
-}*/
-
 BooleanFactor * BooleanExpressionBooleanFactorSemanticAction(BooleanExpression * booleanExpression, BooleanFactorType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	BooleanFactor * newBooleanFactor = calloc(1, sizeof(BooleanFactor));
@@ -139,14 +121,6 @@ BooleanFactor * BooleanExpressionBooleanFactorSemanticAction(BooleanExpression *
 	newBooleanFactor->type = type;
 	return newBooleanFactor;
 }
-
-/*BooleanFactor * BooleanValueBooleanFactorSemanticAction(BooleanValue * booleanValue) {
-	_logSyntacticAnalyzerAction(__FUNCTION__);
-	BooleanFactor * booleanFactor = calloc(1, sizeof(BooleanFactor));
-	booleanFactor->booleanValue = booleanValue;
-	booleanFactor->type = BOOLEAN_VALUE_TYPE;
-	return booleanFactor;
-}*/
 
 BooleanFactor * FactorBooleanFactorSemanticAction(Factor * factor) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
