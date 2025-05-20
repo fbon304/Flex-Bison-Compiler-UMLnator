@@ -236,7 +236,7 @@ Constraint * UnnamedConstraintValueSemanticAction(ConstraintValue * constraintVa
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Constraint * constraint = calloc(1, sizeof(Constraint));
 	constraint->type = UNNAMED_CONSTRAINT;
-	constraint->constraintValue = constraintValue;
+	constraint->singleConstraintValue = constraintValue;
 	return constraint;
 }
 
