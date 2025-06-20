@@ -8,6 +8,6 @@
 @docker build ^
 	--progress=plain ^
 	--tag=flex-bison-compiler ^
-	%BASE_PATH%
+	"%BASE_PATH%"
 
 @ENDLOCAL
