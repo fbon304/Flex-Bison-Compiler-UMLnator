@@ -28,7 +28,7 @@ bool isFull(Stack *s) {
 
 bool push(Stack *s, char * value) {
     if (isFull(s)) {
-        printf("Stack overflow! Can't insert %d\n", value);
+        printf("Stack overflow! Can't insert %s\n", value);
         return false;
     }
     s->items[++(s->top)] = value;
@@ -38,7 +38,7 @@ bool push(Stack *s, char * value) {
 char * pop(Stack *s) {
     if (isEmpty(s)) {
         printf("Stack underflow! No se puede hacer pop\n");
-        return -1;
+        return NULL;
     }
     return s->items[(s->top)--];
 }
@@ -46,7 +46,7 @@ char * pop(Stack *s) {
 char * peek(Stack *s) {
     if (isEmpty(s)) {
         printf("La pila está vacía\n");
-        return -1;
+        return NULL;
     }
     return s->items[s->top];
 }
