@@ -101,6 +101,7 @@
 %token <token> BIGINT
 %token <token> REAL
 %token <token> DOUBLE
+%token <token> BOOLEAN
 %token <token> DATE
 %token <token> TIMESTAMP
 %token <token> INTERVAL
@@ -235,7 +236,8 @@ type: INTEGER																		{ $$ = SimpleTypeSemanticAction(INTEGER_DATATYPE)
 	| SMALLINT																		{ $$ = SimpleTypeSemanticAction(SMALLINT_DATATYPE); }	
 	| BIGINT																		{ $$ = SimpleTypeSemanticAction(BIGINT_DATATYPE); }
 	| REAL																			{ $$ = SimpleTypeSemanticAction(REAL_DATATYPE); }	
-	| DOUBLE 																		{ $$ = SimpleTypeSemanticAction(DOUBLE_DATATYPE); }	
+	| DOUBLE 																		{ $$ = SimpleTypeSemanticAction(DOUBLE_DATATYPE); }
+	| BOOLEAN																		{ $$ = SimpleTypeSemanticAction(BOOLEAN_DATATYPE); }	
 	| DATE																			{ $$ = SimpleTypeSemanticAction(DATE_DATATYPE); }	
 	| TIMESTAMP																		{ $$ = SimpleTypeSemanticAction(TIMESTAMP_DATATYPE); }		
 	| INTERVAL																		{ $$ = SimpleTypeSemanticAction(INTERVAL_DATATYPE); }
@@ -316,6 +318,8 @@ boolean_expression: boolean_expression AND boolean_expression						{ $$ = Double
 	| boolean_factor																{ $$ = BooleanFactorBooleanExpressionSemanticAction($1); }
 	;
 
+	// (atr > 9) and (attr != 6)
+ 
 
 boolean_factor: OPEN_PARENTHESIS boolean_expression CLOSE_PARENTHESIS				{ $$ = BooleanExpressionBooleanFactorSemanticAction($2, BOOLEAN_EXPRESSION_PARENTHESIS_TYPE);}
 	| NOT boolean_expression														{ $$ = BooleanExpressionBooleanFactorSemanticAction($2, NOT_BOOLEAN_EXPRESSION);}

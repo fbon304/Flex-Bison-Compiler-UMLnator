@@ -57,12 +57,9 @@
 //  * Creates the epilogue of the generated output, that is, the final lines that
 //  * completes a valid Latex document.
 //  */
-// static void _generateEpilogue(const int value) {
+// static void _generateEpilogue() {
 // 	_output(0, "%s%d%s",
-// 		"            [ $", value, "$, circle, draw, blue ]\n"
-// 		"        ]\n"
-// 		"    \\end{forest}\n"
-// 		"\\end{document}\n\n"
+// 		"@enduml\n"
 // 	);
 // }
 
@@ -115,8 +112,92 @@
 //  * Generates the output of the program.
 //  */
 // static void _generateProgram(Program * program) {
-// 	_generateExpression(3, program->expression);
+// 	//_generateExpression(3, program->expression);
+//     _generateTablesList(2, program->tablesList);
 // }
+
+// static void _generateTablesList(const unsigned int indentationLevel, TablesList * tablesList) {
+// 	if (tablesList != NULL) {
+// 		_generateTable(indentationLevel, tablesList->tables);
+// 		_generateTablesList(indentationLevel, tablesList->tablesList);
+// 	}
+// }
+
+// static void _generateTable(const unsigned int indentationLevel, Tables * table) {
+// 	if (table != NULL) {
+// 		_output(indentationLevel, "object %s {\n", table->id);
+// 		_generateContent(indentationLevel + 1, table->content);
+// 		_output(identationLevel + 1, "}");
+// 	}
+// }
+
+// static void _generateContent(const unsigned int indentationLevel, Content * content) {
+// 	if (content != NULL) {
+// 		if (content->type == ELEMENT) {
+// 			_generateContentElement(indentationLevel, content->content_element);
+// 		} else if (content->type == CONTENT_LIST) {
+// 			_generateContent(indentationLevel, content->content);
+// 			_generateContentElement(indentationLevel, content->content_element);
+// 		}
+// 	}
+// }
+
+// static void _generateContentElement(const unsigned int indentationLevel, ContentElement * contentElement) {
+// 	if (contentElement != NULL) {
+// 		if (contentElement->contentElementType == ATTRIBUTE_TYPE) {
+// 			_generateAttribute(indentationLevel, contentElement->attribute);
+// 		} else if (contentElement->contentElementType == CONSTRAINT_TYPE) {
+// 			// TODO capaz se puede hacer que retorne una funcion que genere al final de todo todos los constraints
+// 			_generateConstraint(indentationLevel, contentElement->constraint);
+// 		}
+// 	}
+// }
+
+// static void _generateAttribute(const unsigned int indentationLevel, Attribute * attribute) {
+// 	if (attribute != NULL) {
+//         if (attribute->type == COLUMN) {
+//             _output(indentationLevel, "%s: <size:12>%s;", attribute->id, attribute->datatype);
+//         } else if (attribute->type == COLUMN_WITH_PROPERTIES) {
+//             _output(indentationLevel, "%s: <size:12>%s ", attribute->p_id, attribute->p_type);
+//             _generateProperties(indentationLevel, attribute->properties);
+//         }
+// 	}
+// }
+
+// static void _generateProperties(const unsigned int indentationLevel, Properties * properties) {
+//     if (properties != NULL) {
+//         switch (properties->type)
+//         {
+//         case DEFAULT_VALUE:
+            
+//             break;
+//         case CONSTRAINT_CONDITION:
+            
+//             break;
+//         case NULL_CONDITION:
+            
+//             break;
+//         case NULL_CONDITION_DEFAULT_VALUE:
+            
+//             break;
+//         case DEFAULT_VALUE_CONSTRAINT:
+            
+//             break;
+//         case NULL_CONDITION_CONSTRAINT:
+            
+//             break;
+//         case COMPLETE:
+            
+//             break;
+//         }
+//     }
+// }
+
+// static void _generateConstraint(const unsigned int indentationLevel, Constraint * constraint) {
+// 	// TODO
+// }
+
+
 
 // /**
 //  * Creates the prologue of the generated output, a Latex document that renders
@@ -126,16 +207,7 @@
 //  */
 // static void _generatePrologue(void) {
 // 	_output(0, "%s",
-// 		"\\documentclass{standalone}\n\n"
-// 		"\\usepackage[utf8]{inputenc}\n"
-// 		"\\usepackage[T1]{fontenc}\n"
-// 		"\\usepackage{amsmath}\n"
-// 		"\\usepackage{forest}\n"
-// 		"\\usepackage{microtype}\n\n"
-// 		"\\begin{document}\n"
-// 		"    \\centering\n"
-// 		"    \\begin{forest}\n"
-// 		"        [ \\text{$=$}, circle, draw, purple\n"
+// 		"@startuml\n"
 // 	);
 // }
 
@@ -167,8 +239,8 @@
 
 // void generate(CompilerState * compilerState) {
 // 	logDebugging(_logger, "Generating final output...");
-// 	_generatePrologue();
-// 	_generateProgram(compilerState->abstractSyntaxtTree);
-// 	_generateEpilogue(compilerState->value);
+// 	//_generatePrologue();
+// 	//_generateProgram(compilerState->abstractSyntaxtTree);
+// 	//_generateEpilogue();
 // 	logDebugging(_logger, "Generation is done.");
 // }

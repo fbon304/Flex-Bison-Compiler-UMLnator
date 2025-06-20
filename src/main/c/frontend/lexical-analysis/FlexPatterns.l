@@ -56,6 +56,7 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 "BIGINT"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), BIGINT); }
 "REAL"											{ return TypeLexemeAction(createLexicalAnalyzerContext(), REAL); }
 "DOUBLE"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), DOUBLE); }
+"BOOLEAN"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), BOOLEAN); }
 "DATE"											{ return TypeLexemeAction(createLexicalAnalyzerContext(), DATE); }
 "TIMESTAMP"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), TIMESTAMP); }		
 "INTERVAL"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), INTERVAL); }
