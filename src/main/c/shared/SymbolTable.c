@@ -18,7 +18,7 @@ Agrega una nueva tabla a la symbolTable global.
 Devuelve 0 si hubo éxito y -1 si ya existe la table.
  */
 int addTableToSymbolTable(HashMap * symbolTable, const char *tableName) {
-	if(get(symbolTable, tableName) != NULL) {
+	if(tableExistsInSymbolTable(symbolTable, tableName)) {
 		logError(_logger, "Table '%s' already exists in the symbol table.", tableName);
 		return -1; // Table already exists //TODO check
 	}
@@ -32,7 +32,7 @@ int addTableToSymbolTable(HashMap * symbolTable, const char *tableName) {
 }
 
 int putVariableInScope(HashMap * symbolTable, const char * scope, const char * variableName, DataValue dataValue, DataType dataType, ConstarintDataType constraint) {
-	if(get(symbolTable, scope) == NULL) {
+	if(!tableExistsInSymbolTable(symbolTable, scope)) {
 		logError(_logger, "Table '%s' doesn't exists in the symbol table.", symbolTable);
 		return -1;
 	}
@@ -91,6 +91,89 @@ char * getScope(Stack * scopeStack) {
 }
 
 
+boolean tableExistsInSymbolTable(HashMap * symbolTable, const char * tableName) {
+	if(symbolTable == NULL || tableName == NULL) {
+		return false;
+	}
+
+	return get(symbolTable, tableName) != NULL;
+}
+
+/**
+ * Devuelve el tipo de dato de una variable en un scope dado.
+ * Si no existe, devuelve BOTTOM.
+ */
+DataType type(HashMap * symbolTable, const char * scope, const char * variableName) {
+    if (!tableExistsInSymbolTable(symbolTable, scope)) {
+        logError(_logger, "Scope '%s' does not exist in the symbol table.", scope);
+        return BOTTOM;
+    }
+    HashMap * scopeTable = get(symbolTable, scope);
+    if (!scopeTable) {
+        return BOTTOM;
+    }
+    Symbol * symbol = get(scopeTable, variableName);
+    if (!symbol) {
+        logError(_logger, "Variable '%s' does not exist in scope '%s'.", variableName, scope);
+        return BOTTOM;
+    }
+    return symbol->type;
+}
+
+
+/**
+ * Devuelve un puntero al valor de una variable en un scope dado.
+ * Si no existe, devuelve NULL.
+ */
+DataValue* getValue(HashMap * symbolTable, const char * scope, const char * variableName) {
+    if (!tableExistsInSymbolTable(symbolTable, scope)) {
+        logError(_logger, "Scope '%s' does not exist in the symbol table.", scope);
+        return NULL;
+    }
+    HashMap * scopeTable = get(symbolTable, scope);
+    if (!scopeTable) {
+        return NULL;
+    }
+    Symbol * symbol = get(scopeTable, variableName);
+    if (!symbol) {
+        logError(_logger, "Variable '%s' does not exist in scope '%s'.", variableName, scope);
+        return NULL;
+    }
+    return &(symbol->value);
+}
+
+
+/**
+ * Agrega un nuevo scope (nombre de tabla) al stack de scopes.
+ * Devuelve true si tuvo éxito, false si el stack está lleno.
+ */
+boolean pushScope(Stack *scopeStack, const char *scopeName) {
+    if (isFull(scopeStack)) {
+        logError(_logger, "Scope stack is full. Cannot push '%s'.", scopeName);
+        return false;
+    }
+    // Hacemos una copia del nombre para evitar problemas de memoria
+    char *copy = strdup(scopeName);
+    if (!copy) {
+        logError(_logger, "Failed to allocate memory for scope name.");
+        return false;
+    }
+    return push(scopeStack, copy);
+}
+
+/**
+ * Saca el scope actual del stack de scopes.
+ * Devuelve el nombre del scope que se sacó, o NULL si el stack está vacío.
+ * El caller debe liberar la memoria del nombre retornado.
+ */
+char *popScope(Stack *scopeStack) {
+    if (isEmpty(scopeStack)) {
+        logError(_logger, "Scope stack is empty. Cannot pop.");
+        return NULL;
+    }
+    return pop(scopeStack);
+}
+
 /*
 TODO
 
@@ -101,5 +184,6 @@ la funcion de type, devuelve el tipo de dato. Se va a usar para hacer las valida
 funion getValue, devuelve el valor si lo tiene
 popScope
 pushScope
+
 
 */
