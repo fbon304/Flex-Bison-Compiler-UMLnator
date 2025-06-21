@@ -173,17 +173,3 @@ char *popScope(Stack *scopeStack) {
     }
     return pop(scopeStack);
 }
-
-/*
-TODO
-
-OJO QUE AGREGUE UN PARAMETRO A Symbol EN UN ENUM PARA VER SI ES PRIMARY KEY, UNIQUE, ETC, SE NECESITA PARA GENERAR EL CODIGO DE SALIDA
-
-preguntar si existe una tabla
-la funcion de type, devuelve el tipo de dato. Se va a usar para hacer las validaciones de semántica.
-funion getValue, devuelve el valor si lo tiene
-popScope
-pushScope
-
-
-*/
