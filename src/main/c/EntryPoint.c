@@ -37,7 +37,6 @@ const int main(const int count, const char ** arguments) {
 		.succeed = false,
 		.scopeStack = createStack(),
 		.symbolTable = createHashMap()
-		//.value = 0
 	};
 	const SyntacticAnalysisStatus syntacticAnalysisStatus = parse(&compilerState);
 	CompilationStatus compilationStatus = SUCCEED;

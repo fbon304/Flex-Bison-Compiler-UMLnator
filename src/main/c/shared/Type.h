@@ -28,4 +28,11 @@ typedef enum {
 	BOTTOM
 } DataType;
 
+typedef enum {
+	PRIMARY_KEY_TYPE,
+	UNIQUE_TYPE,
+	FOREIGN_KEY_TYPE,
+	NONE
+} ConstarintDataType;
+
 #endif

@@ -1,6 +1,5 @@
 
 #include "SymbolTable.h"
-#include "CompilerState.h"
 
 static Logger * _logger = NULL;
 
@@ -13,8 +12,6 @@ void shutdownSymbolTableModule() {
 		destroyLogger(_logger);
 	}
 }
-
-
 
 /**
 Agrega una nueva tabla a la symbolTable global.
@@ -34,17 +31,18 @@ int addTableToSymbolTable(HashMap * symbolTable, const char *tableName) {
 	return 0;
 }
 
-int putVariableInScope(HashMap * symbolTable, const char * scope, const char * variableName, DataValue dataValue, DataType dataType) {
+int putVariableInScope(HashMap * symbolTable, const char * scope, const char * variableName, DataValue dataValue, DataType dataType, ConstarintDataType constraint) {
 	if(get(symbolTable, scope) == NULL) {
 		logError(_logger, "Table '%s' doesn't exists in the symbol table.", symbolTable);
-		return -1; // Table already exists //TODO check
+		return -1;
 	}
-	//TODO
 	
 	if(variableExistsInScope(symbolTable, scope, variableName)) {
 		logError(_logger, "Variable '%s' already exists in the scope '%s'.", variableName, scope);
-		return -1; // Variable already exists
+		return -1; // Variable already exists in scope
 	}
+
+	//TODO Add foreign key validaion logic
 
 	Symbol * symbol = malloc(sizeof(Symbol));
 
@@ -55,8 +53,9 @@ int putVariableInScope(HashMap * symbolTable, const char * scope, const char * v
 
 	symbol->type = dataType;
 	symbol->value = dataValue;
+	symbol->constraint = constraint;
 	
-	put(scope, variableName, symbol);
+	put(get(symbolTable, scope), variableName, symbol);
 	return 0;
 }
 
@@ -95,11 +94,12 @@ char * getScope(Stack * scopeStack) {
 /*
 TODO
 
+OJO QUE AGREGUE UN PARAMETRO A Symbol EN UN ENUM PARA VER SI ES PRIMARY KEY, UNIQUE, ETC, SE NECESITA PARA GENERAR EL CODIGO DE SALIDA
+
 preguntar si existe una tabla
-la funcion de type, devuelve el tipo de dato. Se va a usar para haceer las validaciones de semántica.
+la funcion de type, devuelve el tipo de dato. Se va a usar para hacer las validaciones de semántica.
 funion getValue, devuelve el valor si lo tiene
 popScope
 pushScope
-
 
 */

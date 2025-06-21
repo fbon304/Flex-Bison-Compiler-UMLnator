@@ -24,6 +24,7 @@ typedef union DataValue {
 typedef struct Symbol {
     DataType type;
 	DataValue value;
+	ConstarintDataType constraint;
 } Symbol;
 
 /**

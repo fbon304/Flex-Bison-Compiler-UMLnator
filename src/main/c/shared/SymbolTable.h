@@ -3,6 +3,7 @@
 
 #include "Logger.h"
 #include "Type.h"
+#include "CompilerState.h"
 #include "DataStructures/HashMap.h"
 #include "DataStructures/Stack.h"
 #include <stdio.h>
@@ -12,7 +13,7 @@
 void initializeSymbolTableModule();
 void shutdownSymbolTableModule();
 int addTableToSymbolTable(HashMap * symbolTable, const char *tableName);
-int putVariableInScope(HashMap * symbolTable, const char * scope, const char * variableName, DataValue dataValue, DataType dataType);
+int putVariableInScope(HashMap * symbolTable, const char * scope, const char * variableName, DataValue dataValue, DataType dataType, ConstarintDataType constraint);
 void destroySymbolTable(HashMap * symbolTable);
-int variableExistsInScope(HashMap * symbolTable, const char * scope, const char * variableName)
+int variableExistsInScope(HashMap * symbolTable, const char * scope, const char * variableName);
 #endif
