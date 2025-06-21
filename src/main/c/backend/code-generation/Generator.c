@@ -68,7 +68,7 @@ static void _generateTable(const unsigned int indentationLevel, Tables * table) 
 	if (table != NULL) { 
 		_output(indentationLevel, "object %s {\n", table->id);
 		_generateContent(indentationLevel + 1, table->content);
-		_output(identationLevel + 1, "}");
+		_output(indentationLevel + 1, "}");
 	}
 }
 
@@ -183,7 +183,7 @@ static void _generateProperties(const unsigned int indentationLevel, Properties 
                 _generateDefaultValue(indentationLevel, properties->defaultValueDN);
                 break;
             case DEFAULT_VALUE_CONSTRAINT:
-                _generateDefaultValue(indentationLevel, properties->defaultValueDC);>
+                _generateDefaultValue(indentationLevel, properties->defaultValueDC);
                 _generateLocalConstraint(indentationLevel, properties->constraintDC);
                 break;
             case NULL_CONDITION_CONSTRAINT:
@@ -314,7 +314,7 @@ static void _generateAction(const unsigned int indentationLevel, Action * action
     }
 }
 
-static void _generateCheckConstraint(const unsigned int indentationLeevel, CheckConstraint * checkConstraint) {
+static void _generateCheckConstraint(const unsigned int indentationLevel, CheckConstraint * checkConstraint) {
 	if (checkConstraint != NULL) {
 		_generateBooleanExpression(indentationLevel, checkConstraint->booleanExpression);
 	}
