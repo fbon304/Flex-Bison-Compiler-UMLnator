@@ -40,13 +40,8 @@ typedef struct {
 	HashMap * symbolTable; 			// Global symbol table, with the key as the SQL table name and with value as another HashMap
 	Stack * scopeStack; 			// A stack of the SQL table names for scopes
 
-	// TODO: Add a stack to handle nested scopes.
-	// TODO: Add a symbol table.
-	// TODO: Add configuration.
-	// TODO: ...
-
 	// The computed value of the entire program (only for the calculator).
-	 int value;
+	// int value;
 } CompilerState;
 
 #endif

@@ -6,6 +6,9 @@
 #include "frontend/syntactic-analysis/SyntacticAnalyzer.h"
 #include "shared/CompilerState.h"
 #include "shared/Environment.h"
+#include "shared/SymbolTable.h"
+#include "shared/DataStructures/Stack.h"
+#include "shared/DataStructures/HashMap.h"
 #include "shared/Logger.h"
 #include "shared/String.h"
 
@@ -16,11 +19,11 @@
  */
 const int main(const int count, const char ** arguments) {
 	Logger * logger = createLogger("EntryPoint");
+	initializeSymbolTableModule();
 	initializeFlexActionsModule();
 	initializeBisonActionsModule();
 	initializeSyntacticAnalyzerModule();
 	initializeAbstractSyntaxTreeModule();
-	//initializeCalculatorModule();
 	//initializeGeneratorModule();
 
 	// Logs the arguments of the application.
@@ -32,7 +35,9 @@ const int main(const int count, const char ** arguments) {
 	CompilerState compilerState = {
 		.abstractSyntaxtTree = NULL,
 		.succeed = false,
-		.value = 0
+		.scopeStack = createStack(),
+		.symbolTable = createHashMap()
+		//.value = 0
 	};
 	const SyntacticAnalysisStatus syntacticAnalysisStatus = parse(&compilerState);
 	CompilationStatus compilationStatus = SUCCEED;
@@ -61,12 +66,13 @@ const int main(const int count, const char ** arguments) {
 	releaseProgram(program);
 	logDebugging(logger, "Releasing modules resources...");
 	//shutdownGeneratorModule();
-	//shutdownCalculatorModule();
 	shutdownAbstractSyntaxTreeModule();
 	shutdownSyntacticAnalyzerModule();
 	shutdownBisonActionsModule();
 	shutdownFlexActionsModule();
 	logDebugging(logger, "Compilation is done.");
 	destroyLogger(logger);
+	destroyStack(compilerState.scopeStack);
+	destroyHashMap(compilerState.symbolTable);
 	return compilationStatus;
 }

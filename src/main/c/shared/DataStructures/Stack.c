@@ -10,42 +10,42 @@ Stack* createStack(void) {
     return s;
 }
 
-void destroyStack(Stack* s) {
+void destroyStack(Stack * s) {
     free(s);
 }
 
-void initStack(Stack *s) {
+void initStack(Stack * s) {
     s->top = -1;
 }
 
-bool isEmpty(Stack *s) {
+bool isEmpty(Stack * s) {
     return s->top == -1;
 }
 
-bool isFull(Stack *s) {
+bool isFull(Stack * s) {
     return s->top == MAX - 1;
 }
 
-bool push(Stack *s, char * value) {
+bool push(Stack * s, char * value) {
     if (isFull(s)) {
-        printf("Stack overflow! Can't insert %s\n", value);
+        //printf("Stack overflow! Can't insert %s\n", value);
         return false;
     }
     s->items[++(s->top)] = value;
     return true;
 }
 
-char * pop(Stack *s) {
+char * pop(Stack * s) {
     if (isEmpty(s)) {
-        printf("Stack underflow! No se puede hacer pop\n");
+        //printf("Stack underflow! No se puede hacer pop\n");
         return NULL;
     }
     return s->items[(s->top)--];
 }
 
-char * peek(Stack *s) {
+char * peek(Stack * s) {
     if (isEmpty(s)) {
-        printf("La pila está vacía\n");
+        //printf("La pila está vacía\n");
         return NULL;
     }
     return s->items[s->top];
