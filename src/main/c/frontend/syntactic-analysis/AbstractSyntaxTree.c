@@ -246,15 +246,10 @@ void releaseConstraintValue(ConstraintValue * constraintValue) {
 void releaseConstraint(Constraint * constraint) {
 	logDebugging(_logger, "Executing destructor: %s", __FUNCTION__);
 	if (constraint != NULL) {
-		switch(constraint->type) {
-			case NAMED_CONSTRAINT:
-				free(constraint->id);
-				releaseConstraintValue(constraint->constraintValue);
-				break;
-			case UNNAMED_CONSTRAINT:
-				releaseConstraintValue(constraint->singleConstraintValue);
-				break;
-		}
+		if (constraint->type == NAMED_CONSTRAINT) {
+			free(constraint->id);
+		}				
+		releaseConstraintValue(constraint->constraintValue);
 	}
 	free(constraint);
 }
