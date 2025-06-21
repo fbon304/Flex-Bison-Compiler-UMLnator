@@ -14,19 +14,6 @@ typedef enum {
 	FAILED = 1
 } CompilationStatus;
 
-typedef union DataValue {
-	int64_t intValue; // For integer, smallint, bigint, serial, timestamp.
-	double doubleValue; // For real, double, float, number.
-	char *stringValue; // For text, varchar, char, date, interval, time.
-	boolean booleanValue; // For boolean
-} DataValue;
-
-typedef struct Symbol {
-    DataType type;
-	DataValue value;
-	ConstarintDataType constraint;
-} Symbol;
-
 /**
  * The global state of the compiler. Should transport every data structure
  * needed across the different phases of a compilation.
@@ -38,8 +25,14 @@ typedef struct {
 	// A flag that indicates the current state of the compilation so far.
 	boolean succeed;
 
-	HashMap * symbolTable; 			// Global symbol table, with the key as the SQL table name and with value as another HashMap
-	Stack * scopeStack; 			// A stack of the SQL table names for scopes
+	// A flag that indicates if an  error has ocurred during the compilation
+	boolean errors;
+
+	// Global symbol table, with the key as the SQL table name and with value as another HashMap
+	HashMap * symbolTable;
+
+	// A stack of the SQL table names for scopes
+	Stack * scopeStack;
 
 	// The computed value of the entire program (only for the calculator).
 	// int value;

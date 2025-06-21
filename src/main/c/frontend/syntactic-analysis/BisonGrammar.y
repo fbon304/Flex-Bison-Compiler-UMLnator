@@ -317,8 +317,6 @@ boolean_expression: boolean_expression AND boolean_expression						{ $$ = Double
 	| boolean_expression ISNULL														{ $$ = SimpleBooleanExpressionSemanticAction($1, ISNULL_BOOLEANTYPE);}		
 	| boolean_factor																{ $$ = BooleanFactorBooleanExpressionSemanticAction($1); }
 	;
-
-	// (atr > 9) and (attr != 6)
  
 
 boolean_factor: OPEN_PARENTHESIS boolean_expression CLOSE_PARENTHESIS				{ $$ = BooleanExpressionBooleanFactorSemanticAction($2, BOOLEAN_EXPRESSION_PARENTHESIS_TYPE);}
