@@ -25,14 +25,8 @@ typedef enum {
 	VARCHAR_TYPE,
 	TIME_TYPE,
 	NUMBER_TYPE,
+	NONE,
 	BOTTOM
 } DataType;
-
-typedef enum {
-	PRIMARY_KEY_TYPE,
-	UNIQUE_TYPE,
-	FOREIGN_KEY_TYPE,
-	NONE
-} ConstarintDataType;
 
 #endif

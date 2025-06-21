@@ -18,15 +18,15 @@ void initStack(Stack * s) {
     s->top = -1;
 }
 
-bool isEmpty(Stack * s) {
+boolean isEmpty(Stack * s) {
     return s->top == -1;
 }
 
-bool isFull(Stack * s) {
+boolean isFull(Stack * s) {
     return s->top == MAX - 1;
 }
 
-bool push(Stack * s, char * value) {
+boolean push(Stack * s, char * value) {
     if (isFull(s)) {
         //printf("Stack overflow! Can't insert %s\n", value);
         return false;

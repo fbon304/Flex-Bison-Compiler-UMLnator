@@ -1,7 +1,7 @@
 #ifndef STACK_H
 #define STACK_H
 
-#include <stdbool.h>
+#include "../Type.h"
 
 #define MAX 100
 
@@ -16,11 +16,11 @@ void destroyStack(Stack* s);
 
 void initStack(Stack *s);
 
-bool isEmpty(Stack *s);
+boolean isEmpty(Stack *s);
 
-bool isFull(Stack *s);
+boolean isFull(Stack *s);
 
-bool push(Stack *s, char * value);
+boolean push(Stack *s, char * value);
 
 char * pop(Stack *s);
 

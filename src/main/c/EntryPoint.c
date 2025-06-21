@@ -1,5 +1,4 @@
 #include "backend/code-generation/Generator.h"
-#include "backend/domain-specific/Calculator.h"
 #include "frontend/lexical-analysis/FlexActions.h"
 #include "frontend/syntactic-analysis/AbstractSyntaxTree.h"
 #include "frontend/syntactic-analysis/BisonActions.h"
@@ -18,8 +17,18 @@
  * find you, and I will kill you (Bryan Mills; "Taken", 2008).
  */
 const int main(const int count, const char ** arguments) {
+	
+	// Begin compilation process.
+	CompilerState compilerState = {
+		.abstractSyntaxtTree = NULL,
+		.succeed = false,
+		.errors = false,
+		.scopeStack = createStack(),
+		.symbolTable = createHashMap()
+	};
+	
 	Logger * logger = createLogger("EntryPoint");
-	initializeSymbolTableModule();
+	initializeSymbolTableModule(&compilerState);
 	initializeFlexActionsModule();
 	initializeBisonActionsModule();
 	initializeSyntacticAnalyzerModule();
@@ -31,13 +40,6 @@ const int main(const int count, const char ** arguments) {
 		logDebugging(logger, "Argument %d: \"%s\"", k, arguments[k]);
 	}
 
-	// Begin compilation process.
-	CompilerState compilerState = {
-		.abstractSyntaxtTree = NULL,
-		.succeed = false,
-		.scopeStack = createStack(),
-		.symbolTable = createHashMap()
-	};
 	const SyntacticAnalysisStatus syntacticAnalysisStatus = parse(&compilerState);
 	CompilationStatus compilationStatus = SUCCEED;
 	Program * program = compilerState.abstractSyntaxtTree;
