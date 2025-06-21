@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 
-unsigned int hash(const char* key) {
+unsigned int hash(const char * key) {
     unsigned int hash = 0;
     while (*key) {
         hash = (hash * 31 + *key++) % TABLE_SIZE;
@@ -11,13 +11,12 @@ unsigned int hash(const char* key) {
     return hash;
 }
 
-void initMap(HashMap* map) {
-    for (int i = 0; i < TABLE_SIZE; i++) {
-        map->buckets[i] = NULL;
-    }
+HashMap* createHashMap() {
+    HashMap* hm = calloc(1, sizeof(HashMap));
+    return hm;
 }
 
-void put(HashMap* map, const char* key, void* value) {
+void put(HashMap* map, const char * key, void * value) {
     unsigned int index = hash(key);
     Entry* current = map->buckets[index];
 
@@ -36,7 +35,7 @@ void put(HashMap* map, const char* key, void* value) {
     map->buckets[index] = newEntry;
 }
 
-void* get(HashMap* map, const char* key) {
+void* get(HashMap * map, const char* key) {
     unsigned int index = hash(key);
     Entry* current = map->buckets[index];
 
@@ -50,7 +49,7 @@ void* get(HashMap* map, const char* key) {
     return NULL;
 }
 
-void removeKey(HashMap* map, const char* key) {
+void removeKey(HashMap * map, const char * key) {
     unsigned int index = hash(key);
     Entry* current = map->buckets[index];
     Entry* prev = NULL;
@@ -71,14 +70,15 @@ void removeKey(HashMap* map, const char* key) {
     }
 }
 
-void freeMap(HashMap* map) {
+void destroyHashMap(HashMap * map) {
     for (int i = 0; i < TABLE_SIZE; i++) {
         Entry* current = map->buckets[i];
         while (current) {
             Entry* tmp = current;
             current = current->next;
-            free(tmp->key);
+            free(tmp->value);
             free(tmp);
         }
     }
+    free(map);
 }
