@@ -35,4 +35,5 @@ DataValue * getValue(HashMap * symbolTable, const char * scope, const char * var
 Symbol * getEntry(HashMap * symbolTable, const char * scope, const char * variableName);
 boolean pushScope(Stack *scopeStack, const char *scopeName);
 char *popScope(Stack *scopeStack);
+char * getScope(Stack * scopeStack);
 #endif

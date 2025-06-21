@@ -44,6 +44,9 @@ static void _generateIsCondition(const unsigned int indentationLevel, IsConditio
 static char * _indentation(const unsigned int indentationLevel);
 static void _output(const unsigned int indentationLevel, const char * const format, ...);
 
+static char ** constraintsBuff;
+static int fKCount = 0;
+
 /**
  * Generates the output of the program.
  */
@@ -68,6 +71,9 @@ static void _generateTable(const unsigned int indentationLevel, Tables * table) 
 	if (table != NULL) { 
 		_output(indentationLevel, "object %s {\n", table->id);
 		_generateContent(indentationLevel + 1, table->content);
+		for (int i = 0; i < fKCount; i++) {
+			printf("%s\n", constraintsBuff[i]);
+		}
 		_output(indentationLevel + 1, "}");
 	}
 }
@@ -96,11 +102,14 @@ static void _generateContentElement(const unsigned int indentationLevel, Content
 
 static void _generateAttribute(const unsigned int indentationLevel, Attribute * attribute) {
 	if (attribute != NULL) {
+		CompilerState * ccs = currentCompilerState(); 
         if (attribute->type == COLUMN) {
-            _output(indentationLevel, "%s: <size:12>", attribute->id);
+			Symbol * entry = getEntry(ccs->symbolTable, getScope(ccs->scopeStack), attribute->id);
+            _output(indentationLevel, "%s%s: <size:12>", entry->isPrimaryKey ? "-" : "", attribute->id);
             _generateType(indentationLevel, attribute->datatype);
         } else if (attribute->type == COLUMN_WITH_PROPERTIES) {
-            _output(indentationLevel, "%s: <size:12>", attribute->p_id);
+			Symbol * entry = getEntry(ccs->symbolTable, getScope(ccs->scopeStack), attribute->id);
+            _output(indentationLevel, "%s%s: <size:12>", entry->isPrimaryKey ? "-" : "", attribute->p_id);
             _generateType(indentationLevel, attribute->p_type);
             _generateProperties(indentationLevel, attribute->properties);
 			_output(indentationLevel, ";\n");
@@ -164,7 +173,6 @@ static void _generateType(const unsigned int indentationLevel, Type * type) {
         }
     }
 }
-
 
 static void _generateProperties(const unsigned int indentationLevel, Properties * properties) {
     if (properties != NULL) {
@@ -469,25 +477,120 @@ static void _generateConstraintValue(const unsigned int indentationLevel, Constr
 	if (constraintValue != NULL) {
 		switch (constraintValue->type) {
 		case CHECK_CONSTRAINT_TYPE:
-			//_generateCheckConstraint(indentationLevel, constraintValue->checkConstraint);
+			_generateCheckConstraint(indentationLevel, constraintValue->checkConstraint);
 			break;
 		case PRIMARY_KEY_CONSTRAINT_TYPE:
-			//_generateExpression(indentationLevel, constraintValue->expression);
+			_output(indentationLevel, "PRIMARY KEY (");
+			_generateExpression(indentationLevel, constraintValue->expression);
+			_output(indentationLevel, ")");
 			break;
 		case UNIQUE_CONSTRAINT_TYPE:
-			
+			output(indentationLevel, "UNIQUE (");
+			_generateExpression(indentationLevel, constraintValue->expression);
+			_output(indentationLevel, ")");
 			break;
 		case FOREIGN_KEY_CONSTRAINT_TYPE:
-			
+	
+	
+			Expression * currentExpression = constraintValue->singleExpression;
+			do {
+				fKCount++;
+				realloc(constraintsBuff, fKCount);
+				constraintsBuff[fKCount-1] = malloc(MAX_BUFF_SIZE);
+				CompilerState * ccs = currentCompilerState();
+				char * tableName = peek(getScope(ccs->scopeStack));
+				char * action = _getOnAction(constraintValue->onActionSingle);
+				snprintf(constraintsBuff[fKCount-1], sizeof(constraintsBuff[fKCount-1]), "%s::%s \"<size:20><color:#FFFFFF>1\" --- \"<size:20><color:#FFFFFF>*\" %s::%s : %s", tableName, currentExpression->id, constraintValue->id, currentExpression->id, action);
+				currentExpression = currentExpression->expression;
+			} while (currentExpression != NULL);
 			break;
 		case FOREIGN_KEY_DOUBLE_EXPRESSION_CONSTRAINT_TYPE:
-			
+			Expression * localExpression = constraintValue->mainExpression;
+			Expression * foreignExpression = constraintValue->secondExpression;
+			do {
+				do {
+					fKCount++;
+					realloc(constraintsBuff, fKCount);
+					constraintsBuff[fKCount-1] = malloc(MAX_BUFF_SIZE);
+					CompilerState * ccs = currentCompilerState();
+					char * tableName = peek(getScope(ccs->scopeStack));
+					char * action = _getOnAction(constraintValue->onActionSingle);
+					snprintf(constraintsBuff[fKCount-1], sizeof(constraintsBuff[fKCount-1]), "%s::%s \"<size:20><color:#FFFFFF>1\" --- \"<size:20><color:#FFFFFF>*\" %s::%s : %s", tableName, localExpression->id, constraintValue->id, foreignExpression->id, action);
+					foreignExpression = foreignExpression->expression;
+				} while (foreignExpression->expression != NULL);
+				localExpression = localExpression->expression;
+			} while (currentExpression != NULL);
 			break;
 		}
 	}
 }
 
+static char * _getOnAction(OnAction * onAction) {
+	if (onAction != NULL) {
+		switch (onAction->type) {
+			case DELETE_ON_ACTION:
+				char * pref = "ON DELETE ";
+				char * action = _getAction(onAction->action);
+				size_t totalLength = strlen(pref) + strlen(action) + 1;
+				char * buf = malloc(totalLength); // ver los frees!!!
+				if(buf == NULL) {
+					logError(_logger, "Memory allocation failed for buffer in _getOnAction.");
+					return NULL;
+				}
+				strcpy(buf, pref);
+				strncat(buf, action, totalLength);
+ 				return buf;
+			case UPDATE_ON_ACTION:
+				char * pref = "ON UPDATE ";
+				char * action = _getAction(onAction->action);
+				size_t totalLength = strlen(pref) + strlen(action) + 1;
+				char * buf = malloc(totalLength);
+				if(buf == NULL) {
+					logError(_logger, "Memory allocation failed for buffer in _getOnAction.");
+					return NULL;
+				}
+				strcpy(buf, pref);
+				strncat(buf, action, totalLength);
+ 				return buf;
+			case ON_DELETE_ON_UPDATE_ON_ACTION:
+				char * onUpdate = "ON UPDATE ";
+				char * updateAction = _getAction(onAction->updateAction);
+				char * onDelete = " ON DELETE ";
+				char * deleteAction = _getAction(onAction->deleteAction);
+				size_t totalLength = strlen(onUpdate) + strlen(onDelete) + strlen(updateAction) + strlen(deleteAction) + 1;
+				char * buf = malloc(totalLength);
+				if(buf == NULL) {
+					logError(_logger, "Memory allocation failed for buffer in _getOnAction.");
+					return NULL;
+				}
+				strcpy(buf, onUpdate);
+				strncat(buf, updateAction, totalLength);
+				strncat(buf, onDelete, totalLength);
+				strncat(buf, deleteAction, totalLength);
+ 				return buf;
+			case LAMBDA_ON_ACTION:
+				return "";
+		}
+	}
+}
 
+static char * _getAction(Action * action) {
+	if (action != NULL) {
+		switch (action->type) {
+		case CASCADE_ACTION:
+			return "CASCADE";
+		case SET_NUL_ACTION:
+			return "SET NULL";
+		case SET_DEFAULT_ACTION:
+			return "SET DEFAULT";
+		case NO_ACTION_ACTION:
+			return "NO ACTION";
+		case RESTRICT_ACTION:
+			return "RESTRICT";
+		}
+	}
+	return "";
+}
 
 static void _generatePrologue(void) {
 	_output(0, "%s",
@@ -522,9 +625,9 @@ static void _output(const unsigned int indentationLevel, const char * const form
 /** PUBLIC FUNCTIONS */
 
 void generate(CompilerState * compilerState) {
-	logDebugging(_logger, "Generating final output...");
+	//logDebugging(_logger, "Generating final output...");
 	_generatePrologue();
 	_generateProgram(compilerState->abstractSyntaxtTree);
 	_generateEpilogue();
-	logDebugging(_logger, "Generation is done.");
+	//logDebugging(_logger, "Generation is done.");
 }
