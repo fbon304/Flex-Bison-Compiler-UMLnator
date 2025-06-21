@@ -32,7 +32,7 @@ int variableExistsInScope(HashMap * symbolTable, const char * scope, const char 
 boolean tableExistsInSymbolTable(HashMap * symbolTable, const char * tableName);
 DataType type(HashMap * symbolTable, const char * scope, const char * variableName);
 DataValue * getValue(HashMap * symbolTable, const char * scope, const char * variableName);
-Symbol * symbol getEntry(HashMap * symbolTable, const char * scope, const char * variableName);
+Symbol * getEntry(HashMap * symbolTable, const char * scope, const char * variableName);
 boolean pushScope(Stack *scopeStack, const char *scopeName);
 char *popScope(Stack *scopeStack);
 #endif
