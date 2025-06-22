@@ -312,7 +312,7 @@ static int validateConstraints(Content * content) {
     while (content) {
         if (content->content_element->contentElementType == CONSTRAINT_TYPE) {
             Constraint * constraint = content->content_element->constraint;
-            ConstraintValue * cval = (constraint->type == NAMED_CONSTRAINT) ? constraint->constraintValue : constraint->singleConstraintValue;
+            ConstraintValue * cval = constraint->constraintValue;
             switch (cval->type) {
                 case PRIMARY_KEY_CONSTRAINT_TYPE: {
                     Expression *expr = cval->expression;

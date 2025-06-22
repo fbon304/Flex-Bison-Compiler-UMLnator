@@ -357,9 +357,7 @@ struct Properties {
 };
 
 struct Constraint {
-	union {
-		char * id;
-	};
+	char * id;
 	ConstraintValue * constraintValue;
 	ConstraintType type;
 };

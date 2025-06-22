@@ -76,14 +76,16 @@ static void _generateTablesList(const unsigned int indentationLevel, TablesList 
 	}
 	for (int i = 0; i < fKCount; i++) {
 		printf("%s\n", constraintsBuff[i]);
+		free(constraintsBuff[i]);
 	}
+	free(constraintsBuff);
 }
 
 static void _generateTable(const unsigned int indentationLevel, Tables * table) {
 	if (table != NULL) { 
 		CompilerState * ccs = currentCompilerState();
 		Stack * scopeStack = ccs->scopeStack;
-		pushScope(scopeStack, table->id);
+		pushScope(table->id);
 		_output(indentationLevel, "object %s {\n", table->id);
 		_generateContent(indentationLevel + 1, table->content);
 		_output(indentationLevel, "}");
@@ -506,7 +508,7 @@ static void _generateConstraintValue(const unsigned int indentationLevel, Constr
 				CompilerState * ccs = currentCompilerState();
 				char * tableName = getScope();
 				char * action = _getOnAction(constraintValue->onActionSingle);
-				snprintf(constraintsBuff[fKCount-1], sizeof(constraintsBuff[fKCount-1]), "%s::%s \"<size:20><color:#FFFFFF>1\" --- \"<size:20><color:#FFFFFF>*\" %s::%s : %s", tableName, currentExpression->id, constraintValue->id, currentExpression->id, action);
+				snprintf(constraintsBuff[fKCount-1], MAX_BUFF_SIZE, "%s::%s \"<size:20><color:#FFFFFF>1\" --- \"<size:20><color:#FFFFFF>*\" %s::%s : %s", tableName, currentExpression->id, constraintValue->id, currentExpression->id, action);
 				currentExpression = currentExpression->expression;
 			} while (currentExpression != NULL);
 			break;
@@ -522,7 +524,7 @@ static void _generateConstraintValue(const unsigned int indentationLevel, Constr
 					CompilerState * ccs = currentCompilerState();
 					char * tableName = getScope();
 					char * action = _getOnAction(constraintValue->onActionSingle);
-					snprintf(constraintsBuff[fKCount-1], sizeof(constraintsBuff[fKCount-1]), "%s::%s \"<size:20><color:#FFFFFF>1\" --- \"<size:20><color:#FFFFFF>*\" %s::%s : %s", tableName, localExpression->id, constraintValue->id, foreignExpression->id, action);
+					snprintf(constraintsBuff[fKCount-1], MAX_BUFF_SIZE, "%s::%s \"<size:20><color:#FFFFFF>1\" --- \"<size:20><color:#FFFFFF>*\" %s::%s : %s", tableName, localExpression->id, constraintValue->id, foreignExpression->id, action);
 					foreignExpression = foreignExpression->expression;
 				} while (foreignExpression->expression != NULL);
 				localExpression = localExpression->expression;
@@ -582,7 +584,7 @@ static char * _getOnAction(OnAction * onAction) {
 				char * updateAction = _getAction(onAction->updateAction);
 				char * onDelete = " ON DELETE ";
 				char * deleteAction = _getAction(onAction->deleteAction);
-				size_t totalLength = strlen(onUpdate) + strlen(onDelete) + strlen(updateAction) + strlen(deleteAction) + 1;
+				totalLength = strlen(onUpdate) + strlen(onDelete) + strlen(updateAction) + strlen(deleteAction) + 1;
 				buf = malloc(totalLength);
 				if(buf == NULL) {
 					logError(_logger, "Memory allocation failed for buffer in _getOnAction.");
