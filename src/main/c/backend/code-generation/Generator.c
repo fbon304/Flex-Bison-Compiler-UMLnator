@@ -41,17 +41,26 @@ static void _generateBooleanExpression(const unsigned int indentationLevel, Bool
 static void _generateBooleanFactor(const unsigned int indentationLevel, BooleanFactor * booleanFactor);
 static void _generateFactor(const unsigned int indentationLevel, Factor * factor);
 static void _generateIsCondition(const unsigned int indentationLevel, IsCondition * isCondition);
+static void _generateExpression(const unsigned int indentationLevel, Expression * expression);
+static char * _getOnAction(OnAction * OnAction);
+static char * _getAction(Action * action);
 static char * _indentation(const unsigned int indentationLevel);
 static void _output(const unsigned int indentationLevel, const char * const format, ...);
 
 static char ** constraintsBuff;
-static int fKCount = 0;
+static size_t fKCount = 0;
 
 /**
  * Generates the output of the program.
  */
 static void _generateProgram(Program * program) {
     _generateTablesList(2, program->tablesList);
+}
+
+static void _generatePrologue() {
+	_output(0, "%s",
+		"@startuml\n"
+	);
 }
 
 static void _generateEpilogue() {
@@ -65,16 +74,20 @@ static void _generateTablesList(const unsigned int indentationLevel, TablesList 
 		_generateTable(indentationLevel, tablesList->tables);
 		_generateTablesList(indentationLevel, tablesList->tablesList);
 	}
+	for (int i = 0; i < fKCount; i++) {
+		printf("%s\n", constraintsBuff[i]);
+	}
 }
 
 static void _generateTable(const unsigned int indentationLevel, Tables * table) {
 	if (table != NULL) { 
+		CompilerState * ccs = currentCompilerState();
+		Stack * scopeStack = ccs->scopeStack;
+		pushScope(scopeStack, table->id);
 		_output(indentationLevel, "object %s {\n", table->id);
 		_generateContent(indentationLevel + 1, table->content);
-		for (int i = 0; i < fKCount; i++) {
-			printf("%s\n", constraintsBuff[i]);
-		}
-		_output(indentationLevel + 1, "}");
+		_output(indentationLevel, "}");
+		popScope(scopeStack, table->id);
 	}
 }
 
@@ -102,7 +115,7 @@ static void _generateContentElement(const unsigned int indentationLevel, Content
 
 static void _generateAttribute(const unsigned int indentationLevel, Attribute * attribute) {
 	if (attribute != NULL) {
-		CompilerState * ccs = currentCompilerState(); 
+		CompilerState * ccs = currentCompilerState();
         if (attribute->type == COLUMN) {
 			Symbol * entry = getEntry(ccs->symbolTable, getScope(ccs->scopeStack), attribute->id);
             _output(indentationLevel, "%s%s: <size:12>", entry->isPrimaryKey ? "-" : "", attribute->id);
@@ -485,7 +498,7 @@ static void _generateConstraintValue(const unsigned int indentationLevel, Constr
 			_output(indentationLevel, ")");
 			break;
 		case UNIQUE_CONSTRAINT_TYPE:
-			output(indentationLevel, "UNIQUE (");
+			_output(indentationLevel, "UNIQUE (");
 			_generateExpression(indentationLevel, constraintValue->expression);
 			_output(indentationLevel, ")");
 			break;
@@ -495,10 +508,11 @@ static void _generateConstraintValue(const unsigned int indentationLevel, Constr
 			Expression * currentExpression = constraintValue->singleExpression;
 			do {
 				fKCount++;
-				realloc(constraintsBuff, fKCount);
+				void *tmp = realloc(constraintsBuff, fKCount * sizeof(*constraintsBuff));
+				constraintsBuff = tmp;
 				constraintsBuff[fKCount-1] = malloc(MAX_BUFF_SIZE);
 				CompilerState * ccs = currentCompilerState();
-				char * tableName = peek(getScope(ccs->scopeStack));
+				char * tableName = peek(ccs->scopeStack);
 				char * action = _getOnAction(constraintValue->onActionSingle);
 				snprintf(constraintsBuff[fKCount-1], sizeof(constraintsBuff[fKCount-1]), "%s::%s \"<size:20><color:#FFFFFF>1\" --- \"<size:20><color:#FFFFFF>*\" %s::%s : %s", tableName, currentExpression->id, constraintValue->id, currentExpression->id, action);
 				currentExpression = currentExpression->expression;
@@ -510,10 +524,11 @@ static void _generateConstraintValue(const unsigned int indentationLevel, Constr
 			do {
 				do {
 					fKCount++;
-					realloc(constraintsBuff, fKCount);
+					void *tmp = realloc(constraintsBuff, fKCount * sizeof(*constraintsBuff));
+					constraintsBuff = tmp;
 					constraintsBuff[fKCount-1] = malloc(MAX_BUFF_SIZE);
 					CompilerState * ccs = currentCompilerState();
-					char * tableName = peek(getScope(ccs->scopeStack));
+					char * tableName = peek(ccs->scopeStack);
 					char * action = _getOnAction(constraintValue->onActionSingle);
 					snprintf(constraintsBuff[fKCount-1], sizeof(constraintsBuff[fKCount-1]), "%s::%s \"<size:20><color:#FFFFFF>1\" --- \"<size:20><color:#FFFFFF>*\" %s::%s : %s", tableName, localExpression->id, constraintValue->id, foreignExpression->id, action);
 					foreignExpression = foreignExpression->expression;
@@ -525,49 +540,58 @@ static void _generateConstraintValue(const unsigned int indentationLevel, Constr
 	}
 }
 
+static void _generateExpression(const unsigned int indentationLevel, Expression * expression) {
+
+}
+
+
 static char * _getOnAction(OnAction * onAction) {
 	if (onAction != NULL) {
 		switch (onAction->type) {
+			char * buff;
+			char * pref;
+			char * action;
+			size_t totalLength;
 			case DELETE_ON_ACTION:
-				char * pref = "ON DELETE ";
-				char * action = _getAction(onAction->action);
-				size_t totalLength = strlen(pref) + strlen(action) + 1;
-				char * buf = malloc(totalLength); // ver los frees!!!
-				if(buf == NULL) {
+				pref = "ON DELETE ";
+				action = _getAction(onAction->action);
+				totalLength = strlen(pref) + strlen(action) + 1;
+				buff = malloc(totalLength); 
+				if(buff == NULL) {
 					logError(_logger, "Memory allocation failed for buffer in _getOnAction.");
 					return NULL;
 				}
-				strcpy(buf, pref);
-				strncat(buf, action, totalLength);
- 				return buf;
+				strcpy(buff, pref);
+				strncat(buff, action, totalLength);
+ 				return buff;
 			case UPDATE_ON_ACTION:
-				char * pref = "ON UPDATE ";
-				char * action = _getAction(onAction->action);
-				size_t totalLength = strlen(pref) + strlen(action) + 1;
-				char * buf = malloc(totalLength);
-				if(buf == NULL) {
+				pref = "ON UPDATE ";
+				action = _getAction(onAction->action);
+				totalLength = strlen(pref) + strlen(action) + 1;
+				buff = malloc(totalLength);
+				if(buff == NULL) {
 					logError(_logger, "Memory allocation failed for buffer in _getOnAction.");
 					return NULL;
 				}
-				strcpy(buf, pref);
-				strncat(buf, action, totalLength);
- 				return buf;
+				strcpy(buff, pref);
+				strncat(buff, action, totalLength);
+ 				return buff;
 			case ON_DELETE_ON_UPDATE_ON_ACTION:
 				char * onUpdate = "ON UPDATE ";
 				char * updateAction = _getAction(onAction->updateAction);
 				char * onDelete = " ON DELETE ";
 				char * deleteAction = _getAction(onAction->deleteAction);
-				size_t totalLength = strlen(onUpdate) + strlen(onDelete) + strlen(updateAction) + strlen(deleteAction) + 1;
-				char * buf = malloc(totalLength);
-				if(buf == NULL) {
+				totalLength = strlen(onUpdate) + strlen(onDelete) + strlen(updateAction) + strlen(deleteAction) + 1;
+				buff = malloc(totalLength);
+				if(buff == NULL) {
 					logError(_logger, "Memory allocation failed for buffer in _getOnAction.");
 					return NULL;
 				}
-				strcpy(buf, onUpdate);
-				strncat(buf, updateAction, totalLength);
-				strncat(buf, onDelete, totalLength);
-				strncat(buf, deleteAction, totalLength);
- 				return buf;
+				strcpy(buff, onUpdate);
+				strncat(buff, updateAction, totalLength);
+				strncat(buff, onDelete, totalLength);
+				strncat(buff, deleteAction, totalLength);
+ 				return buff;
 			case LAMBDA_ON_ACTION:
 				return "";
 		}
@@ -590,12 +614,6 @@ static char * _getAction(Action * action) {
 		}
 	}
 	return "";
-}
-
-static void _generatePrologue(void) {
-	_output(0, "%s",
-		"@startuml\n"
-	);
 }
 
 /**
