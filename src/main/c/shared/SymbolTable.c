@@ -239,30 +239,30 @@ Symbol * getEntry(const char * variableName) {
     return symbol;
 }
 
-boolean scopeTableHasPrimaryKey () {
+char * getScopeTablePrimaryKey() {
 	char * scope = getScope();
     if (scope == NULL) {
         logError(_logger, "Couldn't get scope from stack");
 		*errors = true;
-		return false;
+		return NULL;
 	}
 	HashMap * map = get(symbolTable, scope);
 	if (map == NULL) {
         logError(_logger, "Couldn't get scopeTable '%s' form symbolTable");
 		*errors = true;
-		return false;
+		return NULL;
 	}
 	for (int i = 0; i < TABLE_SIZE; i++) {
 		Entry * current = map->buckets[i];
 
     	while (current) {
         	if (((Symbol *)(current->value))->isPrimaryKey) {
-				return true;
+				return current->key;
 			}
         	current = current->next;
     	}
 	}
-	return false;
+	return NULL;
 }
 
 /**

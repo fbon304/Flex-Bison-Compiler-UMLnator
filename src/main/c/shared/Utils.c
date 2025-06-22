@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <regex.h>
+#include "Utils.h"
 
 static int _match(const char *str, const char *pattern)
 {
@@ -24,9 +25,8 @@ static int _match(const char *str, const char *pattern)
     return ret;
 }
 
-int isTimestamp(char *ts)
-{
-    static const char *patterns[] = {
+boolean isTimestamp(char * ts) {
+    static const char * patterns[] = {
         "^([0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{8})[ T]"
         "([01][0-9]|2[0-4]):[0-5][0-9]"
         "(:[0-5][0-9](\\.[0-9]+)?)?"
@@ -50,17 +50,16 @@ int isTimestamp(char *ts)
         "( [A-Za-z/_]+)?"
         "( (AD|BC))?$"};
 
-    for (int i = 0; patterns[i]; i++)
+    for (int i = false; patterns[i]; i++)
     {
         if (_match(ts, patterns[i]))
-            return 1;
+            return true;
     }
-    return 0;
+    return false;
 }
 
-int isTime(char *time)
-{
-    static const char *timePatterns[] = {
+boolean isTime(char * time) {
+    static const char * timePatterns[] = {
         "^(0[0-9]|1[0-9]|2[0-4]):([0-5][0-9]|60):([0-5][0-9]|60)(.[0-9]{3})?",
         "^(0[0-9]|1[0-9]|2[0-4]):([0-5][0-9]|60)((\\+|-)((0?[0-9]|1[0-9]|2[0-4])|((0?[0-9]|1[0-9]|2[0-4]):(0[0-9]|[0-5][0-9]))))?$",
         "^(0[0-9]|1[0-2]):([0-5][0-9]|60) (AM|PM)$",
@@ -74,14 +73,14 @@ int isTime(char *time)
     for (int i = 0; timePatterns[i]; i++)
     {
         if (_match(time, timePatterns[i]))
-            return 1;
+            return true;
     }
-    return 0;
+    return false;
 }
 
-int isDate(char *date)
+boolean isDate(char * date)
 {
-    static const char *datePatterns[] = {
+    static const char * datePatterns[] = {
         "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
 
         "^[0-9]{8}$",
@@ -107,7 +106,36 @@ int isDate(char *date)
     for (int i = 0; datePatterns[i]; i++)
     {
         if (_match(date, datePatterns[i]))
-            return 1;
+            return true;
     }
-    return 0;
+    return false;
+}
+
+boolean is_hex_char(char c) {
+    return (c >= '0' && c <= '9') ||
+           (c >= 'a' && c <= 'f') ||
+           (c >= 'A' && c <= 'F');
+}
+
+boolean is_uuid(const char *uuid) {
+    if (!uuid) return false;
+    if (strlen(uuid) != 36) return false;
+
+    const int groups[] = {8, 4, 4, 4, 12};
+    int pos = 0;
+
+    for (int i = 0; i < 5; ++i) {
+        for (int j = 0; j < groups[j]; ++j) {
+            if (!is_hex_char(uuid[pos++])) {
+                return false;
+            }
+        }
+        if (i < 4) {
+            if (uuid[pos++] != '-') {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }

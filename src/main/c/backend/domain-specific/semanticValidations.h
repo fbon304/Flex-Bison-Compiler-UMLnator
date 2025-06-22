@@ -6,6 +6,7 @@
 #include "../../shared/Type.h"
 #include "../../shared/CompilerState.h"
 #include "../../frontend/syntactic-analysis/AbstractSyntaxTree.h"
+#include "../../shared/Utils.h"
 #include <stdio.h>
 #include "../../shared/SymbolTable.h"
 #include <string.h>

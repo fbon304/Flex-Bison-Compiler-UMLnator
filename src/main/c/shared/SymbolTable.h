@@ -38,6 +38,7 @@ DataType type(const char * variableName);
 DataValue * getValue(const char * variableName);
 boolean getIsPrimaryKey(const char * variableName);
 boolean getIsUnique(const char * variableName);
+char * getScopeTablePrimaryKey();
 Symbol * getEntry(const char * variableName);
 boolean pushScope(char * scopeName);
 char * popScope();

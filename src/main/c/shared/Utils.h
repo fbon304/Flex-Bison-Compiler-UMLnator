@@ -1,10 +1,14 @@
 #ifndef UTILS_HEADER
 #define UTILS_HEADER
 
-int isTimestamp(char * timestamp);
+#include "Type.h"
 
-int isTime(char * time);
+boolean isTimestamp(char * timestamp);
 
-int isDate(char * date);
+boolean isTime(char * time);
+
+boolean isDate(char * date);
+
+boolean isUUID(char * uuid);
 
 #endif
