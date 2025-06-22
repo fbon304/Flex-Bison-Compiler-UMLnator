@@ -35,7 +35,7 @@ void put(HashMap* map, const char * key, void * value) {
     map->buckets[index] = newEntry;
 }
 
-void* get(HashMap * map, const char* key) {
+void * get(HashMap * map, const char* key) {
     unsigned int index = hash(key);
     Entry* current = map->buckets[index];
 

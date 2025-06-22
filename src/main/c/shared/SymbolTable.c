@@ -2,11 +2,15 @@
 #include "SymbolTable.h"
 
 static Logger * _logger = NULL;
+static HashMap * symbolTable;
+static Stack * scopeStack;
 static boolean * errors;
 
 void initializeSymbolTableModule(CompilerState * compilerState) {
 	_logger = createLogger("SymbolTable");
-	errors = &compilerState->errors;
+	symbolTable = compilerState->symbolTable;
+	scopeStack = compilerState->scopeStack;
+	errors = &(compilerState->errors);
 }
 
 void shutdownSymbolTableModule() {
@@ -18,8 +22,8 @@ void shutdownSymbolTableModule() {
 /**
 Adds a new table to the global symbolTable.
  */
-void addTableToSymbolTable(HashMap * symbolTable, const char *tableName) {
-	if(tableExistsInSymbolTable(symbolTable, tableName)) {
+void addTableToSymbolTable(const char * tableName) {
+	if(tableExistsInSymbolTable(tableName)) {
 		logError(_logger, "Table '%s' already exists in the symbol table.", tableName);
 		*errors = true; 
 		return;
@@ -33,13 +37,15 @@ void addTableToSymbolTable(HashMap * symbolTable, const char *tableName) {
 	put(symbolTable, tableName, newTable);
 }
 
-int putVariableInScope(HashMap * symbolTable, const char * scope, const char * variableName, DataType dataType) {
-	if(!tableExistsInSymbolTable(symbolTable, scope)) {
-		logError(_logger, "Table '%s' doesn't exists in the symbol table, couldn't put .", symbolTable); 
+int putVariableInScope(const char * variableName, DataType dataType) {
+	char * scope = getScope();
+    if (scope == NULL) {
+        logError(_logger, "Couldn't get scope from stack for variable '%s' ", variableName);
+		*errors = true;
 		return -1;
 	}
 	
-	if(variableExistsInScope(symbolTable, scope, variableName)) {
+	if(variableExistsInScope(variableName)) {
 		logError(_logger, "Variable '%s' already exists in the scope '%s'.", variableName, scope);
 		return -1; // Variable already exists in scope
 	}
@@ -59,9 +65,11 @@ int putVariableInScope(HashMap * symbolTable, const char * scope, const char * v
 	return 0;
 }
 
-int putValueInVariableInScope(HashMap * symbolTable, const char * scope, const char * variableName, DataValue dataValue) {
-	if(!tableExistsInSymbolTable(symbolTable, scope)) {
-		logError(_logger, "Table '%s' doesn't exists in the symbol table, couldn't put .", symbolTable); 
+int putValueInVariableInScope(const char * variableName, DataValue dataValue) {
+	char * scope = getScope();
+    if (scope == NULL) {
+        logError(_logger, "Couldn't get scope from stack for variable '%s' ", variableName);
+		*errors = true;
 		return -1;
 	}
 
@@ -77,9 +85,11 @@ int putValueInVariableInScope(HashMap * symbolTable, const char * scope, const c
 	return 0;
 }
 
-int variableExistsInScope(HashMap * symbolTable, const char * scope, const char * variableName) {
-    if (symbolTable == NULL) {
-        logError(_logger, "Symbol table is NULL.");
+int variableExistsInScope(const char * variableName) {
+    char * scope = getScope();
+    if (scope == NULL) {
+        logError(_logger, "Couldn't get scope from stack for variable '%s' ", variableName);
+		*errors = true;
         return -1;
     }
     HashMap * scopeTable = get(symbolTable, scope);
@@ -90,7 +100,7 @@ int variableExistsInScope(HashMap * symbolTable, const char * scope, const char 
     return get(scopeTable, variableName) != NULL;
 }
 
-void destroySymbolTable(HashMap * symbolTable) {
+void destroySymbolTable() {
 	for(int i = 0; i < TABLE_SIZE; i++) {
 		Entry * entry = symbolTable->buckets[i];
 		while(entry) {
@@ -101,16 +111,8 @@ void destroySymbolTable(HashMap * symbolTable) {
 	destroyHashMap(symbolTable);
 }
 
-char * getScope(Stack * scopeStack) {
-	if (isEmpty(scopeStack)) {
-		return NULL;
-	}
-	return peek(scopeStack);
-}
-
-
-boolean tableExistsInSymbolTable(HashMap * symbolTable, const char * tableName) {
-	if(symbolTable == NULL || tableName == NULL) {
+boolean tableExistsInSymbolTable(const char * tableName) {
+	if(tableName == NULL) {
 		return false;
 	}
 
@@ -121,13 +123,17 @@ boolean tableExistsInSymbolTable(HashMap * symbolTable, const char * tableName) 
  * Devuelve el tipo de dato de una variable en un scope dado.
  * Si no existe, devuelve BOTTOM.
  */
-DataType type(HashMap * symbolTable, const char * scope, const char * variableName) {
-    if (!tableExistsInSymbolTable(symbolTable, scope)) {
-        logError(_logger, "Scope '%s' does not exist in the symbol table.", scope);
+DataType type(const char * variableName) {
+    char * scope = getScope();
+    if (scope == NULL) {
+        logError(_logger, "Couldn't get scope from stack for variable '%s' ", variableName);
+		*errors = true;
         return BOTTOM;
     }
     HashMap * scopeTable = get(symbolTable, scope);
-    if (!scopeTable) {
+    if (scopeTable == NULL) {
+		logError(_logger, "Table '%s' doesn't exists in symbolTable", scope);
+		*errors = true;
         return BOTTOM;
     }
     Symbol * symbol = get(scopeTable, variableName);
@@ -138,10 +144,11 @@ DataType type(HashMap * symbolTable, const char * scope, const char * variableNa
     return symbol->type;
 }
 
-DataValue * getValue(HashMap * symbolTable, const char * scope, const char * variableName) {
-    if (!tableExistsInSymbolTable(symbolTable, scope)) {
-        logError(_logger, "Scope '%s' does not exist in the symbol table.", scope);
-        *errors = true;
+DataValue * getValue(const char * variableName) {
+    char * scope = getScope();
+    if (scope == NULL) {
+        logError(_logger, "Couldn't get scope from stack for variable '%s' ", variableName);
+		*errors = true;
 		return NULL;
     }
     Symbol * symbol = get(get(symbolTable, scope), variableName);
@@ -153,10 +160,11 @@ DataValue * getValue(HashMap * symbolTable, const char * scope, const char * var
     return &(symbol->value);
 }
 
-boolean getIsPrimaryKey(HashMap * symbolTable, const char * scope, const char * variableName) {
-    if (!tableExistsInSymbolTable(symbolTable, scope)) {
-        logError(_logger, "Scope '%s' does not exist in the symbol table.", scope);
-        *errors = true;
+boolean getIsPrimaryKey(const char * variableName) {
+    char * scope = getScope();
+    if (scope == NULL) {
+        logError(_logger, "Couldn't get scope from stack for variable '%s' ", variableName);
+		*errors = true;
 		return false;
     }
     Symbol * symbol = get(get(symbolTable, scope), variableName);
@@ -168,10 +176,11 @@ boolean getIsPrimaryKey(HashMap * symbolTable, const char * scope, const char * 
     return symbol->isPrimaryKey;
 }
 
-boolean getIsUnique(HashMap * symbolTable, const char * scope, const char * variableName) {
-    if (!tableExistsInSymbolTable(symbolTable, scope)) {
-        logError(_logger, "Scope '%s' does not exist in the symbol table.", scope);
-        *errors = true;
+boolean getIsUnique(const char * variableName) {
+    char * scope = getScope();
+    if (scope == NULL) {
+        logError(_logger, "Couldn't get scope from stack for variable '%s' ", variableName);
+		*errors = true;
 		return false;
     }
     Symbol * symbol = get(get(symbolTable, scope), variableName);
@@ -183,9 +192,10 @@ boolean getIsUnique(HashMap * symbolTable, const char * scope, const char * vari
     return symbol->isUnique;
 }
 
-void setIsPrimaryKey(HashMap * symbolTable, const char * scope, const char * variableName) {
-    if (!tableExistsInSymbolTable(symbolTable, scope)) {
-        logError(_logger, "Scope '%s' does not exist in the symbol table.", scope);
+void setIsPrimaryKey(const char * variableName) {
+    char * scope = getScope();
+    if (scope == NULL) {
+        logError(_logger, "Couldn't get scope from stack for variable '%s' ", variableName);
 		*errors = true;
 		return;
     }
@@ -198,9 +208,10 @@ void setIsPrimaryKey(HashMap * symbolTable, const char * scope, const char * var
 	symbol->isPrimaryKey = true;
 }
 
-void setIsUnique(HashMap * symbolTable, const char * scope, const char * variableName) {
-    if (!tableExistsInSymbolTable(symbolTable, scope)) {
-        logError(_logger, "Scope '%s' does not exist in the symbol table.", scope);
+void setIsUnique(const char * variableName) {
+    char * scope = getScope();
+    if (scope == NULL) {
+        logError(_logger, "Couldn't get scope from stack for variable '%s' ", variableName);
 		*errors = true;
 		return;
     }
@@ -213,9 +224,10 @@ void setIsUnique(HashMap * symbolTable, const char * scope, const char * variabl
 	symbol->isUnique = true;
 }
 
-Symbol * getEntry(HashMap * symbolTable, const char * scope, const char * variableName) {
-    if (!tableExistsInSymbolTable(symbolTable, scope)) {
-        logError(_logger, "Scope '%s' does not exist in the symbol table.", scope);
+Symbol * getEntry(const char * variableName) {
+	char * scope = getScope();
+    if (scope == NULL) {
+        logError(_logger, "Couldn't get scope from stack for variable '%s' ", variableName);
 		*errors = true;
         return NULL;
     }
@@ -227,21 +239,41 @@ Symbol * getEntry(HashMap * symbolTable, const char * scope, const char * variab
     return symbol;
 }
 
+boolean scopeTableHasPrimaryKey () {
+	char * scope = getScope();
+    if (scope == NULL) {
+        logError(_logger, "Couldn't get scope from stack");
+		*errors = true;
+		return false;
+	}
+	HashMap * map = get(symbolTable, scope);
+	if (map == NULL) {
+        logError(_logger, "Couldn't get scopeTable '%s' form symbolTable");
+		*errors = true;
+		return false;
+	}
+	for (int i = 0; i < TABLE_SIZE; i++) {
+		Entry * current = map->buckets[i];
+
+    	while (current) {
+        	if (((Symbol *)(current->value))->isPrimaryKey) {
+				return true;
+			}
+        	current = current->next;
+    	}
+	}
+	return false;
+}
+
 /**
  * Agrega un nuevo scope (nombre de tabla) al stack de scopes.
  * Devuelve true si tuvo éxito, false si el stack está lleno.
  */
-boolean pushScope(Stack * scopeStack, char * scopeName) {
+boolean pushScope(char * scopeName) {
     if (isFull(scopeStack)) {
         logError(_logger, "Scope stack is full. Cannot push '%s'.", scopeName);
         return false;
     }
-    // Hacemos una copia del nombre para evitar problemas de memoria
-    /*char *copy = strdup(scopeName);
-    if (!copy) {
-        logError(_logger, "Failed to allocate memory for scope name.");
-        return false;
-    }*/
     return push(scopeStack, scopeName);
 }
 
@@ -250,10 +282,17 @@ boolean pushScope(Stack * scopeStack, char * scopeName) {
  * Devuelve el nombre del scope que se sacó, o NULL si el stack está vacío.
  * El caller debe liberar la memoria del nombre retornado.
  */
-char * popScope(Stack * scopeStack) {
+char * popScope() {
     if (isEmpty(scopeStack)) {
         logError(_logger, "Scope stack is empty. Cannot pop.");
         return NULL;
     }
     return pop(scopeStack);
+}
+
+char * getScope() {
+	if (isEmpty(scopeStack)) {
+		return NULL;
+	}
+	return peek(scopeStack);
 }

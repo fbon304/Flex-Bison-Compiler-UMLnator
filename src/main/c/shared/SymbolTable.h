@@ -26,20 +26,20 @@ typedef struct Symbol {
 
 void initializeSymbolTableModule(CompilerState * compilerState);
 void shutdownSymbolTableModule();
-void addTableToSymbolTable(HashMap * symbolTable, const char *tableName);
-int putVariableInScope(HashMap * symbolTable, const char * scope, const char * variableName, DataType dataType);
-int putValueInVariableInScope(HashMap * symbolTable, const char * scope, const char * variableName, DataValue dataValue);
-void setIsPrimaryKey(HashMap * symbolTable, const char * scope, const char * variableName);
-void setIsUnique(HashMap * symbolTable, const char * scope, const char * variableName);
-void destroySymbolTable(HashMap * symbolTable);
-int variableExistsInScope(HashMap * symbolTable, const char * scope, const char * variableName);
-boolean tableExistsInSymbolTable(HashMap * symbolTable, const char * tableName);
-DataType type(HashMap * symbolTable, const char * scope, const char * variableName);
-DataValue * getValue(HashMap * symbolTable, const char * scope, const char * variableName);
-boolean getIsPrimaryKey(HashMap * symbolTable, const char * scope, const char * variableName);
-boolean getIsUnique(HashMap * symbolTable, const char * scope, const char * variableName);
-Symbol * getEntry(HashMap * symbolTable, const char * scope, const char * variableName);
-boolean pushScope(Stack *scopeStack, char *scopeName);
-char * popScope(Stack *scopeStack);
-char * getScope(Stack * scopeStack);
+void addTableToSymbolTable(const char *tableName);
+int putVariableInScope(const char * variableName, DataType dataType);
+int putValueInVariableInScope(const char * variableName, DataValue dataValue);
+void setIsPrimaryKey(const char * variableName);
+void setIsUnique(const char * variableName);
+void destroySymbolTable();
+int variableExistsInScope(const char * variableName);
+boolean tableExistsInSymbolTable(const char * tableName);
+DataType type(const char * variableName);
+DataValue * getValue(const char * variableName);
+boolean getIsPrimaryKey(const char * variableName);
+boolean getIsUnique(const char * variableName);
+Symbol * getEntry(const char * variableName);
+boolean pushScope(char * scopeName);
+char * popScope();
+char * getScope();
 #endif

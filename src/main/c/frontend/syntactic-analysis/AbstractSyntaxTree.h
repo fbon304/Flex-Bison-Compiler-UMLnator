@@ -204,7 +204,7 @@ enum BooleanFactorType {
 	FACTOR_CONDITION_NUL,
 	DISTINCT_FROM_FACTORS,
 	FACTOR_TYPE
-};
+}; 
 
 enum FactorType {
 	ID_FACTOR_TYPE,
