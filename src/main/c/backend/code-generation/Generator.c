@@ -41,6 +41,9 @@ static void _generateBooleanExpression(const unsigned int indentationLevel, Bool
 static void _generateBooleanFactor(const unsigned int indentationLevel, BooleanFactor * booleanFactor);
 static void _generateFactor(const unsigned int indentationLevel, Factor * factor);
 static void _generateIsCondition(const unsigned int indentationLevel, IsCondition * isCondition);
+static void _generateExpression(const unsigned int indentationLevel, Expression * expression);
+static char * _getOnAction(OnAction * onAction);
+static char * _getAction(Action * action);
 static char * _indentation(const unsigned int indentationLevel);
 static void _output(const unsigned int indentationLevel, const char * const format, ...);
 
@@ -104,11 +107,11 @@ static void _generateAttribute(const unsigned int indentationLevel, Attribute * 
 	if (attribute != NULL) {
 		CompilerState * ccs = currentCompilerState(); 
         if (attribute->type == COLUMN) {
-			Symbol * entry = getEntry(ccs->symbolTable, getScope(ccs->scopeStack), attribute->id);
+			Symbol * entry = getEntry(attribute->id);
             _output(indentationLevel, "%s%s: <size:12>", entry->isPrimaryKey ? "-" : "", attribute->id);
             _generateType(indentationLevel, attribute->datatype);
         } else if (attribute->type == COLUMN_WITH_PROPERTIES) {
-			Symbol * entry = getEntry(ccs->symbolTable, getScope(ccs->scopeStack), attribute->id);
+			Symbol * entry = getEntry(attribute->id);
             _output(indentationLevel, "%s%s: <size:12>", entry->isPrimaryKey ? "-" : "", attribute->p_id);
             _generateType(indentationLevel, attribute->p_type);
             _generateProperties(indentationLevel, attribute->properties);
@@ -138,14 +141,17 @@ static void _generateType(const unsigned int indentationLevel, Type * type) {
             case BOOLEAN_DATATYPE:
                 _output(indentationLevel, "BOOLEAN ");
                 break;
+			case UUID_DATATYPE:
+                _output(indentationLevel, "UUID ");
+                break;
+			case FLOAT_DATATYPE:
+                _output(indentationLevel, "FLOAT(%d) ", type->param1);
+                break;
             case DATE_DATATYPE:
                 _output(indentationLevel, "DATE ");
                 break;
             case TIMESTAMP_DATATYPE:
                 _output(indentationLevel, "TIMESTAMP ");
-                break;
-            case INTERVAL_DATATYPE:
-                _output(indentationLevel, "INTERVAL ");
                 break;
             case TEXT_DATATYPE:
                 _output(indentationLevel, "TEXT ");
@@ -159,16 +165,11 @@ static void _generateType(const unsigned int indentationLevel, Type * type) {
             case VARCHAR_DATATYPE:
                 _output(indentationLevel, "VARCHAR(%d) ", type->param1);
                 break;
-            case FLOAT_DATATYPE:
-                _output(indentationLevel, "FLOAT(%d) ", type->param1);
-                break;
             case TIME_DATATYPE:
                 _output(indentationLevel, "TIME(%d) ", type->param1);
                 break;
             case NUMBER_DATATYPE:
                 _output(indentationLevel, "NUMBER(%d, %d) ", type->param1, type->param2);
-                break;
-            case UNKNOWN_SQL_DATATYPE:
                 break;
         }
     }
@@ -187,21 +188,21 @@ static void _generateProperties(const unsigned int indentationLevel, Properties 
                 _generateNullCondition(indentationLevel, properties->nullCondition);
                 break;
             case NULL_CONDITION_DEFAULT_VALUE:
-                _generateNullCondition(indentationLevel, properties->nullConditionDN);
-                _generateDefaultValue(indentationLevel, properties->defaultValueDN);
+                _generateNullCondition(indentationLevel, properties->nullCondition);
+                _generateDefaultValue(indentationLevel, properties->defaultValue);
                 break;
             case DEFAULT_VALUE_CONSTRAINT:
-                _generateDefaultValue(indentationLevel, properties->defaultValueDC);
-                _generateLocalConstraint(indentationLevel, properties->constraintDC);
+                _generateDefaultValue(indentationLevel, properties->defaultValue);
+                _generateLocalConstraint(indentationLevel, properties->constraint);
                 break;
             case NULL_CONDITION_CONSTRAINT:
-                _generateNullCondition(indentationLevel, properties->nullConditionCN);
-                _generateLocalConstraint(indentationLevel, properties->constraintCN);
+                _generateNullCondition(indentationLevel, properties->nullCondition);
+                _generateLocalConstraint(indentationLevel, properties->constraint);
                 break;
             case COMPLETE:
-                _generateLocalConstraint(indentationLevel, properties->constraintCDN);
-                _generateDefaultValue(indentationLevel, properties->defaultValueCDN);
-                _generateNullCondition(indentationLevel, properties->nullConditionCDN);
+                _generateLocalConstraint(indentationLevel, properties->constraint);
+                _generateDefaultValue(indentationLevel, properties->defaultValue);
+                _generateNullCondition(indentationLevel, properties->nullCondition);
                 break;
         }
     }
@@ -228,9 +229,6 @@ static void _generateFunction(const unsigned int indentationLevel, Function * fu
 		case CURRENT_TIMESTAMP_FUNCTION:
 			_output(indentationLevel, "CURRENT_TIMESTAMP");
 			break;
-		case AUTO_INCREMENT_FUNCTION:
-			_output(indentationLevel, "AUTO_INCREMENT");
-			break;
 		case CURRENT_DATE_FUNCTION:
 			_output(indentationLevel, "CURRENT_DATE");
 			break;
@@ -245,9 +243,6 @@ static void _generateFunction(const unsigned int indentationLevel, Function * fu
 			break;
 		case GEN_RANDOM_UUID_OPEN_AND_CLOSE_PARENTHESIS_FUNCTION:
 			_output(indentationLevel, "gen_random_uuid()");
-			break;
-		case UUID_GENERATE_V4_OPEN_AND_CLOSE_PARENTHESIS_FUNCTION:
-			_output(indentationLevel, "uuid_generate_v4()");
 			break;
 		}
 	}
@@ -485,7 +480,7 @@ static void _generateConstraintValue(const unsigned int indentationLevel, Constr
 			_output(indentationLevel, ")");
 			break;
 		case UNIQUE_CONSTRAINT_TYPE:
-			output(indentationLevel, "UNIQUE (");
+			_output(indentationLevel, "UNIQUE (");
 			_generateExpression(indentationLevel, constraintValue->expression);
 			_output(indentationLevel, ")");
 			break;
@@ -498,7 +493,7 @@ static void _generateConstraintValue(const unsigned int indentationLevel, Constr
 				realloc(constraintsBuff, fKCount);
 				constraintsBuff[fKCount-1] = malloc(MAX_BUFF_SIZE);
 				CompilerState * ccs = currentCompilerState();
-				char * tableName = peek(getScope(ccs->scopeStack));
+				char * tableName = getScope();
 				char * action = _getOnAction(constraintValue->onActionSingle);
 				snprintf(constraintsBuff[fKCount-1], sizeof(constraintsBuff[fKCount-1]), "%s::%s \"<size:20><color:#FFFFFF>1\" --- \"<size:20><color:#FFFFFF>*\" %s::%s : %s", tableName, currentExpression->id, constraintValue->id, currentExpression->id, action);
 				currentExpression = currentExpression->expression;
@@ -513,7 +508,7 @@ static void _generateConstraintValue(const unsigned int indentationLevel, Constr
 					realloc(constraintsBuff, fKCount);
 					constraintsBuff[fKCount-1] = malloc(MAX_BUFF_SIZE);
 					CompilerState * ccs = currentCompilerState();
-					char * tableName = peek(getScope(ccs->scopeStack));
+					char * tableName = getScope();
 					char * action = _getOnAction(constraintValue->onActionSingle);
 					snprintf(constraintsBuff[fKCount-1], sizeof(constraintsBuff[fKCount-1]), "%s::%s \"<size:20><color:#FFFFFF>1\" --- \"<size:20><color:#FFFFFF>*\" %s::%s : %s", tableName, localExpression->id, constraintValue->id, foreignExpression->id, action);
 					foreignExpression = foreignExpression->expression;
@@ -525,14 +520,28 @@ static void _generateConstraintValue(const unsigned int indentationLevel, Constr
 	}
 }
 
+static void _generateExpression(const unsigned int indentationLevel, Expression * expression) {
+	if (expression != NULL) {
+		_output(indentationLevel, "%s", expression->id);
+		if (expression->type == COMPLEX_EXPRESSION) {
+			_output(indentationLevel, ", ");
+			_generateExpression(indentationLevel, expression->expression);
+		}
+	}
+}
+
 static char * _getOnAction(OnAction * onAction) {
 	if (onAction != NULL) {
+		char * pref;
+		char * action;
+		size_t totalLength;
+		char * buf;
 		switch (onAction->type) {
 			case DELETE_ON_ACTION:
-				char * pref = "ON DELETE ";
-				char * action = _getAction(onAction->action);
-				size_t totalLength = strlen(pref) + strlen(action) + 1;
-				char * buf = malloc(totalLength); // ver los frees!!!
+				pref = "ON DELETE ";
+				action = _getAction(onAction->action);
+				totalLength = strlen(pref) + strlen(action) + 1;
+				buf = malloc(totalLength); // ver los frees!!!
 				if(buf == NULL) {
 					logError(_logger, "Memory allocation failed for buffer in _getOnAction.");
 					return NULL;
@@ -541,10 +550,10 @@ static char * _getOnAction(OnAction * onAction) {
 				strncat(buf, action, totalLength);
  				return buf;
 			case UPDATE_ON_ACTION:
-				char * pref = "ON UPDATE ";
-				char * action = _getAction(onAction->action);
-				size_t totalLength = strlen(pref) + strlen(action) + 1;
-				char * buf = malloc(totalLength);
+				pref = "ON UPDATE ";
+				action = _getAction(onAction->action);
+				totalLength = strlen(pref) + strlen(action) + 1;
+				buf = malloc(totalLength);
 				if(buf == NULL) {
 					logError(_logger, "Memory allocation failed for buffer in _getOnAction.");
 					return NULL;
@@ -558,7 +567,7 @@ static char * _getOnAction(OnAction * onAction) {
 				char * onDelete = " ON DELETE ";
 				char * deleteAction = _getAction(onAction->deleteAction);
 				size_t totalLength = strlen(onUpdate) + strlen(onDelete) + strlen(updateAction) + strlen(deleteAction) + 1;
-				char * buf = malloc(totalLength);
+				buf = malloc(totalLength);
 				if(buf == NULL) {
 					logError(_logger, "Memory allocation failed for buffer in _getOnAction.");
 					return NULL;

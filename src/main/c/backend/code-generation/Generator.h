@@ -7,7 +7,7 @@
 #include "../../shared/String.h"
 #include <stdarg.h>
 #include <stdio.h>
-#include "SymbolTable.h"
+#include "../../shared/SymbolTable.h"
 #include "../../frontend/syntactic-analysis/SyntacticAnalyzer.h"
 
 #define MAX_BUFF_SIZE 2048

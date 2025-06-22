@@ -35,7 +35,7 @@ const int main(const int count, const char ** arguments) {
 	initializeBisonActionsModule();
 	initializeSyntacticAnalyzerModule();
 	initializeAbstractSyntaxTreeModule();
-	//initializeGeneratorModule();
+	initializeGeneratorModule();
 
 	// Logs the arguments of the application.
 	for (int k = 0; k < count; ++k) {
@@ -52,7 +52,7 @@ const int main(const int count, const char ** arguments) {
 		semanticValidation(program);
 		if(!compilerState.errors) {
 			logInformation(logger, "Semantic validation passed.");
-			//generate(&compilerState);
+			generate(&compilerState);
 		} else {
 			logError(logger, "The semantic validation phase rejects the input program.");
 			compilationStatus = FAILED;
@@ -67,7 +67,7 @@ const int main(const int count, const char ** arguments) {
 	logDebugging(logger, "Releasing AST resources...");
 	releaseProgram(program);
 	logDebugging(logger, "Releasing modules resources...");
-	//shutdownGeneratorModule();
+	shutdownGeneratorModule();
 	shutdownAbstractSyntaxTreeModule();
 	shutdownSyntacticAnalyzerModule();
 	shutdownBisonActionsModule();
