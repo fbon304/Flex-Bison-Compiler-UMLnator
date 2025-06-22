@@ -16,17 +16,6 @@ void shutdownSemanticValidationsModule() {
 	}
 }
 
-// Verifica si un atributo es primary key en la tabla de símbolos
-// Inecesaria
-/*
-static boolean isPrimaryKey(HashMap * symbolTable, const char * tableName, const char * attrName) {
-    Symbol * symbol = getEntry(symbolTable, tableName, attrName);
-    if (symbol && symbol->isPrimaryKey) {
-        return true;
-    }
-    return false;
-}*/
-
 // Compara tipos
 static boolean areTypesCompatible(DataType t1, DataType t2) {
     return t1 == t2;
