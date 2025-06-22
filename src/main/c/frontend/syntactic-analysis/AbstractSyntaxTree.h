@@ -358,14 +358,10 @@ struct Properties {
 
 struct Constraint {
 	union {
-		struct {
-			char * id;
-			ConstraintValue * constraintValue;
-		};
-		ConstraintValue * singleConstraintValue;
+		char * id;
 	};
+	ConstraintValue * constraintValue;
 	ConstraintType type;
-	
 };
 
 struct Attribute {
