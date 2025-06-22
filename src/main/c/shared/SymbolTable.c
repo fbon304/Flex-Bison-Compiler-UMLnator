@@ -33,7 +33,7 @@ void addTableToSymbolTable(HashMap * symbolTable, const char *tableName) {
 	put(symbolTable, tableName, newTable);
 }
 
-int putVariableInScope(HashMap * symbolTable, const char * scope, const char * variableName, DataValue dataValue, DataType dataType) {
+int putVariableInScope(HashMap * symbolTable, const char * scope, const char * variableName, DataType dataType) {
 	if(!tableExistsInSymbolTable(symbolTable, scope)) {
 		logError(_logger, "Table '%s' doesn't exists in the symbol table, couldn't put .", symbolTable); 
 		return -1;
@@ -53,30 +53,24 @@ int putVariableInScope(HashMap * symbolTable, const char * scope, const char * v
 
 	symbol->type = dataType;
 	symbol->value.stringValue = NULL;
+	symbol->isPrimaryKey = false;
 	
 	put(get(symbolTable, scope), variableName, symbol);
 	return 0;
 }
 
-int putValueInVariableInScope(HashMap * symbolTable, const char * scope, const char * variableName, DataValue dataValue, DataType dataType) {
+int putValueInVariableInScope(HashMap * symbolTable, const char * scope, const char * variableName, DataValue dataValue) {
 	if(!tableExistsInSymbolTable(symbolTable, scope)) {
 		logError(_logger, "Table '%s' doesn't exists in the symbol table, couldn't put .", symbolTable); 
 		return -1;
 	}
-	
-	if(variableExistsInScope(symbolTable, scope, variableName)) {
-		logError(_logger, "Variable '%s' already exists in the scope '%s'.", variableName, scope);
-		return -1; // Variable already exists in scope
-	}
 
-	Symbol * symbol = malloc(sizeof(Symbol));
-
+	Symbol * symbol = get(get(symbolTable, scope), variableName);
 	if(!symbol) {
-		logError(_logger, "Failed to create a the new symbol.");
-		return -1; // Failed to create new table
+		logError(_logger, "Variable '%s' doesn't exists in the scope '%s'.", variableName, scope);
+		return -1;
 	}
 
-	symbol->type = dataType;
 	symbol->value = dataValue;
 	
 	put(get(symbolTable, scope), variableName, symbol);
@@ -144,62 +138,111 @@ DataType type(HashMap * symbolTable, const char * scope, const char * variableNa
     return symbol->type;
 }
 
-
-/**
- * Devuelve un puntero al valor de una variable en un scope dado.
- * Si no existe, devuelve NULL.
- */
 DataValue * getValue(HashMap * symbolTable, const char * scope, const char * variableName) {
     if (!tableExistsInSymbolTable(symbolTable, scope)) {
         logError(_logger, "Scope '%s' does not exist in the symbol table.", scope);
-        return NULL;
+        *errors = true;
+		return NULL;
     }
-    HashMap * scopeTable = get(symbolTable, scope);
-    if (!scopeTable) {
-        return NULL;
-    }
-    Symbol * symbol = get(scopeTable, variableName);
+    Symbol * symbol = get(get(symbolTable, scope), variableName);
     if (!symbol) {
         logError(_logger, "Variable '%s' does not exist in scope '%s'.", variableName, scope);
-        return NULL;
+        *errors = true;
+		return NULL;
     }
     return &(symbol->value);
+}
+
+boolean getIsPrimaryKey(HashMap * symbolTable, const char * scope, const char * variableName) {
+    if (!tableExistsInSymbolTable(symbolTable, scope)) {
+        logError(_logger, "Scope '%s' does not exist in the symbol table.", scope);
+        *errors = true;
+		return false;
+    }
+    Symbol * symbol = get(get(symbolTable, scope), variableName);
+    if (!symbol) {
+        logError(_logger, "Variable '%s' does not exist in scope '%s'.", variableName, scope);
+        *errors = true;
+		return false;
+    }
+    return symbol->isPrimaryKey;
+}
+
+boolean getIsUnique(HashMap * symbolTable, const char * scope, const char * variableName) {
+    if (!tableExistsInSymbolTable(symbolTable, scope)) {
+        logError(_logger, "Scope '%s' does not exist in the symbol table.", scope);
+        *errors = true;
+		return false;
+    }
+    Symbol * symbol = get(get(symbolTable, scope), variableName);
+    if (!symbol) {
+        logError(_logger, "Variable '%s' does not exist in scope '%s'.", variableName, scope);
+		*errors = true;
+		return false;
+    }
+    return symbol->isUnique;
+}
+
+void setIsPrimaryKey(HashMap * symbolTable, const char * scope, const char * variableName) {
+    if (!tableExistsInSymbolTable(symbolTable, scope)) {
+        logError(_logger, "Scope '%s' does not exist in the symbol table.", scope);
+		*errors = true;
+		return;
+    }
+    Symbol * symbol = get(get(symbolTable, scope), variableName);
+    if (!symbol) {
+        logError(_logger, "Variable '%s' does not exist in scope '%s'.", variableName, scope);
+        *errors = true;
+		return;
+    }
+	symbol->isPrimaryKey = true;
+}
+
+void setIsUnique(HashMap * symbolTable, const char * scope, const char * variableName) {
+    if (!tableExistsInSymbolTable(symbolTable, scope)) {
+        logError(_logger, "Scope '%s' does not exist in the symbol table.", scope);
+		*errors = true;
+		return;
+    }
+    Symbol * symbol = get(get(symbolTable, scope), variableName);
+    if (!symbol) {
+        logError(_logger, "Variable '%s' does not exist in scope '%s'.", variableName, scope);
+        *errors = true;
+		return;
+    }
+	symbol->isUnique = true;
 }
 
 Symbol * getEntry(HashMap * symbolTable, const char * scope, const char * variableName) {
     if (!tableExistsInSymbolTable(symbolTable, scope)) {
         logError(_logger, "Scope '%s' does not exist in the symbol table.", scope);
+		*errors = true;
         return NULL;
     }
-    HashMap * scopeTable = get(symbolTable, scope);
-    if (!scopeTable) {
-        return NULL;
-    }
-    Symbol * symbol = get(scopeTable, variableName);
+    Symbol * symbol = get(get(symbolTable, scope), variableName);
     if (!symbol) {
         logError(_logger, "Variable '%s' does not exist in scope '%s'.", variableName, scope);
         return NULL;
     }
-    return &symbol;
+    return symbol;
 }
-
 
 /**
  * Agrega un nuevo scope (nombre de tabla) al stack de scopes.
  * Devuelve true si tuvo éxito, false si el stack está lleno.
  */
-boolean pushScope(Stack * scopeStack, const char * scopeName) {
+boolean pushScope(Stack * scopeStack, char * scopeName) {
     if (isFull(scopeStack)) {
         logError(_logger, "Scope stack is full. Cannot push '%s'.", scopeName);
         return false;
     }
     // Hacemos una copia del nombre para evitar problemas de memoria
-    char *copy = strdup(scopeName);
+    /*char *copy = strdup(scopeName);
     if (!copy) {
         logError(_logger, "Failed to allocate memory for scope name.");
         return false;
-    }
-    return push(scopeStack, copy);
+    }*/
+    return push(scopeStack, scopeName);
 }
 
 /**
