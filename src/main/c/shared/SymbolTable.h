@@ -13,7 +13,7 @@
 typedef union DataValue {
 	int64_t intValue; // For integer, smallint, bigint, serial, timestamp.
 	double doubleValue; // For real, double, float, number.
-	char * stringValue; // For text, varchar, char, date, interval, time.
+	char * stringValue; // For text, varchar, char, date, time.
 	boolean booleanValue; // For boolean
 } DataValue;
 

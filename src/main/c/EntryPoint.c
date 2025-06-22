@@ -1,4 +1,5 @@
 #include "backend/code-generation/Generator.h"
+#include "backend/domain-specific/semanticValidations.h"
 #include "frontend/lexical-analysis/FlexActions.h"
 #include "frontend/syntactic-analysis/AbstractSyntaxTree.h"
 #include "frontend/syntactic-analysis/BisonActions.h"
@@ -29,6 +30,7 @@ const int main(const int count, const char ** arguments) {
 	
 	Logger * logger = createLogger("EntryPoint");
 	initializeSymbolTableModule(&compilerState);
+	initializeSemanticValidationsModule(&compilerState);
 	initializeFlexActionsModule();
 	initializeBisonActionsModule();
 	initializeSyntacticAnalyzerModule();
@@ -46,16 +48,15 @@ const int main(const int count, const char ** arguments) {
 	if (syntacticAnalysisStatus == ACCEPT) {
 		// ----------------------------------------------------------------------------------------
 		// Beginning of the Backend... ------------------------------------------------------------
-		logDebugging(logger, "Computing tables value...");
-		/* ComputationResult computationResult = computeExpression(program->tables);
-		if (computationResult.succeed) {
-			compilerState.value = computationResult.value;*/
+
+		semanticValidation(program);
+		if(!compilerState.errors) {
+			logInformation(logger, "Semantic validation passed.");
 			//generate(&compilerState);
-		/*}
-		else {
-			logError(logger, "The computation phase rejects the input program.");
+		} else {
+			logError(logger, "The semantic validation phase rejects the input program.");
 			compilationStatus = FAILED;
-		}*/
+		}
 		// ...end of the Backend. -----------------------------------------------------------------
 		// ----------------------------------------------------------------------------------------
 	}
@@ -71,6 +72,8 @@ const int main(const int count, const char ** arguments) {
 	shutdownSyntacticAnalyzerModule();
 	shutdownBisonActionsModule();
 	shutdownFlexActionsModule();
+	shutdownSemanticValidationsModule();
+	shutdownSymbolTableModule();
 	logDebugging(logger, "Compilation is done.");
 	destroyLogger(logger);
 	destroyStack(compilerState.scopeStack);

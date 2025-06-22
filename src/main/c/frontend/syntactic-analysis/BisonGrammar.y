@@ -102,9 +102,9 @@
 %token <token> REAL
 %token <token> DOUBLE
 %token <token> BOOLEAN
+%token <token> UUID
 %token <token> DATE
 %token <token> TIMESTAMP
-%token <token> INTERVAL
 %token <token> TEXT
 %token <token> SERIAL
 %token <token> CHAR
@@ -113,13 +113,11 @@
 %token <token> FLOAT
 %token <token> TIME
 %token <token> CURRENT_TIMESTAMP
-%token <token> AUTO_INCREMENT
 %token <token> CURRENT_DATE
 %token <token> CURRENT_TIME
 %token <token> LOCALTIME
 %token <token> LOCALTIMESTAMP
 %token <token> GEN_RANDOM_UUID
-%token <token> UUID_GENERATE_V4
 %token <token> OR
 %token <token> AND
 %token <token> EQUALS
@@ -237,10 +235,10 @@ type: INTEGER																		{ $$ = SimpleTypeSemanticAction(INTEGER_DATATYPE)
 	| BIGINT																		{ $$ = SimpleTypeSemanticAction(BIGINT_DATATYPE); }
 	| REAL																			{ $$ = SimpleTypeSemanticAction(REAL_DATATYPE); }	
 	| DOUBLE 																		{ $$ = SimpleTypeSemanticAction(DOUBLE_DATATYPE); }
-	| BOOLEAN																		{ $$ = SimpleTypeSemanticAction(BOOLEAN_DATATYPE); }	
+	| BOOLEAN																		{ $$ = SimpleTypeSemanticAction(BOOLEAN_DATATYPE); }
+	| UUID																			{ $$ = SimpleTypeSemanticAction(UUID_DATATYPE); }	
 	| DATE																			{ $$ = SimpleTypeSemanticAction(DATE_DATATYPE); }	
 	| TIMESTAMP																		{ $$ = SimpleTypeSemanticAction(TIMESTAMP_DATATYPE); }		
-	| INTERVAL																		{ $$ = SimpleTypeSemanticAction(INTERVAL_DATATYPE); }
 	| TEXT																			{ $$ = SimpleTypeSemanticAction(TEXT_DATATYPE); }
 	| SERIAL																		{ $$ = SimpleTypeSemanticAction(SERIAL_DATATYPE); }	
 	| CHAR OPEN_PARENTHESIS INTEGER_VALUE CLOSE_PARENTHESIS							{ $$ = ComplexTypeSemanticAction(CHAR_DATATYPE, INTEGER_DATATYPE); }	
@@ -256,18 +254,18 @@ null_condition: NOT NUL																{ $$ = NullConditionSemanticAction(NOT_NU
 
 default_value: DEFAULT INTEGER_VALUE												{ $$ = DefaultValueIntegerTerminalSemanticAction($2); }
 	| DEFAULT DOUBLE_VALUE															{ $$ = DefaultValueDoubleTerminalSemanticAction($2); }
+	| DEFAULT TRUE																	{ $$ = DefaultValueIntegerTerminalSemanticAction(true); }
+	| DEFAULT FALSE																	{ $$ = DefaultValueIntegerTerminalSemanticAction(false); }
 	| DEFAULT STRING_VALUE															{ $$ = DefaultValueStringTerminalSemanticAction($2); }	
 	| DEFAULT function																{ $$ = DefaultValueNonTerminalSemanticAction($2); }	
 	;
 
 function: CURRENT_TIMESTAMP 														{ $$ = FunctionSemanticAction(CURRENT_TIMESTAMP_FUNCTION);}	
-	| AUTO_INCREMENT																{ $$ = FunctionSemanticAction(AUTO_INCREMENT_FUNCTION);}
 	| CURRENT_DATE																	{ $$ = FunctionSemanticAction(CURRENT_DATE_FUNCTION);}	
 	| CURRENT_TIME																	{ $$ = FunctionSemanticAction(CURRENT_TIME_FUNCTION);}	
 	| LOCALTIME																		{ $$ = FunctionSemanticAction(LOCALTIME_FUNCTION);}	
 	| LOCALTIMESTAMP																{ $$ = FunctionSemanticAction(LOCALTIMESTAMP_FUNCTION);}
 	| GEN_RANDOM_UUID OPEN_PARENTHESIS CLOSE_PARENTHESIS							{ $$ = FunctionSemanticAction(GEN_RANDOM_UUID_OPEN_AND_CLOSE_PARENTHESIS_FUNCTION);}
-	| UUID_GENERATE_V4 OPEN_PARENTHESIS CLOSE_PARENTHESIS							{ $$ = FunctionSemanticAction(UUID_GENERATE_V4_OPEN_AND_CLOSE_PARENTHESIS_FUNCTION);}
 	;
 
 local_constraint: PRIMARY KEY														{ $$ = SimpleLocalConstraintSemanticAction(PRIMARY_KEY_LCT);}					

@@ -10,9 +10,8 @@
 #include "../../shared/SymbolTable.h"
 #include <string.h>
 
-void initializeSemanticValidationsModule();
+void initializeSemanticValidationsModule(CompilerState * compilerState);
 void shutdownSemanticValidationsModule();
-
-
+boolean semanticValidation(Program * program);
 
 #endif

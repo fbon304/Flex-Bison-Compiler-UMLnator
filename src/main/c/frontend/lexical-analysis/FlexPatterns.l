@@ -57,9 +57,9 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 "REAL"											{ return TypeLexemeAction(createLexicalAnalyzerContext(), REAL); }
 "DOUBLE"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), DOUBLE); }
 "BOOLEAN"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), BOOLEAN); }
+"UUID"											{ return TypeLexemeAction(createLexicalAnalyzerContext(), UUID); }
 "DATE"											{ return TypeLexemeAction(createLexicalAnalyzerContext(), DATE); }
 "TIMESTAMP"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), TIMESTAMP); }		
-"INTERVAL"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), INTERVAL); }
 "TEXT"											{ return TypeLexemeAction(createLexicalAnalyzerContext(), TEXT); }
 "SERIAL"										{ return TypeLexemeAction(createLexicalAnalyzerContext(), SERIAL); }
 "CHAR"|"CHARACTER"								{ return TypeLexemeAction(createLexicalAnalyzerContext(), CHAR); }		
@@ -74,13 +74,11 @@ static YY_BUFFER_STATE importedExpressionBufferState = NULL;
 ";"					 							{ return SemicolonLexemeAction(createLexicalAnalyzerContext(), SEMICOLON); }
 
 "CURRENT_TIMESTAMP"|"NOW()"						{ return FunctionLexemeAction(createLexicalAnalyzerContext(), CURRENT_TIMESTAMP); }
-"AUTO_INCREMENT"								{ return FunctionLexemeAction(createLexicalAnalyzerContext(), AUTO_INCREMENT); }
 "CURRENT_DATE"									{ return FunctionLexemeAction(createLexicalAnalyzerContext(), CURRENT_DATE); }	
 "CURRENT_TIME"									{ return FunctionLexemeAction(createLexicalAnalyzerContext(), CURRENT_TIME); }
 "LOCALTIME"										{ return FunctionLexemeAction(createLexicalAnalyzerContext(), LOCALTIME); }
 "LOCALTIMESTAMP"								{ return FunctionLexemeAction(createLexicalAnalyzerContext(), LOCALTIMESTAMP); }
-"GEN_RANDOM_UUID"								{ return FunctionLexemeAction(createLexicalAnalyzerContext(), GEN_RANDOM_UUID); }			
-"UUID_GENERATE_V4"								{ return FunctionLexemeAction(createLexicalAnalyzerContext(), UUID_GENERATE_V4); }
+"GEN_RANDOM_UUID"								{ return FunctionLexemeAction(createLexicalAnalyzerContext(), GEN_RANDOM_UUID); }
 
 "NOT" 											{ return BooleanLexemeAction(createLexicalAnalyzerContext(), NOT); }
 "OR"											{ return BooleanLexemeAction(createLexicalAnalyzerContext(), OR); }

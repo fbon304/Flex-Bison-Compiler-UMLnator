@@ -297,6 +297,14 @@ DefaultValue * DefaultValueDoubleTerminalSemanticAction(double value) {
 	return defaultValue;
 }
 
+DefaultValue * DefaultValueBooleanTerminalSemanticAction(boolean value) {
+	_logSyntacticAnalyzerAction(__FUNCTION__);
+	DefaultValue * defaultValue = calloc(1, sizeof(DefaultValue));
+	defaultValue->type = BOOLEAN_DEFAULT;
+	defaultValue->boolean_value = value;
+	return defaultValue;
+}
+
 DefaultValue * DefaultValueStringTerminalSemanticAction(char * value) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	DefaultValue * defaultValue = calloc(1, sizeof(DefaultValue));
@@ -341,8 +349,8 @@ Properties * SimpleNullPropertySemanticAction(NullCondition * nullCondition, Pro
 Properties * DoubleDefaultConstraintPropertySemanticAction(DefaultValue * defaultValue, LocalConstraint * constraint, PropertiesType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Properties * property = calloc(1, sizeof(Properties));
-	property->defaultValueDC = defaultValue;
-	property->constraintDC = constraint;
+	property->defaultValue = defaultValue;
+	property->constraint = constraint;
 	property->type = type;
 	return property;
 }
@@ -350,8 +358,8 @@ Properties * DoubleDefaultConstraintPropertySemanticAction(DefaultValue * defaul
 Properties * DoubleDefaultNullPropertySemanticAction(DefaultValue * defaultValue, NullCondition * nullCondition, PropertiesType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Properties * property = calloc(1, sizeof(Properties));
-	property->defaultValueDN = defaultValue;
-	property->nullConditionDN = nullCondition;
+	property->defaultValue = defaultValue;
+	property->nullCondition = nullCondition;
 	property->type = type;
 	return property;
 }
@@ -359,8 +367,8 @@ Properties * DoubleDefaultNullPropertySemanticAction(DefaultValue * defaultValue
 Properties * DoubleConstraintNullPropertySemanticAction(LocalConstraint * constraint, NullCondition * nullCondition, PropertiesType type) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Properties * property = calloc(1, sizeof(Properties));
-	property->constraintCN = constraint;
-	property->nullConditionCN = nullCondition;
+	property->constraint = constraint;
+	property->nullCondition = nullCondition;
 	property->type = type;
 	return property;
 }
@@ -368,9 +376,9 @@ Properties * DoubleConstraintNullPropertySemanticAction(LocalConstraint * constr
 Properties * TriplePropertySemanticAction(DefaultValue * defaultValue, LocalConstraint * constraint, NullCondition * nullCondition) {
 	_logSyntacticAnalyzerAction(__FUNCTION__);
 	Properties * property = calloc(1, sizeof(Properties));
-	property->defaultValueCDN = defaultValue;
-	property->constraintCDN = constraint;
-	property->nullConditionCDN = nullCondition;
+	property->defaultValue = defaultValue;
+	property->constraint = constraint;
+	property->nullCondition = nullCondition;
 	property->type = COMPLETE;
 	return property;
 }
