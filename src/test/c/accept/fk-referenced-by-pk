@@ -1,0 +1,8 @@
+CREATE TABLE departments (
+    dept_id INTEGER PRIMARY KEY
+);
+
+CREATE TABLE employees (
+    emp_id INTEGER PRIMARY KEY,
+    dept_id INTEGER REFERENCES departments
+);

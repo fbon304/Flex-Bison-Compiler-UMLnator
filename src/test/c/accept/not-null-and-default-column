@@ -1,0 +1,3 @@
+CREATE TABLE logs (
+    log_id INTEGER NOT NULL DEFAULT 0
+);

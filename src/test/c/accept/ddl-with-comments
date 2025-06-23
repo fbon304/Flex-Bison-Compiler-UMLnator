@@ -1,0 +1,21 @@
+/*A school*/
+create table school (
+        school_id int primary key
+);
+
+create table country (
+        id serial primary key
+);
+
+/*
+    I don't have
+    nothing to
+    say
+*/
+
+create table local_constraints (
+    id int primary key,             /*An integer id*/
+    username varchar(100) unique,
+    school_id int references school on delete cascade on update set null,
+    country_id serial references country (id) on update set default
+);

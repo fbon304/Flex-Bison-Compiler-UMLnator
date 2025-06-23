@@ -1,11 +1,14 @@
 #include "backend/code-generation/Generator.h"
-#include "backend/domain-specific/Calculator.h"
+#include "backend/domain-specific/semanticValidations.h"
 #include "frontend/lexical-analysis/FlexActions.h"
 #include "frontend/syntactic-analysis/AbstractSyntaxTree.h"
 #include "frontend/syntactic-analysis/BisonActions.h"
 #include "frontend/syntactic-analysis/SyntacticAnalyzer.h"
 #include "shared/CompilerState.h"
 #include "shared/Environment.h"
+#include "shared/SymbolTable.h"
+#include "shared/DataStructures/Stack.h"
+#include "shared/DataStructures/HashMap.h"
 #include "shared/Logger.h"
 #include "shared/String.h"
 
@@ -15,42 +18,45 @@
  * find you, and I will kill you (Bryan Mills; "Taken", 2008).
  */
 const int main(const int count, const char ** arguments) {
+	
+	// Begin compilation process.
+	CompilerState compilerState = {
+		.abstractSyntaxtTree = NULL,
+		.succeed = false,
+		.errors = false,
+		.scopeStack = createStack(),
+		.symbolTable = createHashMap()
+	};
+	
 	Logger * logger = createLogger("EntryPoint");
+	initializeSymbolTableModule(&compilerState);
+	initializeSemanticValidationsModule(&compilerState);
 	initializeFlexActionsModule();
 	initializeBisonActionsModule();
 	initializeSyntacticAnalyzerModule();
 	initializeAbstractSyntaxTreeModule();
-	//initializeCalculatorModule();
-	//initializeGeneratorModule();
+	initializeGeneratorModule();
 
 	// Logs the arguments of the application.
 	for (int k = 0; k < count; ++k) {
 		logDebugging(logger, "Argument %d: \"%s\"", k, arguments[k]);
 	}
 
-	// Begin compilation process.
-	CompilerState compilerState = {
-		.abstractSyntaxtTree = NULL,
-		.succeed = false,
-		.value = 0
-	};
 	const SyntacticAnalysisStatus syntacticAnalysisStatus = parse(&compilerState);
 	CompilationStatus compilationStatus = SUCCEED;
 	Program * program = compilerState.abstractSyntaxtTree;
 	if (syntacticAnalysisStatus == ACCEPT) {
 		// ----------------------------------------------------------------------------------------
 		// Beginning of the Backend... ------------------------------------------------------------
-		//TODO uncomment
-		/*logDebugging(logger, "Computing tables value...");
-		ComputationResult computationResult = computeExpression(program->tables);
-		if (computationResult.succeed) {
-			compilerState.value = computationResult.value;
+
+		semanticValidation(program);
+		if(!compilerState.errors) {
+			logInformation(logger, "Semantic validation passed.");
 			generate(&compilerState);
-		}
-		else {
-			logError(logger, "The computation phase rejects the input program.");
+		} else {
+			logError(logger, "The semantic validation phase rejects the input program.");
 			compilationStatus = FAILED;
-		}*/
+		}
 		// ...end of the Backend. -----------------------------------------------------------------
 		// ----------------------------------------------------------------------------------------
 	}
@@ -58,15 +64,19 @@ const int main(const int count, const char ** arguments) {
 		logError(logger, "The syntactic-analysis phase rejects the input program.");
 		compilationStatus = FAILED;
 	}
+	logDebugging(logger, "Releasing data structures resources...");
+	destroyStack(compilerState.scopeStack);
+	destroySymbolTable(compilerState.symbolTable);
 	logDebugging(logger, "Releasing AST resources...");
 	releaseProgram(program);
 	logDebugging(logger, "Releasing modules resources...");
-	//shutdownGeneratorModule();
-	//shutdownCalculatorModule();
+	shutdownGeneratorModule();
 	shutdownAbstractSyntaxTreeModule();
 	shutdownSyntacticAnalyzerModule();
 	shutdownBisonActionsModule();
 	shutdownFlexActionsModule();
+	shutdownSemanticValidationsModule();
+	shutdownSymbolTableModule();
 	logDebugging(logger, "Compilation is done.");
 	destroyLogger(logger);
 	return compilationStatus;

@@ -1,0 +1,3 @@
+CREATE TABLE orphan (
+    ref_id INTEGER REFERENCES not_exists
+);

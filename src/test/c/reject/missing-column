@@ -1,0 +1,4 @@
+CREATE TABLE check_missing (
+    a INTEGER,
+    CHECK (b > 0)
+);

@@ -1,0 +1,3 @@
+CREATE TABLE switches (
+    hola BOOLEAN DEFAULT TRUE
+);

@@ -1,0 +1,11 @@
+CREATE TABLE parent (
+    a INTEGER,
+    b INTEGER,
+    PRIMARY KEY (a, b)
+);
+
+CREATE TABLE child (
+    a INTEGER,
+    b INTEGER,
+    FOREIGN KEY (a, b) REFERENCES parent(a, b)
+);

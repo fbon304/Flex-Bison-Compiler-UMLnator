@@ -1,0 +1,4 @@
+CREATE TABLE pk_missing (
+    a INTEGER,
+    PRIMARY KEY (b)
+);

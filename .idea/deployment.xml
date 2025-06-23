@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" remoteFilesAllowedToDisappearOnAutoupload="false">
+    <serverData>
+      <paths name="Remote Host (e7aeb311-3c00-4406-9686-a3ddadc3fdb7)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/tmp/tmp.6KmtEE7HEX/Flex-Bison-Compiler-UMLnator" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>

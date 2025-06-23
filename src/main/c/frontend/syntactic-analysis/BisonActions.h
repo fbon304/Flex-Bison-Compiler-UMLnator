@@ -95,6 +95,7 @@ Properties * TriplePropertySemanticAction(DefaultValue * defaultValue, LocalCons
 
 DefaultValue * DefaultValueIntegerTerminalSemanticAction(int value);
 DefaultValue * DefaultValueDoubleTerminalSemanticAction(double value);
+DefaultValue * DefaultValueBooleanTerminalSemanticAction(boolean value);
 DefaultValue * DefaultValueStringTerminalSemanticAction(char * value);
 DefaultValue * DefaultValueNonTerminalSemanticAction(Function * function);
 

@@ -1,22 +1,27 @@
-// #ifndef GENERATOR_HEADER
-// #define GENERATOR_HEADER
+#ifndef GENERATOR_HEADER
+#define GENERATOR_HEADER
 
-// #include "../../frontend/syntactic-analysis/AbstractSyntaxTree.h"
-// #include "../../shared/CompilerState.h"
-// #include "../../shared/Logger.h"
-// #include "../../shared/String.h"
-// #include <stdarg.h>
-// #include <stdio.h>
+#include "../../frontend/syntactic-analysis/AbstractSyntaxTree.h"
+#include "../../shared/CompilerState.h"
+#include "../../shared/Logger.h"
+#include "../../shared/String.h"
+#include "../../shared/SymbolTable.h"
+#include "../../shared/Utils.h"
+#include "../../frontend/syntactic-analysis/SyntacticAnalyzer.h"
+#include <stdarg.h>
+#include <stdio.h>
 
-// /** Initialize module's internal state. */
-// void initializeGeneratorModule();
+#define MAX_BUFF_SIZE 2048
 
-// /** Shutdown module's internal state. */
-// void shutdownGeneratorModule();
+/** Initialize module's internal state. */
+void initializeGeneratorModule();
 
-// /**
-//  * Generates the final output using the current compiler state.
-//  */
-// void generate(CompilerState * compilerState);
+/** Shutdown module's internal state. */
+void shutdownGeneratorModule();
 
-// #endif
+/**
+ * Generates the final output using the current compiler state.
+ */
+void generate(CompilerState * compilerState);
+
+#endif

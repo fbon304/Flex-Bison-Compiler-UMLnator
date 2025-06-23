@@ -111,17 +111,17 @@ enum DataTypeType {
 	BIGINT_DATATYPE,
 	REAL_DATATYPE,
 	DOUBLE_DATATYPE,
+	BOOLEAN_DATATYPE,
+	UUID_DATATYPE,
+	FLOAT_DATATYPE,
 	DATE_DATATYPE,
 	TIMESTAMP_DATATYPE,
-	INTERVAL_DATATYPE,
 	TEXT_DATATYPE,
 	SERIAL_DATATYPE,
 	CHAR_DATATYPE,
 	VARCHAR_DATATYPE,
-	FLOAT_DATATYPE,
 	TIME_DATATYPE,
-	NUMBER_DATATYPE,
-	UNKNOWN_SQL_DATATYPE
+	NUMBER_DATATYPE
 };
 
 enum NullConditionType {
@@ -132,19 +132,18 @@ enum NullConditionType {
 enum DefaultValueType {
 	INTEGER_DEFAULT,
 	DOUBLE_DEFAULT,
+	BOOLEAN_DEFAULT,
 	STRING_DEFAULT,
 	FUNCTION
 };
 
 enum FunctionType {
 	CURRENT_TIMESTAMP_FUNCTION, 
-	AUTO_INCREMENT_FUNCTION,
 	CURRENT_DATE_FUNCTION,
 	CURRENT_TIME_FUNCTION,
 	LOCALTIME_FUNCTION,
 	LOCALTIMESTAMP_FUNCTION,
-	GEN_RANDOM_UUID_OPEN_AND_CLOSE_PARENTHESIS_FUNCTION,
-	UUID_GENERATE_V4_OPEN_AND_CLOSE_PARENTHESIS_FUNCTION
+	GEN_RANDOM_UUID_OPEN_AND_CLOSE_PARENTHESIS_FUNCTION
 };
 
 enum LocalConstraintType {
@@ -205,7 +204,7 @@ enum BooleanFactorType {
 	FACTOR_CONDITION_NUL,
 	DISTINCT_FROM_FACTORS,
 	FACTOR_TYPE
-};
+}; 
 
 enum FactorType {
 	ID_FACTOR_TYPE,
@@ -333,6 +332,7 @@ struct DefaultValue {
 		int integer_value;
 		double double_value;
 		char * string_value;
+		boolean boolean_value;
 		Function * function; 
 	};
 	DefaultValueType type;
@@ -350,41 +350,16 @@ struct Type {
 };
 
 struct Properties {
-	union {
-		DefaultValue * defaultValue;
-		LocalConstraint * constraint;
-		NullCondition * nullCondition;
-		struct {
-			DefaultValue * defaultValueDC;
-			LocalConstraint * constraintDC;
-		};
-		struct {
-			DefaultValue * defaultValueDN;
-			NullCondition * nullConditionDN;
-		};
-		struct {
-			LocalConstraint * constraintCN;
-			NullCondition * nullConditionCN;
-		};
-		struct {
-			LocalConstraint * constraintCDN;
-			DefaultValue * defaultValueCDN;
-			NullCondition * nullConditionCDN;
-		};
-	};
+	DefaultValue * defaultValue;
+	LocalConstraint * constraint;
+	NullCondition * nullCondition;
 	PropertiesType type;
 };
 
 struct Constraint {
-	union {
-		struct {
-			char * id;
-			ConstraintValue * constraintValue;
-		};
-		ConstraintValue * singleConstraintValue;
-	};
+	char * id;
+	ConstraintValue * constraintValue;
 	ConstraintType type;
-	
 };
 
 struct Attribute {

@@ -1,0 +1,5 @@
+CREATE TABLE emails (
+    user_id INTEGER,
+    email TEXT,
+    UNIQUE (user_id, email)
+);
