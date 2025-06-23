@@ -6,6 +6,7 @@
 #include "../../shared/Logger.h"
 #include "../../shared/String.h"
 #include "../../shared/SymbolTable.h"
+#include "../../shared/Utils.h"
 #include "../../frontend/syntactic-analysis/SyntacticAnalyzer.h"
 #include <stdarg.h>
 #include <stdio.h>

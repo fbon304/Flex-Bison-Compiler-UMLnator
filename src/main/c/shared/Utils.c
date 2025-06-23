@@ -1,55 +1,69 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <regex.h>
 #include "Utils.h"
 
 static unsigned int g_fileIndex = 0;
 
-/*static char *build_filepath(const char *env_var_name,
+static int ensure_dir(const char *path) {
+    struct stat st;
+    if (stat(path, &st) == 0) {
+        if (S_ISDIR(st.st_mode)) {
+            return 0;
+        } else {
+            errno = ENOTDIR;
+            return -1;
+        }
+    }
+
+    if (mkdir(path, 0755) != 0 && errno != EEXIST) {
+        return -1;
+    }
+    return 0;
+}
+
+static char *build_filepath(const char *env_var_name,
                             const char *filename_prefix,
-                            const char *extension,
-                            unsigned int index)
+                            const char *extension)
 {
-    const char *base = getStringOrDefault(env_var_name, "/src/test/c/result");
+    const char *base = getStringOrDefault(env_var_name, "./src/output");
+
+    if (ensure_dir(base) != 0) {
+        fprintf(stderr,
+                "Could not ensure directory %s: %s\n",
+                base, strerror(errno));
+        return NULL;
+    }
+
     if (!base || !*base) {
         fprintf(stderr, "Error: environment variable %s not set\n", env_var_name);
         return NULL;
     }
 
-    size_t needed = strlen(base)   
-                  + 1              
-                  + strlen(filename_prefix)
-                  + 1 
-                  + 20 
-                  + strlen(extension) 
-                  + 1;           
+    size_t needed = strlen(base) + strlen(filename_prefix) + strlen(extension) + 23;
 
     char *buf = malloc(needed);
     if (!buf) return NULL;
 
-    // e.g. "/path" + "/" + "log" + "_" + "42" + ".txt"
-    snprintf(buf, needed, "%s/%s_%u%s",
-             base, filename_prefix, index, extension);
+    snprintf(buf, needed, "%s/%s_%s",
+             base, filename_prefix, extension);
 
     return buf;
 }
 
-static FILE *open_session_file(void)
+FILE *open_session_file()
 {
-    char *path = build_filepath("MY_APP_PATH", "session", ".log", g_fileIndex++);
+    char *path = build_filepath("MY_APP_PATH", getStringOrDefault("TABLE_NAME", "current"), ".log");
     if (!path) return NULL;
 
-    FILE *f = fopen(path, "r+");
+    FILE *f = fopen(path, "a+");
     if (!f) {
-        f = fopen(path, "w+");
-        if (!f) {
-            fprintf(stderr, "Failed to create %s: %s\n", path, strerror(errno));
-        }
+        fprintf(stderr, "Failed to open or create %s: %s\n", path, strerror(errno));
+        free(path);
+        return NULL;
     }
+
     free(path);
     return f;
-}*/
+}
 
 static int _match(const char *str, const char *pattern)
 {

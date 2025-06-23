@@ -624,23 +624,29 @@ static char * _indentation(const unsigned int level) {
  * buffering.
  */
 static void _output(const unsigned int indentationLevel, const char * const format, ...) {
+	FILE * file = open_session_file();
+	if (!file) return;
+
 	va_list arguments;
 	va_start(arguments, format);
 	char * indentation = _indentation(indentationLevel);
 	char * effectiveFormat = concatenate(2, indentation, format);
-	vfprintf(stdout, effectiveFormat, arguments);
-	fflush(stdout);
+
+	vfprintf(file, effectiveFormat, arguments);
+	fflush(file);
+
 	free(effectiveFormat);
 	free(indentation);
 	va_end(arguments);
+	fclose(file);
 }
 
 /** PUBLIC FUNCTIONS */
 
 void generate(CompilerState * compilerState) {
-	//logDebugging(_logger, "Generating final output...");
+	logDebugging(_logger, "Generating final output...");
 	_generatePrologue();
 	_generateProgram(compilerState->abstractSyntaxtTree);
 	_generateEpilogue();
-	//logDebugging(_logger, "Generation is done.");
+	logDebugging(_logger, "Generation is done.");
 }
