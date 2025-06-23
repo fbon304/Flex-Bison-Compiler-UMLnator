@@ -1,0 +1,4 @@
+--Tabla con columna con NOT NULL y DEFAULT
+CREATE TABLE logs (
+    log_id INTEGER NOT NULL DEFAULT 0
+);

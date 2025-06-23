@@ -5,10 +5,10 @@
 #include "../../shared/CompilerState.h"
 #include "../../shared/Logger.h"
 #include "../../shared/String.h"
-#include <stdarg.h>
-#include <stdio.h>
 #include "../../shared/SymbolTable.h"
 #include "../../frontend/syntactic-analysis/SyntacticAnalyzer.h"
+#include <stdarg.h>
+#include <stdio.h>
 
 #define MAX_BUFF_SIZE 2048
 

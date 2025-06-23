@@ -64,6 +64,9 @@ const int main(const int count, const char ** arguments) {
 		logError(logger, "The syntactic-analysis phase rejects the input program.");
 		compilationStatus = FAILED;
 	}
+	logDebugging(logger, "Releasing data structures resources...");
+	destroyStack(compilerState.scopeStack);
+	destroySymbolTable(compilerState.symbolTable);
 	logDebugging(logger, "Releasing AST resources...");
 	releaseProgram(program);
 	logDebugging(logger, "Releasing modules resources...");
@@ -76,7 +79,5 @@ const int main(const int count, const char ** arguments) {
 	shutdownSymbolTableModule();
 	logDebugging(logger, "Compilation is done.");
 	destroyLogger(logger);
-	destroyStack(compilerState.scopeStack);
-	destroyHashMap(compilerState.symbolTable);
 	return compilationStatus;
 }

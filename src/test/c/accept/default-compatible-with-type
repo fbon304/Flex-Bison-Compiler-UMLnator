@@ -1,0 +1,5 @@
+--Tabla con DEFAULT compatible con tipo
+CREATE TABLE events (
+    event_id SERIAL PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

@@ -1,0 +1,4 @@
+-- Tabla con CHECK válido sobre columna booleana
+CREATE TABLE flags (
+    flag BOOLEAN CHECK (flag = TRUE)
+);

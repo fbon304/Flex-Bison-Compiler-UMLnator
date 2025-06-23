@@ -1,0 +1,8 @@
+--FOREIGN KEY a columna inexistente
+CREATE TABLE parent2 (
+    id INTEGER PRIMARY KEY
+);
+
+CREATE TABLE child2 (
+    pid INTEGER REFERENCES parent2(not_a_column)
+);

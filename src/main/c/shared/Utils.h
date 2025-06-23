@@ -2,6 +2,7 @@
 #define UTILS_HEADER
 
 #include "Type.h"
+#include "Environment.h"
 
 boolean isTimestamp(char * timestamp);
 

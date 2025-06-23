@@ -1,0 +1,5 @@
+--Tabla con UNIQUE y DEFAULT compatibles
+CREATE TABLE products (
+    code VARCHAR(10) UNIQUE,
+    price DOUBLE DEFAULT 9.99
+);

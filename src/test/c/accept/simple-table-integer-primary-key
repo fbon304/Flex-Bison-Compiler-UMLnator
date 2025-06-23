@@ -1,0 +1,5 @@
+--Tabla simple con columna entera y primary key
+CREATE TABLE users (
+        id INTEGER PRIMARY KEY,
+        name TEXT
+);

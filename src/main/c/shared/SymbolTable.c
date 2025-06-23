@@ -22,7 +22,7 @@ void shutdownSymbolTableModule() {
 /**
 Adds a new table to the global symbolTable.
  */
-void addTableToSymbolTable(const char * tableName) {
+void addTableToSymbolTable(char * tableName) {
 	if(tableExistsInSymbolTable(tableName)) {
 		logError(_logger, "Table '%s' already exists in the symbol table.", tableName);
 		*errors = true; 
@@ -37,7 +37,7 @@ void addTableToSymbolTable(const char * tableName) {
 	put(symbolTable, tableName, newTable);
 }
 
-int putVariableInScope(const char * variableName, DataType dataType) {
+int putVariableInScope(char * variableName, DataType dataType) {
 	char * scope = getScope();
     if (scope == NULL) {
         logError(_logger, "Couldn't get scope from stack for variable '%s' ", variableName);
@@ -80,8 +80,6 @@ int putValueInVariableInScope(const char * variableName, DataValue dataValue) {
 	}
 
 	symbol->value = dataValue;
-	
-	put(get(symbolTable, scope), variableName, symbol);
 	return 0;
 }
 
@@ -98,17 +96,6 @@ int variableExistsInScope(const char * variableName) {
         return 0;
     }
     return get(scopeTable, variableName) != NULL;
-}
-
-void destroySymbolTable() {
-	for(int i = 0; i < TABLE_SIZE; i++) {
-		Entry * entry = symbolTable->buckets[i];
-		while(entry) {
-			destroyHashMap((HashMap *)entry->value);
-			entry = entry->next;
-		}
-	}
-	destroyHashMap(symbolTable);
 }
 
 boolean tableExistsInSymbolTable(const char * tableName) {
@@ -295,4 +282,23 @@ char * getScope() {
 		return NULL;
 	}
 	return peek(scopeStack);
+}
+
+void destroySymbolTable() {
+	for(int i = 0; i < TABLE_SIZE; i++) {
+		Entry * entry = symbolTable->buckets[i];
+		while(entry) {
+			for(int i = 0; i < TABLE_SIZE; i++) {
+				Entry * innnerEntry = ((HashMap *)(entry->value))->buckets[i];
+				while(innnerEntry) {
+					free(innnerEntry->value);
+					innnerEntry = innnerEntry->next;
+				}
+			}
+			//logInformation(_logger, "Table : '%s'", (HashMap *)(entry->value));
+			destroyHashMap((HashMap *)entry->value);
+			entry = entry->next;
+		}
+	}
+	destroyHashMap(symbolTable);
 }

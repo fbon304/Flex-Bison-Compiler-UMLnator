@@ -14,7 +14,7 @@ typedef struct {
 } HashMap;
 
 HashMap * createHashMap();
-void put(HashMap * map, const char * key, void * value);
+void put(HashMap * map, char * key, void * value);
 void * get(HashMap * map, const char * key);
 void removeKey(HashMap * map, const char * key);
 void destroyHashMap(HashMap * map);

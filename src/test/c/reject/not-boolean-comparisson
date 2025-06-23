@@ -1,0 +1,4 @@
+CREATE TABLE check_type (
+    a INTEGER,
+    CHECK (a AND 1)
+);

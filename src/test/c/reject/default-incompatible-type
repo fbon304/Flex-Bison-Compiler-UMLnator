@@ -1,0 +1,4 @@
+-- DEFAULT incompatible con tipo
+CREATE TABLE wrong_default (
+    price INTEGER DEFAULT 'abc'
+);

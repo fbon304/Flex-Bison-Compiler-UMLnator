@@ -1,5 +1,7 @@
 #include "semanticValidations.h"
 
+static void validateTablesList(TablesList * tablesList);
+static void validateTables(Tables * table);
 static int validateAttributes(Content * content);
 static int validateConstraints(Content * content);
 static int validateLocalConstraint(char * attributeName, LocalConstraint * localConstraints);
@@ -408,23 +410,12 @@ static int validateConstraints(Content * content) {
     return primaryKeyCount;
 }
 
-boolean semanticValidation(Program * program) {
-    if (program == NULL) {
-        *errors = true;
-        logError(_logger, "Program is NULL");
-        return false;
-    }
-
-    logInformation(_logger, "Starting semantic validation for the program");
-
-    TablesList * tablesList = program->tablesList;
-    while (tablesList) {
-        Tables * table = tablesList->tables;
-        char * tableName = table->id;
+static void validateTables(Tables * table) {
+    char * tableName = table->id;
 
         addTableToSymbolTable(tableName);
         if (*errors) {
-            break;
+            return;
         }
 
         pushScope(tableName);
@@ -444,8 +435,28 @@ boolean semanticValidation(Program * program) {
         }
 
         popScope();
-        tablesList = tablesList->tablesList;
+}
+
+static void validateTablesList(TablesList * tablesList) {
+    if (tablesList->type == SINGULAR) {
+        validateTables(tablesList->tables);
+    } else {
+        validateTablesList(tablesList->tablesList);
+        validateTables(tablesList->tables);
     }
+}
+
+boolean semanticValidation(Program * program) {
+    if (program == NULL) {
+        *errors = true;
+        logError(_logger, "Program is NULL");
+        return false;
+    }
+
+    logInformation(_logger, "Starting semantic validation for the program");
+
+    TablesList * tablesList = program->tablesList;
+    validateTablesList(tablesList);
 
     logInformation(_logger, "Semantic validation finished");
     return true;

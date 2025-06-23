@@ -11,14 +11,14 @@ unsigned int hash(const char * key) {
     return hash;
 }
 
-HashMap* createHashMap() {
-    HashMap* hm = calloc(1, sizeof(HashMap));
+HashMap * createHashMap() {
+    HashMap * hm = calloc(1, sizeof(HashMap));
     return hm;
 }
 
-void put(HashMap* map, const char * key, void * value) {
+void put(HashMap * map, char * key, void * value) {
     unsigned int index = hash(key);
-    Entry* current = map->buckets[index];
+    Entry * current = map->buckets[index];
 
     while (current) {
         if (strcmp(current->key, key) == 0) {
@@ -28,20 +28,19 @@ void put(HashMap* map, const char * key, void * value) {
         current = current->next;
     }
 
-    Entry* newEntry = malloc(sizeof(Entry));
-    newEntry->key = strdup(key);
+    Entry * newEntry = malloc(sizeof(Entry));
+    newEntry->key = key;
     newEntry->value = value;
     newEntry->next = map->buckets[index];
     map->buckets[index] = newEntry;
 }
 
-void * get(HashMap * map, const char* key) {
+void * get(HashMap * map, const char * key) {
     unsigned int index = hash(key);
     Entry* current = map->buckets[index];
-
     while (current) {
         if (strcmp(current->key, key) == 0) {
-            return &current->value;
+            return current->value;
         }
         current = current->next;
     }
@@ -60,8 +59,6 @@ void removeKey(HashMap * map, const char * key) {
                 prev->next = current->next;
             else
                 map->buckets[index] = current->next;
-
-            free(current->key);
             free(current);
             return;
         }
@@ -72,11 +69,10 @@ void removeKey(HashMap * map, const char * key) {
 
 void destroyHashMap(HashMap * map) {
     for (int i = 0; i < TABLE_SIZE; i++) {
-        Entry* current = map->buckets[i];
+        Entry * current = map->buckets[i];
         while (current) {
-            Entry* tmp = current;
+            Entry * tmp = current;
             current = current->next;
-            free(tmp->value);
             free(tmp);
         }
     }

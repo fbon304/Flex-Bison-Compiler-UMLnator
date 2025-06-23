@@ -26,8 +26,8 @@ typedef struct Symbol {
 
 void initializeSymbolTableModule(CompilerState * compilerState);
 void shutdownSymbolTableModule();
-void addTableToSymbolTable(const char *tableName);
-int putVariableInScope(const char * variableName, DataType dataType);
+void addTableToSymbolTable(char *tableName);
+int putVariableInScope(char * variableName, DataType dataType);
 int putValueInVariableInScope(const char * variableName, DataValue dataValue);
 void setIsPrimaryKey(const char * variableName);
 void setIsUnique(const char * variableName);

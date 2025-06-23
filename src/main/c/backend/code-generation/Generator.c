@@ -64,7 +64,7 @@ static void _generatePrologue() {
 }
 
 static void _generateEpilogue() {
-	_output(0, "%s%d%s",
+	_output(0, "%s",
 		"@enduml\n"
 	);
 }
@@ -75,7 +75,7 @@ static void _generateTablesList(const unsigned int indentationLevel, TablesList 
 		_generateTablesList(indentationLevel, tablesList->tablesList);
 	}
 	for (int i = 0; i < fKCount; i++) {
-		printf("%s\n", constraintsBuff[i]);
+		_output(indentationLevel, "%s\n", constraintsBuff[i]);
 		free(constraintsBuff[i]);
 	}
 	free(constraintsBuff);
@@ -83,13 +83,11 @@ static void _generateTablesList(const unsigned int indentationLevel, TablesList 
 
 static void _generateTable(const unsigned int indentationLevel, Tables * table) {
 	if (table != NULL) { 
-		CompilerState * ccs = currentCompilerState();
-		Stack * scopeStack = ccs->scopeStack;
 		pushScope(table->id);
 		_output(indentationLevel, "object %s {\n", table->id);
 		_generateContent(indentationLevel + 1, table->content);
-		_output(indentationLevel, "}");
-		popScope(scopeStack, table->id);
+		_output(indentationLevel, "}\n");
+		popScope();
 	}
 }
 
@@ -122,12 +120,13 @@ static void _generateAttribute(const unsigned int indentationLevel, Attribute * 
 			Symbol * entry = getEntry(attribute->id);
             _output(indentationLevel, "%s%s: <size:12>", entry->isPrimaryKey ? "-" : "", attribute->id);
             _generateType(indentationLevel, attribute->datatype);
+			_output(indentationLevel, "\n");
         } else if (attribute->type == COLUMN_WITH_PROPERTIES) {
 			Symbol * entry = getEntry(attribute->id);
             _output(indentationLevel, "%s%s: <size:12>", entry->isPrimaryKey ? "-" : "", attribute->p_id);
             _generateType(indentationLevel, attribute->p_type);
             _generateProperties(indentationLevel, attribute->properties);
-			_output(indentationLevel, ";\n");
+			_output(indentationLevel, "\n");
         }
 	}
 }
@@ -465,7 +464,7 @@ static void _generateNullCondition(const unsigned int indentationLevel, NullCond
 	if (nullCondition != NULL) {
 		if (nullCondition->type == NOT_NULL_CONDITION) {
 			_output(indentationLevel, "| NOT NULL");
-		} else if (nullCondition->type == NULL_CONDITION) {
+		} else if (nullCondition->type == NUL_CONDITION) {
 			_output(indentationLevel, "| NULL");
 		}
 	}
@@ -497,10 +496,8 @@ static void _generateConstraintValue(const unsigned int indentationLevel, Constr
 			_output(indentationLevel, ")");
 			break;
 		case FOREIGN_KEY_CONSTRAINT_TYPE:
-	
-	
 			Expression * currentExpression = constraintValue->singleExpression;
-			do {
+			while (currentExpression != NULL) {
 				fKCount++;
 				void *tmp = realloc(constraintsBuff, fKCount * sizeof(*constraintsBuff));
 				constraintsBuff = tmp;
@@ -510,13 +507,13 @@ static void _generateConstraintValue(const unsigned int indentationLevel, Constr
 				char * action = _getOnAction(constraintValue->onActionSingle);
 				snprintf(constraintsBuff[fKCount-1], MAX_BUFF_SIZE, "%s::%s \"<size:20><color:#FFFFFF>1\" --- \"<size:20><color:#FFFFFF>*\" %s::%s : %s", tableName, currentExpression->id, constraintValue->id, currentExpression->id, action);
 				currentExpression = currentExpression->expression;
-			} while (currentExpression != NULL);
+			};
 			break;
 		case FOREIGN_KEY_DOUBLE_EXPRESSION_CONSTRAINT_TYPE:
 			Expression * localExpression = constraintValue->mainExpression;
 			Expression * foreignExpression = constraintValue->secondExpression;
-			do {
-				do {
+			while (localExpression != NULL) {
+				while (foreignExpression != NULL) {
 					fKCount++;
 					void *tmp = realloc(constraintsBuff, fKCount * sizeof(*constraintsBuff));
 					constraintsBuff = tmp;
@@ -526,9 +523,9 @@ static void _generateConstraintValue(const unsigned int indentationLevel, Constr
 					char * action = _getOnAction(constraintValue->onActionSingle);
 					snprintf(constraintsBuff[fKCount-1], MAX_BUFF_SIZE, "%s::%s \"<size:20><color:#FFFFFF>1\" --- \"<size:20><color:#FFFFFF>*\" %s::%s : %s", tableName, localExpression->id, constraintValue->id, foreignExpression->id, action);
 					foreignExpression = foreignExpression->expression;
-				} while (foreignExpression->expression != NULL);
+				};
 				localExpression = localExpression->expression;
-			} while (currentExpression != NULL);
+			};
 			break;
 		}
 	}
@@ -550,6 +547,7 @@ static char * _getOnAction(OnAction * onAction) {
 		char * action;
 		size_t totalLength;
 		char * buf;
+		logInformation(_logger, "ON ACTION TYPE = '%d'", onAction->type);
 		switch (onAction->type) {
 			char * buff;
 			char * pref;
@@ -559,8 +557,8 @@ static char * _getOnAction(OnAction * onAction) {
 				pref = "ON DELETE ";
 				action = _getAction(onAction->action);
 				totalLength = strlen(pref) + strlen(action) + 1;
-				buf = malloc(totalLength); // ver los frees!!!
-				if(buf == NULL) {
+				buff = malloc(totalLength); // ver los frees!!!
+				if(buff == NULL) {
 					logError(_logger, "Memory allocation failed for buffer in _getOnAction.");
 					return NULL;
 				}
@@ -596,6 +594,7 @@ static char * _getOnAction(OnAction * onAction) {
 				strncat(buff, deleteAction, totalLength);
  				return buff;
 			case LAMBDA_ON_ACTION:
+				logInformation(_logger, "LLEGUE :)");
 				return "";
 		}
 	}
@@ -632,15 +631,20 @@ static char * _indentation(const unsigned int level) {
  * buffering.
  */
 static void _output(const unsigned int indentationLevel, const char * const format, ...) {
-	va_list arguments;
-	va_start(arguments, format);
-	char * indentation = _indentation(indentationLevel);
-	char * effectiveFormat = concatenate(2, indentation, format);
-	vfprintf(stdout, effectiveFormat, arguments);
-	fflush(stdout);
-	free(effectiveFormat);
-	free(indentation);
-	va_end(arguments);
+	//FILE *out = open_session_file();
+	//if (!out) return;
+
+    va_list args;
+    va_start(args, format);
+    char *indent = _indentation(indentationLevel);
+    char *fmt = concatenate(2, indent, format);
+
+    vfprintf(stdout, fmt, args);
+    fflush(stdout);
+
+    free(fmt);
+    free(indent);
+    va_end(args);
 }
 
 /** PUBLIC FUNCTIONS */

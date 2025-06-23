@@ -4,6 +4,53 @@
 #include <regex.h>
 #include "Utils.h"
 
+static unsigned int g_fileIndex = 0;
+
+static char *build_filepath(const char *env_var_name,
+                            const char *filename_prefix,
+                            const char *extension,
+                            unsigned int index)
+{
+    const char *base = getStringOrDefault(env_var_name, "/src/test/c/result");
+    if (!base || !*base) {
+        fprintf(stderr, "Error: environment variable %s not set\n", env_var_name);
+        return NULL;
+    }
+
+    size_t needed = strlen(base)   
+                  + 1              
+                  + strlen(filename_prefix)
+                  + 1 
+                  + 20 
+                  + strlen(extension) 
+                  + 1;           
+
+    char *buf = malloc(needed);
+    if (!buf) return NULL;
+
+    // e.g. "/path" + "/" + "log" + "_" + "42" + ".txt"
+    snprintf(buf, needed, "%s/%s_%u%s",
+             base, filename_prefix, index, extension);
+
+    return buf;
+}
+
+static FILE *open_session_file(void)
+{
+    char *path = build_filepath("MY_APP_PATH", "session", ".log", g_fileIndex++);
+    if (!path) return NULL;
+
+    FILE *f = fopen(path, "r+");
+    if (!f) {
+        f = fopen(path, "w+");
+        if (!f) {
+            fprintf(stderr, "Failed to create %s: %s\n", path, strerror(errno));
+        }
+    }
+    free(path);
+    return f;
+}
+
 static int _match(const char *str, const char *pattern)
 {
     regex_t re;
@@ -13,7 +60,6 @@ static int _match(const char *str, const char *pattern)
     if (ret)
     {
         char errbuf[128];
-        printf("%s %s\n", str, pattern);
         regerror(ret, &re, errbuf, sizeof(errbuf));
         fprintf(stderr, "regex compile error: %s\n", errbuf);
         return 0;
