@@ -1,4 +1,3 @@
-#include <regex.h>
 #include "Utils.h"
 
 #define TIME_PATTERNS_COUNT 9
