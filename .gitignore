@@ -18,6 +18,7 @@
 
 # Application specific.
 /program
+output/*
 BisonParser.c
 BisonParser.h
 FlexScanner.c
