@@ -1,3 +1,5 @@
+-- DEFAULT función incompatible con tipo
+
 CREATE TABLE uuid_wrong (
     id INTEGER DEFAULT gen_random_uuid()
 );

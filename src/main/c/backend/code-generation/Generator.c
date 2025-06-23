@@ -546,13 +546,9 @@ static char * _getOnAction(OnAction * onAction) {
 		char * pref;
 		char * action;
 		size_t totalLength;
-		char * buf;
+		char * buff;
 		logInformation(_logger, "ON ACTION TYPE = '%d'", onAction->type);
 		switch (onAction->type) {
-			char * buff;
-			char * pref;
-			char * action;
-			size_t totalLength;
 			case DELETE_ON_ACTION:
 				pref = "ON DELETE ";
 				action = _getAction(onAction->action);
@@ -569,8 +565,8 @@ static char * _getOnAction(OnAction * onAction) {
 				pref = "ON UPDATE ";
 				action = _getAction(onAction->action);
 				totalLength = strlen(pref) + strlen(action) + 1;
-				buf = malloc(totalLength);
-				if(buf == NULL) {
+				buff = malloc(totalLength);
+				if(buff == NULL) {
 					logError(_logger, "Memory allocation failed for buffer in _getOnAction.");
 					return NULL;
 				}
@@ -583,8 +579,8 @@ static char * _getOnAction(OnAction * onAction) {
 				char * onDelete = " ON DELETE ";
 				char * deleteAction = _getAction(onAction->deleteAction);
 				totalLength = strlen(onUpdate) + strlen(onDelete) + strlen(updateAction) + strlen(deleteAction) + 1;
-				buf = malloc(totalLength);
-				if(buf == NULL) {
+				buff = malloc(totalLength);
+				if(buff == NULL) {
 					logError(_logger, "Memory allocation failed for buffer in _getOnAction.");
 					return NULL;
 				}
@@ -645,6 +641,7 @@ static void _output(const unsigned int indentationLevel, const char * const form
     free(fmt);
     free(indent);
     va_end(args);
+    fclose(stdout);
 }
 
 /** PUBLIC FUNCTIONS */

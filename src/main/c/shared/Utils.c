@@ -6,7 +6,7 @@
 
 static unsigned int g_fileIndex = 0;
 
-static char *build_filepath(const char *env_var_name,
+/*static char *build_filepath(const char *env_var_name,
                             const char *filename_prefix,
                             const char *extension,
                             unsigned int index)
@@ -49,7 +49,7 @@ static FILE *open_session_file(void)
     }
     free(path);
     return f;
-}
+}*/
 
 static int _match(const char *str, const char *pattern)
 {
