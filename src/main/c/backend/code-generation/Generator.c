@@ -55,6 +55,11 @@ static size_t fKCount = 0;
  */
 static void _generateProgram(Program * program) {
     _generateTablesList(2, program->tablesList);
+	for (int i = 0; i < fKCount; i++) {
+		_output(2, "%s\n", constraintsBuff[i]);
+		free(constraintsBuff[i]);
+	}
+	free(constraintsBuff);
 }
 
 static void _generatePrologue() {
@@ -70,15 +75,12 @@ static void _generateEpilogue() {
 }
 
 static void _generateTablesList(const unsigned int indentationLevel, TablesList * tablesList) {
-	if (tablesList != NULL) {
-		_generateTable(indentationLevel, tablesList->tables);
+	if (tablesList->type == SINGULAR) {
+        _generateTable(indentationLevel, tablesList->tables);
+    } else {
+       _generateTable(indentationLevel, tablesList->tables);
 		_generateTablesList(indentationLevel, tablesList->tablesList);
-	}
-	for (int i = 0; i < fKCount; i++) {
-		_output(indentationLevel, "%s\n", constraintsBuff[i]);
-		free(constraintsBuff[i]);
-	}
-	free(constraintsBuff);
+    }
 }
 
 static void _generateTable(const unsigned int indentationLevel, Tables * table) {
@@ -134,52 +136,52 @@ static void _generateType(const unsigned int indentationLevel, Type * type) {
     if(type != NULL) {
         switch(type->type) {
             case INTEGER_DATATYPE:
-                _output(indentationLevel, "INT ");
+                _output(0, "INT ");
                 break;
             case SMALLINT_DATATYPE:
-                _output(indentationLevel, "SMALLINT ");
+                _output(0, "SMALLINT ");
                 break;
             case BIGINT_DATATYPE:
-                _output(indentationLevel, "BIGINT ");
+                _output(0, "BIGINT ");
                 break;
             case REAL_DATATYPE:
-                _output(indentationLevel, "REAL ");
+                _output(0, "REAL ");
                 break;
             case DOUBLE_DATATYPE:
-                _output(indentationLevel, "DOUBLE ");
+                _output(0, "DOUBLE ");
                 break;
             case BOOLEAN_DATATYPE:
-                _output(indentationLevel, "BOOLEAN ");
+                _output(0, "BOOLEAN ");
                 break;
 			case UUID_DATATYPE:
-                _output(indentationLevel, "UUID ");
+                _output(0, "UUID ");
                 break;
 			case FLOAT_DATATYPE:
-                _output(indentationLevel, "FLOAT(%d) ", type->param1);
+                _output(0, "FLOAT(%d) ", type->param1);
                 break;
             case DATE_DATATYPE:
-                _output(indentationLevel, "DATE ");
+                _output(0, "DATE ");
                 break;
             case TIMESTAMP_DATATYPE:
-                _output(indentationLevel, "TIMESTAMP ");
+                _output(0, "TIMESTAMP ");
                 break;
             case TEXT_DATATYPE:
-                _output(indentationLevel, "TEXT ");
+                _output(0, "TEXT ");
                 break;
             case SERIAL_DATATYPE:
-                _output(indentationLevel, "SERIAL ");
+                _output(0, "SERIAL ");
                 break;
             case CHAR_DATATYPE:
-                _output(indentationLevel, "CHAR(%d) ", type->param1);
+                _output(0, "CHAR(%d) ", type->param1);
                 break;
             case VARCHAR_DATATYPE:
-                _output(indentationLevel, "VARCHAR(%d) ", type->param1);
+                _output(0, "VARCHAR(%d) ", type->param1);
                 break;
             case TIME_DATATYPE:
-                _output(indentationLevel, "TIME(%d) ", type->param1);
+                _output(0, "TIME(%d) ", type->param1);
                 break;
             case NUMBER_DATATYPE:
-                _output(indentationLevel, "NUMBER(%d, %d) ", type->param1, type->param2);
+                _output(0, "NUMBER(%d, %d) ", type->param1, type->param2);
                 break;
         }
     }
@@ -471,8 +473,9 @@ static void _generateNullCondition(const unsigned int indentationLevel, NullCond
 
 static void _generateConstraint(const unsigned int indentationLevel, Constraint * constraint) {
 	if (constraint != NULL) {
-		if (constraint->type == NAMED_CONSTRAINT) {
-			_output(indentationLevel, "| CONSTRAINT %s ");
+		if (constraint->type == NAMED_CONSTRAINT && constraint->constraintValue->type != FOREIGN_KEY_CONSTRAINT_TYPE 
+			&& constraint->constraintValue->type != FOREIGN_KEY_DOUBLE_EXPRESSION_CONSTRAINT_TYPE) {
+			_output(indentationLevel, "| CONSTRAINT ");
 		}
 		_generateConstraintValue(indentationLevel, constraint->constraintValue);
 	}
@@ -487,12 +490,12 @@ static void _generateConstraintValue(const unsigned int indentationLevel, Constr
 		case PRIMARY_KEY_CONSTRAINT_TYPE:
 			_output(indentationLevel, "PRIMARY KEY (");
 			_generateExpression(indentationLevel, constraintValue->expression);
-			_output(indentationLevel, ")");
+			_output(indentationLevel, ")\n");
 			break;
 		case UNIQUE_CONSTRAINT_TYPE:
 			_output(indentationLevel, "UNIQUE (");
 			_generateExpression(indentationLevel, constraintValue->expression);
-			_output(indentationLevel, ")");
+			_output(indentationLevel, ")\n");
 			break;
 		case FOREIGN_KEY_CONSTRAINT_TYPE:
 			Expression * currentExpression = constraintValue->singleExpression;
@@ -504,7 +507,12 @@ static void _generateConstraintValue(const unsigned int indentationLevel, Constr
 				CompilerState * ccs = currentCompilerState();
 				char * tableName = getScope();
 				char * action = _getOnAction(constraintValue->onActionSingle);
-				snprintf(constraintsBuff[fKCount-1], MAX_BUFF_SIZE, "%s::%s \"<size:20><color:#FFFFFF>1\" --- \"<size:20><color:#FFFFFF>*\" %s::%s : %s", tableName, currentExpression->id, constraintValue->id, currentExpression->id, action);
+				if (action == NULL) {
+					snprintf(constraintsBuff[fKCount-1], MAX_BUFF_SIZE, "%s::%s \"<size:20><color:#FFFFFF>1\" --- \"<size:20><color:#FFFFFF>*\" %s::%s", tableName, currentExpression->id, constraintValue->id, currentExpression->id);
+				} else {
+					snprintf(constraintsBuff[fKCount-1], MAX_BUFF_SIZE, "%s::%s \"<size:20><color:#FFFFFF>1\" --- \"<size:20><color:#FFFFFF>*\" %s::%s : %s", tableName, currentExpression->id, constraintValue->id, currentExpression->id, action);
+					free(action);
+				}
 				currentExpression = currentExpression->expression;
 			};
 			break;
@@ -519,8 +527,13 @@ static void _generateConstraintValue(const unsigned int indentationLevel, Constr
 					constraintsBuff[fKCount-1] = malloc(MAX_BUFF_SIZE);
 					CompilerState * ccs = currentCompilerState();
 					char * tableName = getScope();
-					char * action = _getOnAction(constraintValue->onActionSingle);
-					snprintf(constraintsBuff[fKCount-1], MAX_BUFF_SIZE, "%s::%s \"<size:20><color:#FFFFFF>1\" --- \"<size:20><color:#FFFFFF>*\" %s::%s : %s", tableName, localExpression->id, constraintValue->id, foreignExpression->id, action);
+					char * action = _getOnAction(constraintValue->onActionDouble);
+					if (action == NULL) {
+						snprintf(constraintsBuff[fKCount-1], MAX_BUFF_SIZE, "%s::%s \"<size:20><color:#FFFFFF>1\" --- \"<size:20><color:#FFFFFF>*\" %s::%s\n", tableName, localExpression->id, constraintValue->idComplex, foreignExpression->id);
+					} else {
+						snprintf(constraintsBuff[fKCount-1], MAX_BUFF_SIZE, "%s::%s \"<size:20><color:#FFFFFF>1\" --- \"<size:20><color:#FFFFFF>*\" %s::%s : %s\n", tableName, localExpression->id, constraintValue->idComplex, foreignExpression->id, action);
+						free(action);
+					}
 					foreignExpression = foreignExpression->expression;
 				};
 				localExpression = localExpression->expression;
@@ -588,7 +601,7 @@ static char * _getOnAction(OnAction * onAction) {
 				strncat(buff, deleteAction, totalLength);
  				return buff;
 			case LAMBDA_ON_ACTION:
-				return "";
+				return NULL;
 		}
 	}
 }
