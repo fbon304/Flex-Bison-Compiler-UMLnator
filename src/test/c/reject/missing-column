@@ -1,5 +1,3 @@
--- CHECK sobre columna inexistente
-
 CREATE TABLE check_missing (
     a INTEGER,
     CHECK (b > 0)

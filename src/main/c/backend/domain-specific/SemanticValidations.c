@@ -256,7 +256,7 @@ static int validateAttributes(Content * content) {
                     DefaultValue * defVal = attr->properties->defaultValue;
                     if (!isDefaultValueCompatible(attrType, defVal)) {
                         *errors = true;
-                        logError(_logger, "Cannot assign default value '%s' to type '%s'.", attrName, "type");
+                        logError(_logger, "Can not assign default value to column '%s'.", attrName);
                         break;
                     }
                     DataValue dataValue;

@@ -1,4 +1,3 @@
---Tabla con FOREIGN KEY referenciando primary key
 CREATE TABLE departments (
     dept_id INTEGER PRIMARY KEY
 );

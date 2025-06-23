@@ -1,5 +1,3 @@
--- UNIQUE sobre columna inexistente
-
 CREATE TABLE unique_missing (
     a INTEGER,
     UNIQUE (b)

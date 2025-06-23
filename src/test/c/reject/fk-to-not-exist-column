@@ -1,4 +1,3 @@
---FOREIGN KEY a columna inexistente
 CREATE TABLE parent2 (
     id INTEGER PRIMARY KEY
 );

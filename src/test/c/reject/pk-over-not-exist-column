@@ -1,4 +1,3 @@
---PRIMARY KEY sobre columna inexistente
 CREATE TABLE pk_missing (
     a INTEGER,
     PRIMARY KEY (b)

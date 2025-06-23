@@ -1,4 +1,3 @@
--- Tabla con UNIQUE en varias columnas
 CREATE TABLE emails (
     user_id INTEGER,
     email TEXT,
