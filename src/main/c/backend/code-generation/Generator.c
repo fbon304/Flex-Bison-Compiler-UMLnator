@@ -107,7 +107,6 @@ static void _generateContentElement(const unsigned int indentationLevel, Content
 		if (contentElement->contentElementType == ATTRIBUTE_TYPE) {
 			_generateAttribute(indentationLevel, contentElement->attribute);
 		} else if (contentElement->contentElementType == CONSTRAINT_TYPE) {
-			// TODO capaz se puede hacer que retorne una funcion que genere al final de todo todos los constraints
 			_generateConstraint(indentationLevel, contentElement->constraint);
 		}
 	}
@@ -543,17 +542,16 @@ static void _generateExpression(const unsigned int indentationLevel, Expression 
 
 static char * _getOnAction(OnAction * onAction) {
 	if (onAction != NULL) {
-		char * pref;
-		char * action;
-		size_t totalLength;
-		char * buff;
-		logInformation(_logger, "ON ACTION TYPE = '%d'", onAction->type);
 		switch (onAction->type) {
+			char * buff;
+			char * pref;
+			char * action;
+			size_t totalLength;
 			case DELETE_ON_ACTION:
 				pref = "ON DELETE ";
 				action = _getAction(onAction->action);
 				totalLength = strlen(pref) + strlen(action) + 1;
-				buff = malloc(totalLength); // ver los frees!!!
+				buff = malloc(totalLength); 
 				if(buff == NULL) {
 					logError(_logger, "Memory allocation failed for buffer in _getOnAction.");
 					return NULL;
@@ -590,7 +588,6 @@ static char * _getOnAction(OnAction * onAction) {
 				strncat(buff, deleteAction, totalLength);
  				return buff;
 			case LAMBDA_ON_ACTION:
-				logInformation(_logger, "LLEGUE :)");
 				return "";
 		}
 	}
@@ -627,21 +624,15 @@ static char * _indentation(const unsigned int level) {
  * buffering.
  */
 static void _output(const unsigned int indentationLevel, const char * const format, ...) {
-	//FILE *out = open_session_file();
-	//if (!out) return;
-
-    va_list args;
-    va_start(args, format);
-    char *indent = _indentation(indentationLevel);
-    char *fmt = concatenate(2, indent, format);
-
-    vfprintf(stdout, fmt, args);
-    fflush(stdout);
-
-    free(fmt);
-    free(indent);
-    va_end(args);
-    fclose(stdout);
+	va_list arguments;
+	va_start(arguments, format);
+	char * indentation = _indentation(indentationLevel);
+	char * effectiveFormat = concatenate(2, indentation, format);
+	vfprintf(stdout, effectiveFormat, arguments);
+	fflush(stdout);
+	free(effectiveFormat);
+	free(indentation);
+	va_end(arguments);
 }
 
 /** PUBLIC FUNCTIONS */
