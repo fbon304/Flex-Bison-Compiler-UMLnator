@@ -254,8 +254,8 @@ null_condition: NOT NUL																{ $$ = NullConditionSemanticAction(NOT_NU
 
 default_value: DEFAULT INTEGER_VALUE												{ $$ = DefaultValueIntegerTerminalSemanticAction($2); }
 	| DEFAULT DOUBLE_VALUE															{ $$ = DefaultValueDoubleTerminalSemanticAction($2); }
-	| DEFAULT TRUE																	{ $$ = DefaultValueIntegerTerminalSemanticAction(true); }
-	| DEFAULT FALSE																	{ $$ = DefaultValueIntegerTerminalSemanticAction(false); }
+	| DEFAULT TRUE																	{ $$ = DefaultValueBooleanTerminalSemanticAction(true); }
+	| DEFAULT FALSE																	{ $$ = DefaultValueBooleanTerminalSemanticAction(false); }
 	| DEFAULT STRING_VALUE															{ $$ = DefaultValueStringTerminalSemanticAction($2); }	
 	| DEFAULT function																{ $$ = DefaultValueNonTerminalSemanticAction($2); }	
 	;

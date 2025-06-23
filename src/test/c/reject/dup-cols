@@ -1,4 +1,3 @@
---Columna duplicada
 CREATE TABLE dup_cols (
     id INTEGER,
     id TEXT

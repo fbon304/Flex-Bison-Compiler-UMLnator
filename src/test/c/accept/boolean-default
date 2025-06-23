@@ -1,4 +1,3 @@
---Tabla con DEFAULT booleano
 CREATE TABLE switches (
-    enabled BOOLEAN DEFAULT TRUE
+    hola BOOLEAN DEFAULT TRUE
 );

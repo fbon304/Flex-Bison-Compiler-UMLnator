@@ -1,5 +1,3 @@
---Dos PRIMARY KEY en la misma tabla
-
 CREATE TABLE double_pk (
     id INTEGER PRIMARY KEY,
     code INTEGER PRIMARY KEY

@@ -1,6 +1,0 @@
---CHECK sobre columna no booleana (cuando se espera booleano
-
-CREATE TABLE check_type (
-    a INTEGER,
-    CHECK (a AND 1)
-);

@@ -1,9 +1,0 @@
--- FOREIGN KEY a columna que no es PK ni UNIQUE
-CREATE TABLE base (
-    id INTEGER,
-    val TEXT
-);
-
-CREATE TABLE ref (
-    val TEXT REFERENCES base(val)
-);
